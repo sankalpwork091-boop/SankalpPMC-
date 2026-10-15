@@ -1,20 +1,72 @@
-# Sankalp PMC — Media Strategy, Generation Prompts & Content Audit
+# Sankalp PMC — Master Content Audit, Media Strategy & TODO Checklist
 
-This document outlines the dual-mode media architecture for the 3D scroll story, generation prompts for Higgsfield / Google Flow, and the master list of content TODOs.
+This document consolidates every factual placeholder and content requirement across the codebase with exact file and line references, alongside the media generation prompts for Higgsfield / Google Flow.
 
 ---
 
-## 1. Dual-Mode Media Architecture (`src/data/media.ts`)
+## 1. Master Content & Factual TODO Checklist
 
-The site is engineered with a **zero-risk dual-mode switch**:
+Per our legal-first standards, **no numbers, testimonials, or awards are invented**. The codebase renders authentic verified placeholders until the society management provides exact figures.
+
+### A. Homepage Statistics & Track Record
+- [ ] `src/data/siteConfig.ts:60` — **Years of Combined Experience**: Currently `0` (renders "Verified+"). Provide exact cumulative experience across legal, architecture, and engineering.
+- [ ] `src/data/siteConfig.ts:66` — **Projects Executed**: Currently `0` (renders "Verified+"). Provide exact count of successfully executed projects by technical team.
+- [ ] `src/data/siteConfig.ts:72` — **Societies Served**: Currently `0` (renders "Verified+"). Provide total number of societies advised under Section 79A and redevelopment.
+- [ ] `src/data/siteConfig.ts:78` — **Planning & Design Area**: Currently `0` (renders "Verified Cr sq ft"). Provide total square footage planned and engineered.
+
+### B. Office Locations & Contact Details
+- [ ] `src/data/siteConfig.ts:13-17` — **Office Address Designation**: Confirm status of:
+  - `Head Office`: A Wing 1307, Shelton Sapphire, Sector 15, CBD Belapur, Navi Mumbai 400 614.
+  - `Branch Office`: Office No. 1105, Ellora Fiesta, Sector 11, Sanpada, Navi Mumbai 400 705.
+  *(Confirm whether both are active or if one is outdated).*
+- [ ] `src/data/siteConfig.ts:26` — **Head Office Map Embed**: Add official Google Maps iframe embed URL for Shelton Sapphire.
+- [ ] `src/data/siteConfig.ts:35` — **Branch Office Map Embed**: Add official Google Maps iframe embed URL for Ellora Fiesta.
+- [ ] `src/data/siteConfig.ts:9` — **Direct Phone Lines**: Verify active status for `+91 9372188181` and `+91 9321188181`.
+- [ ] `src/data/siteConfig.ts:10` — **Primary Inquiry Email**: Confirm `careers@sankalppmc.com` vs dedicated `contact@sankalppmc.com` or `info@sankalppmc.com`.
+
+### C. Social Media Links
+- [ ] `src/data/siteConfig.ts:41` — **Facebook Profile**: Add official page URL (omitted from UI when blank).
+- [ ] `src/data/siteConfig.ts:42` — **YouTube Channel**: Add official channel URL (omitted from UI when blank).
+- [ ] `src/data/siteConfig.ts:43` — **Instagram Profile**: Add official profile URL (omitted from UI when blank).
+- [ ] `src/components/layout/Footer.tsx:133` — Social icon display condition automatically reveals icons as soon as URLs are populated.
+
+### D. Awards & Recognition Details
+The gallery in `src/app/awards/page.tsx` renders 11 authentic photos downloaded from the legacy site. Titles, years, and issuing bodies need attribution:
+- [ ] `src/data/awards.ts:14` — `aw-1.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:15` — `aw-2.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:16` — `aw-3.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:17` — `aw-4.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:18` — `aw-5.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:19` — `aw-6.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:20` — `aw-7.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:21` — `aw-8.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:22` — `aw-9.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:23` — `aw-10.jpg`: Citation title, awarding organization, and year.
+- [ ] `src/data/awards.ts:24` — `aw-111.jpeg`: Citation title, awarding organization, and year.
+
+### E. Project Portfolio Dates
+- [ ] `src/data/projects.ts:56` — **Om Gurukul Redevelopment** (Nerul, 85,500 sq ft): Confirm start year.
+- [ ] `src/data/projects.ts:133` — **Arihant Brahmand** (Thane, 6 lac sq ft, G+42): Confirm start year.
+
+### F. Technical Board Profiles
+- [ ] `src/data/team.ts:37-39` — **Mr. Swapnil Chavan**: Add academic qualifications, license details, and professional biography.
+- [ ] `src/data/team.ts:46-48` — **Mr. Janmesh Patel**: Add academic qualifications, structural license details, and professional biography.
+- [ ] `src/data/team.ts:54-58` — **Mr. Akshay Mankame**: Add official title/designation and project bio.
+
+### G. News & Press Bulletins
+- [ ] `src/data/updates.ts:10-37` — Provide actual dates, news article titles, publication names, and scan images for historical press coverage.
+
+---
+
+## 2. Dual-Mode Media Architecture (`src/data/media.ts`)
+
+The site is built with a **safe dual-mode switch**:
 - **Default Mode (`enabled: false`)**: The website runs an interactive, 60fps procedural WebGL Three.js / React Three Fiber scene with dynamic building transformation, golden hour lighting, crane animations, and blueprint scans.
 - **AI Media Mode (`enabled: true`)**: When an AI video clip or frame sequence is generated and placed in `/public/media/generated/`, setting `enabled: true` in `src/data/media.ts` seamlessly switches that step to the high-definition video/scrub layer.
 
 ---
 
-## 2. Higgsfield / Google Flow Generation Prompts (10 Steps)
-
-Use these calibrated cinematic prompts when generating photorealistic video clips or frame sequences for each redevelopment milestone.
+## 3. Higgsfield / Google Flow Generation Prompts (10 Steps)
 
 ### Scene 0: Old Housing Society Base (Hero)
 > **Prompt:** "Cinematic slow wide-angle establishing shot of an authentic 4-storey cooperative housing society in Navi Mumbai, weathered pale stucco walls, overhead black sintex water tanks on concrete terrace, cast-iron balcony railings, lush gulmohar trees on quiet residential street, afternoon warm sunlight, 8k resolution, architectural realism, 35mm film grain, 60fps smooth pan."
@@ -59,31 +111,3 @@ Use these calibrated cinematic prompts when generating photorealistic video clip
 ### Step 10: Handover & Society Celebration (Section 12)
 > **Prompt:** "Glorious golden-hour sunset reflecting off a brand-new 28-storey residential tower in Navi Mumbai, warm amber lights glowing inside joyful living room windows, landscaped terrace garden, celebration, keys handover triumph, cinematic 8k masterpiece."
 > **Aspect:** 16:9 | **Motion:** Cinematic slow aerial pullback.
-
----
-
-## 3. Comprehensive Content Audit & TODO Checklist
-
-Per the strict factual guidelines (no invented numbers, testimonials, or projects), the following placeholders are cleanly surfaced in the codebase:
-
-1. **Office Address Designation (`src/data/siteConfig.ts:13-17`)**:
-   - `Head Office`: A wing 1307, Shelton Sapphire, Sector 15, CBD Belapur, Navi Mumbai 400 614.
-   - `Branch Office`: Office No. 1105, Ellora Fiesta, Sector 11, Sanpada, Navi Mumbai 400 705.
-   - *TODO: Confirm whether one of these addresses is outdated or if both remain fully operational.*
-
-2. **Official Social Media Handles (`src/data/siteConfig.ts:39-44`)**:
-   - `facebook`, `youtube`, `instagram` URLs are empty strings and omitted from UI until provided.
-
-3. **Homepage Statistics Verification (`src/data/siteConfig.ts:58-83`)**:
-   - Years of Combined Experience: set to verified badge (awaiting exact number).
-   - Projects Executed: set to verified badge (awaiting exact cumulative total).
-   - Societies Served: set to verified badge (awaiting exact cumulative total).
-   - Cr sq ft Planning: set to verified badge (awaiting exact cumulative total).
-
-4. **Awards Captions & Dates (`src/data/awards.ts:10-25`)**:
-   - 11 real award photos from the old site are rendered in the gallery.
-   - *TODO: Provide specific award titles, issuing bodies, and dates for each citation.*
-
-5. **News & Project Bulletins (`src/data/updates.ts:10-37`)**:
-   - Seeded with clean category milestone notices.
-   - *TODO: Populate with real historical press clippings and AGM notice dates.*
