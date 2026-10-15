@@ -8,6 +8,12 @@ export const metadata: Metadata = {
   title: 'Awards & Industry Recognition — Sankalp PMC',
   description:
     'Explore the awards, honors, and industry recognitions received by Sankalp PMC, including The Great Legal Minds by Lokmat and World Architecture Awards.',
+  openGraph: {
+    title: 'Awards & Honors — Sankalp PMC',
+    description:
+      'Recognitions including The Great Legal Minds by Lokmat and World Architecture Awards.',
+    images: [{ url: '/images/awards-banner.jpg', width: 1200, height: 630, alt: 'Sankalp PMC Awards' }],
+  },
 };
 
 export default function AwardsPage() {

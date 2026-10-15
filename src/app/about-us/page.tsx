@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   title: 'About Us — Leadership & Advocate-Led Philosophy',
   description:
     'Learn about Sankalp PMC: our advocate-led leadership, legal safeguarding, and veteran architectural and engineering team guiding housing society redevelopments across Navi Mumbai.',
+  openGraph: {
+    title: 'About Sankalp PMC — Advocate-Led Redevelopment Consultancy',
+    description:
+      'Learn about Sankalp PMC: our advocate-led leadership, legal safeguarding, and veteran architectural and engineering team in Navi Mumbai.',
+    images: [{ url: '/images/about-us-ban.jpg', width: 1200, height: 630, alt: 'About Sankalp PMC' }],
+  },
 };
 
 export default function AboutUsPage() {

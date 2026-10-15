@@ -1,10 +1,12 @@
 'use client';
 
+import { useRef } from 'react';
 import { useScrollStore } from '@/hooks/useScrollStore';
 import { processSteps } from '@/data/process';
 
 export function ProcessRail() {
   const activeSection = useScrollStore((s) => s.activeSection);
+  const linksRef = useRef<(HTMLAnchorElement | null)[]>([]);
 
   // The 10 process steps correspond to sections 3 to 12
   const isProcessVisible = activeSection >= 2 && activeSection <= 13;
@@ -12,42 +14,76 @@ export function ProcessRail() {
 
   if (!isProcessVisible) return null;
 
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    let targetIndex = -1;
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      targetIndex = (index + 1) % processSteps.length;
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      targetIndex = (index - 1 + processSteps.length) % processSteps.length;
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      targetIndex = 0;
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      targetIndex = processSteps.length - 1;
+    }
+
+    if (targetIndex >= 0 && linksRef.current[targetIndex]) {
+      linksRef.current[targetIndex]?.focus();
+    }
+  };
+
   return (
     <aside
       aria-label="10-Step Redevelopment Timeline"
       className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 hidden sm:flex flex-col items-end gap-2 pointer-events-auto"
     >
-      <div className="bg-navy-light/80 backdrop-blur-md p-2.5 rounded-full border border-white/10 shadow-2xl flex flex-col items-center gap-2">
-        {processSteps.map((step) => {
+      <nav
+        role="navigation"
+        aria-label="Redevelopment Process Steps"
+        className="bg-navy-light/85 backdrop-blur-md p-2.5 rounded-full border border-white/10 shadow-2xl flex flex-col items-center gap-2"
+      >
+        {processSteps.map((step, index) => {
           const isActive = currentStepId === step.id;
           const isPassed = currentStepId ? step.id < currentStepId : false;
 
           return (
             <a
               key={step.id}
+              ref={(el) => {
+                linksRef.current[index] = el;
+              }}
               href={`#process-step-${step.id}`}
-              className="group relative flex items-center justify-center p-1"
-              aria-label={`Jump to Step ${step.id}: ${step.title}`}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              aria-label={`Step ${step.id} of 10: ${step.title}${isActive ? ' (Current Step)' : ''}`}
+              aria-current={isActive ? 'step' : undefined}
+              className="group relative flex items-center justify-center p-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-navy focus-visible:outline-none transition-all"
             >
-              {/* Tooltip on Hover */}
-              <span className="absolute right-8 px-2.5 py-1 rounded bg-navy-mid/95 text-xs text-text-light font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg">
+              {/* Tooltip on Hover and Focus */}
+              <span
+                role="tooltip"
+                className="absolute right-9 px-2.5 py-1 rounded bg-navy-mid/95 text-xs text-text-light font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg"
+              >
                 Step {step.id}: {step.title}
               </span>
 
               {/* Indicator Dot */}
               <div
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                className={`rounded-full transition-all duration-300 ${
                   isActive
-                    ? 'w-4 h-4 bg-gold ring-4 ring-gold/20'
+                    ? 'w-3.5 h-3.5 bg-gold ring-4 ring-gold/25'
                     : isPassed
-                    ? 'bg-gold/60'
-                    : 'bg-white/20 hover:bg-white/40'
+                    ? 'w-2.5 h-2.5 bg-gold/70'
+                    : 'w-2.5 h-2.5 bg-white/25 group-hover:bg-white/50'
                 }`}
               />
             </a>
           );
         })}
-      </div>
+      </nav>
     </aside>
   );
 }

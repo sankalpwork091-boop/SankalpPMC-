@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: 'Contact Us — Head Office & Branch Advisory',
   description:
     'Connect with Sankalp Project Management Consultants in CBD Belapur and Sanpada, Navi Mumbai. Book a committee consultation or reach out directly.',
+  openGraph: {
+    title: 'Contact Sankalp PMC — CBD Belapur & Sanpada Offices',
+    description:
+      'Connect with our senior advocates and redevelopment architects. Schedule a managing committee consultation.',
+    images: [{ url: '/images/logo.png', width: 400, height: 400, alt: 'Sankalp PMC Contact' }],
+  },
 };
 
 export default function ContactUsPage() {
