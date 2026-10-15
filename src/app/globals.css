@@ -1,26 +1,252 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Navy palette — primary dark backgrounds */
+  --navy: 220 40% 13%;
+  --navy-light: 220 30% 22%;
+  --navy-mid: 220 32% 18%;
+
+  /* Warm stone/ivory — light surfaces */
+  --stone: 38 30% 92%;
+  --ivory: 40 40% 97%;
+
+  /* Gold/amber accent — lit windows, highlights, CTAs */
+  --gold: 38 80% 55%;
+  --gold-soft: 38 60% 70%;
+  --gold-dark: 38 70% 40%;
+
+  /* Text */
+  --text-light: 220 20% 95%;
+  --text-muted: 220 15% 65%;
+  --text-dark: 220 30% 15%;
+
+  /* Misc */
+  --glass-bg: 220 40% 13% / 0.6;
+  --glass-border: 220 20% 95% / 0.1;
+  --glass-blur: 16px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-normal: 400ms;
+  --duration-slow: 800ms;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-navy: hsl(var(--navy));
+  --color-navy-light: hsl(var(--navy-light));
+  --color-navy-mid: hsl(var(--navy-mid));
+  --color-stone: hsl(var(--stone));
+  --color-ivory: hsl(var(--ivory));
+  --color-gold: hsl(var(--gold));
+  --color-gold-soft: hsl(var(--gold-soft));
+  --color-gold-dark: hsl(var(--gold-dark));
+  --color-text-light: hsl(var(--text-light));
+  --color-text-muted: hsl(var(--text-muted));
+  --color-text-dark: hsl(var(--text-dark));
+
+  --font-heading: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base ─── */
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: hsl(var(--navy));
+  color: hsl(var(--text-light));
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+/* ─── Typography ─── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: hsl(var(--gold) / 0.3);
+  color: hsl(var(--text-light));
+}
+
+/* ─── Skip to content (accessibility) ─── */
+.skip-to-content {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: hsl(var(--gold));
+  color: hsl(var(--navy));
+  padding: 0.75rem 1.5rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  z-index: 9999;
+  font-weight: 600;
+  transition: top 0.2s ease;
+}
+.skip-to-content:focus {
+  top: 0;
+  outline: 2px solid hsl(var(--gold));
+  outline-offset: 2px;
+}
+
+/* ─── Glass card ─── */
+.glass-card {
+  background: hsl(var(--glass-bg));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid hsl(var(--glass-border));
+  border-radius: 1rem;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--navy));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--navy-light));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--gold-soft));
+}
+
+/* ─── Focus ring (accessibility) ─── */
+*:focus-visible {
+  outline: 2px solid hsl(var(--gold));
+  outline-offset: 2px;
+}
+
+/* ─── Reduced motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── R3F Canvas container ─── */
+.canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+.canvas-container canvas {
+  pointer-events: none;
+}
+
+/* ─── Section scroll containers ─── */
+.scroll-section {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+.scroll-section--tall {
+  min-height: 200vh;
+}
+.scroll-section--process {
+  min-height: 1000vh; /* 10 steps × 100vh each */
+}
+
+/* ─── Process step progress rail ─── */
+.process-rail {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+.process-rail__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: hsl(var(--text-muted) / 0.3);
+  transition: all 0.4s var(--ease-out);
+}
+.process-rail__dot--active {
+  background: hsl(var(--gold));
+  box-shadow: 0 0 12px hsl(var(--gold) / 0.5);
+  transform: scale(1.4);
+}
+.process-rail__line {
+  width: 2px;
+  height: 1.5rem;
+  background: hsl(var(--text-muted) / 0.15);
+}
+
+@media (max-width: 768px) {
+  .process-rail {
+    right: 0.75rem;
+    gap: 0.35rem;
+  }
+  .process-rail__dot {
+    width: 7px;
+    height: 7px;
+  }
+  .process-rail__line {
+    height: 1rem;
+  }
+}
+
+/* ─── Animated counter ─── */
+.counter-value {
+  font-family: var(--font-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Button base ─── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  background: hsl(var(--gold));
+  color: hsl(var(--navy));
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.3s var(--ease-out);
+  font-size: 0.9375rem;
+}
+.btn-primary:hover {
+  background: hsl(var(--gold-soft));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px hsl(var(--gold) / 0.3);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  border: 1.5px solid hsl(var(--text-light) / 0.3);
+  color: hsl(var(--text-light));
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.3s var(--ease-out);
+  font-size: 0.9375rem;
+}
+.btn-secondary:hover {
+  border-color: hsl(var(--gold));
+  color: hsl(var(--gold));
+  transform: translateY(-2px);
 }
