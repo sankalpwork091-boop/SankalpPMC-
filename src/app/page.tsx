@@ -12,6 +12,7 @@ const Scene = dynamic(
 );
 import { ScrollObserver } from '@/components/scroll/ScrollObserver';
 import { ProcessRail } from '@/components/scroll/ProcessRail';
+import { BuildingTransformationHero } from '@/components/sections/BuildingTransformationHero';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { ForewordSection } from '@/components/sections/ForewordSection';
 import { CoreBeliefSection } from '@/components/sections/CoreBeliefSection';
@@ -36,6 +37,7 @@ export default function Home() {
 
       {/* Main Narrative Scroll Story (Sections 0 to 17) */}
       <div className="relative z-10">
+        <BuildingTransformationHero />
         <HeroSection />
         <ForewordSection />
         <CoreBeliefSection />

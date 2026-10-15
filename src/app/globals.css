@@ -2,28 +2,33 @@
 
 /* ─── Design Tokens ─── */
 :root {
+  /* Brand Palette from official logo */
+  --brand-blue: #154C96;
+  --brand-gold: #D4A462;
+
   /* Navy palette — primary dark backgrounds */
-  --navy: 220 40% 13%;
-  --navy-light: 220 30% 22%;
-  --navy-mid: 220 32% 18%;
+  --navy: 215 45% 10%;
+  --navy-light: 215 40% 18%;
+  --navy-mid: 215 42% 14%;
+  --royal-blue: 215 75% 34%; /* #154C96 */
 
   /* Warm stone/ivory — light surfaces */
   --stone: 38 30% 92%;
   --ivory: 40 40% 97%;
 
-  /* Gold/amber accent — lit windows, highlights, CTAs */
-  --gold: 38 80% 55%;
-  --gold-soft: 38 60% 70%;
-  --gold-dark: 38 70% 40%;
+  /* Gold accent from logo (#D4A462) */
+  --gold: 35 57% 61%;
+  --gold-soft: 35 65% 72%;
+  --gold-dark: 35 60% 48%;
 
   /* Text */
-  --text-light: 220 20% 95%;
-  --text-muted: 220 15% 65%;
+  --text-light: 220 20% 96%;
+  --text-muted: 220 15% 68%;
   --text-dark: 220 30% 15%;
 
   /* Misc */
-  --glass-bg: 220 40% 13% / 0.6;
-  --glass-border: 220 20% 95% / 0.1;
+  --glass-bg: 215 45% 10% / 0.65;
+  --glass-border: 220 20% 95% / 0.12;
   --glass-blur: 16px;
 
   /* Transitions */
@@ -33,6 +38,9 @@
 }
 
 @theme inline {
+  --color-brand-blue: #154C96;
+  --color-brand-gold: #D4A462;
+  --color-royal-blue: hsl(var(--royal-blue));
   --color-navy: hsl(var(--navy));
   --color-navy-light: hsl(var(--navy-light));
   --color-navy-mid: hsl(var(--navy-mid));
