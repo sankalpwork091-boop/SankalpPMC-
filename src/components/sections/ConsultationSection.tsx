@@ -14,13 +14,16 @@ export function ConsultationSection() {
     phone: '',
     email: '',
     message: '',
+    website_hp: '',
   });
 
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('submitting');
+    setErrorMessage('');
 
     try {
       const res = await fetch('/api/contact', {
@@ -28,6 +31,8 @@ export function ConsultationSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formState),
       });
+
+      const result = await res.json().catch(() => ({}));
 
       if (res.ok) {
         setStatus('success');
@@ -40,12 +45,20 @@ export function ConsultationSection() {
           phone: '',
           email: '',
           message: '',
+          website_hp: '',
         });
       } else {
         setStatus('error');
+        setErrorMessage(
+          result.error ||
+            `Unable to submit at this moment. Please call us directly at ${siteConfig.phones[0]}.`
+        );
       }
     } catch {
       setStatus('error');
+      setErrorMessage(
+        `Unable to reach the server. Please call us directly at ${siteConfig.phones[0]}.`
+      );
     }
   };
 
@@ -247,18 +260,44 @@ export function ConsultationSection() {
                   />
                 </div>
 
+                {/* Honeypot field for bot suppression */}
+                <div className="hidden" aria-hidden="true">
+                  <label htmlFor="website_hp">Leave this field blank</label>
+                  <input
+                    id="website_hp"
+                    type="text"
+                    name="website_hp"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formState.website_hp}
+                    onChange={(e) =>
+                      setFormState({ ...formState, website_hp: e.target.value })
+                    }
+                  />
+                </div>
+
                 {status === 'error' && (
-                  <p className="text-xs text-red-400">
-                    Unable to submit at this moment. Please call us directly at {siteConfig.phones[0]}.
-                  </p>
+                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-300 leading-relaxed">
+                    ⚠️ {errorMessage || `Unable to submit at this moment. Please call us directly at ${siteConfig.phones[0]}.`}
+                  </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={status === 'submitting'}
-                  className="btn-primary w-full text-center justify-center !py-3 font-semibold mt-2"
+                  className="btn-primary w-full text-center justify-center !py-3 font-semibold mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {status === 'submitting' ? 'Submitting...' : 'Submit Consultation Request'}
+                  {status === 'submitting' ? (
+                    <span className="inline-flex items-center gap-2">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-navy" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Transmitting to Legal Team...
+                    </span>
+                  ) : (
+                    'Submit Consultation Request'
+                  )}
                 </button>
               </form>
             )}

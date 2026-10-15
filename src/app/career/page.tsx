@@ -11,9 +11,13 @@ export default function CareerPage() {
     role: 'Legal Associate — Redevelopment',
     experience: '',
     message: '',
+    website_hp: '',
   });
 
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState('');
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const openPositions = [
     {
@@ -46,16 +50,48 @@ export default function CareerPage() {
     },
   ];
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFileError('');
+
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setFileError('File exceeds 5MB limit. Please upload a smaller file.');
+        setCvFile(null);
+        e.target.value = '';
+        return;
+      }
+      setCvFile(file);
+    } else {
+      setCvFile(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('submitting');
+    setErrorMessage('');
 
     try {
+      const formData = new FormData();
+      formData.append('name', formState.name);
+      formData.append('email', formState.email);
+      formData.append('phone', formState.phone);
+      formData.append('role', formState.role);
+      formData.append('experience', formState.experience);
+      formData.append('message', formState.message);
+      formData.append('website_hp', formState.website_hp);
+
+      if (cvFile) {
+        formData.append('cv', cvFile);
+      }
+
       const res = await fetch('/api/career', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formState),
+        body: formData,
       });
+
+      const result = await res.json().catch(() => ({}));
 
       if (res.ok) {
         setStatus('success');
@@ -66,12 +102,21 @@ export default function CareerPage() {
           role: 'Legal Associate — Redevelopment',
           experience: '',
           message: '',
+          website_hp: '',
         });
+        setCvFile(null);
       } else {
         setStatus('error');
+        setErrorMessage(
+          result.error ||
+            'Unable to submit application. Please email your CV directly to careers@sankalppmc.com.'
+        );
       }
     } catch {
       setStatus('error');
+      setErrorMessage(
+        'Network error. Please email your CV directly to careers@sankalppmc.com.'
+      );
     }
   };
 
@@ -235,12 +280,69 @@ export default function CareerPage() {
                   />
                 </div>
 
+                {/* CV File Upload */}
+                <div>
+                  <label className="block text-xs font-semibold text-text-light mb-1.5">
+                    Upload Resume / CV (PDF, DOC, DOCX • Max 5MB)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange}
+                      className="w-full text-xs text-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gold/15 file:text-gold hover:file:bg-gold/25 cursor-pointer rounded-lg bg-navy/80 border border-white/10 p-2 focus:outline-none focus:border-gold transition-colors"
+                    />
+                  </div>
+                  {cvFile && (
+                    <p className="text-[11px] text-green-400 mt-1">
+                      ✓ Selected: {cvFile.name} ({(cvFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                  )}
+                  {fileError && (
+                    <p className="text-[11px] text-red-400 mt-1">
+                      ⚠️ {fileError}
+                    </p>
+                  )}
+                </div>
+
+                {/* Honeypot field for bot suppression */}
+                <div className="hidden" aria-hidden="true">
+                  <label htmlFor="career_website_hp">Leave this field blank</label>
+                  <input
+                    id="career_website_hp"
+                    type="text"
+                    name="website_hp"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={formState.website_hp}
+                    onChange={(e) =>
+                      setFormState({ ...formState, website_hp: e.target.value })
+                    }
+                  />
+                </div>
+
+                {status === 'error' && (
+                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-300 leading-relaxed">
+                    ⚠️ {errorMessage || 'Unable to submit application. Please email your CV directly to careers@sankalppmc.com.'}
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   disabled={status === 'submitting'}
-                  className="btn-primary w-full text-center justify-center !py-3 font-semibold mt-2"
+                  className="btn-primary w-full text-center justify-center !py-3 font-semibold mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {status === 'submitting' ? 'Submitting Application...' : 'Submit Application'}
+                  {status === 'submitting' ? (
+                    <span className="inline-flex items-center gap-2">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-navy" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Submitting Application...
+                    </span>
+                  ) : (
+                    'Submit Application'
+                  )}
                 </button>
               </form>
             )}
