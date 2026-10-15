@@ -1,6 +1,15 @@
 'use client';
 
-import { Scene } from '@/components/three/Scene';
+import dynamic from 'next/dynamic';
+import { Fallback2D } from '@/components/three/Fallback2D';
+
+const Scene = dynamic(
+  () => import('@/components/three/Scene').then((mod) => mod.Scene),
+  {
+    ssr: false,
+    loading: () => <Fallback2D activeSection={0} progress={0} />,
+  }
+);
 import { ScrollObserver } from '@/components/scroll/ScrollObserver';
 import { ProcessRail } from '@/components/scroll/ProcessRail';
 import { HeroSection } from '@/components/sections/HeroSection';

@@ -20,8 +20,12 @@ export function Scene() {
   );
   const capability = useDeviceCapability();
 
-  // If device is strictly unable to run WebGL2 or explicitly prefers reduced motion, render Fallback2D
-  const showFallback = capability.isLowEnd && !capability.hasWebGL2;
+  // Fallback to 2D vector for low-end devices, reduced motion, save-data, or missing WebGL2
+  const showFallback =
+    !capability.hasWebGL2 ||
+    capability.prefersReducedMotion ||
+    capability.saveData ||
+    (capability.isLowEnd && capability.isMobile);
 
   // Scene state derived from scroll position
   const sceneState = useMemo(() => {
@@ -131,10 +135,10 @@ export function Scene() {
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
     >
       <Canvas
-        shadows={!capability.isLowEnd}
-        dpr={Math.min(capability.maxDpr, 1.75)}
+        shadows={!capability.isLowEnd && !capability.isMobile}
+        dpr={capability.isMobile ? 1.0 : Math.min(capability.maxDpr, 1.5)}
         gl={{
-          antialias: true,
+          antialias: !capability.isMobile,
           powerPreference: 'high-performance',
           alpha: true,
         }}
