@@ -2,6 +2,9 @@
 
 /* ─── Design Tokens ─── */
 :root {
+  /* Navigation height */
+  --nav-h: 76px;
+
   /* Brand Palette from official logo */
   --brand-blue: #154C96;
   --brand-gold: #D4A462;
@@ -49,6 +52,12 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-normal: 400ms;
   --duration-slow: 800ms;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --nav-h: 64px;
+  }
 }
 
 @theme inline {

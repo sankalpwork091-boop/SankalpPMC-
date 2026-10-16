@@ -200,12 +200,12 @@ export function BuildingTransformationHero() {
             if (p > 0.22) {
               initialPromptRef.current.style.opacity = '0';
               initialPromptRef.current.style.pointerEvents = 'none';
-              initialPromptRef.current.style.transform = 'translateY(-16px)';
+              initialPromptRef.current.style.transform = 'none';
             } else {
-              const promptAlpha = 1 - (p / 0.22);
+              const promptAlpha = Math.max(0, 1 - (p / 0.22));
               initialPromptRef.current.style.opacity = `${promptAlpha}`;
               initialPromptRef.current.style.pointerEvents = promptAlpha > 0.5 ? 'auto' : 'none';
-              initialPromptRef.current.style.transform = `translateY(${-p * 30}px)`;
+              initialPromptRef.current.style.transform = 'none';
             }
           }
 
@@ -215,11 +215,11 @@ export function BuildingTransformationHero() {
               const cardAlpha = Math.min(1, (p - 0.76) / 0.18);
               climaxCardRef.current.style.opacity = `${cardAlpha}`;
               climaxCardRef.current.style.pointerEvents = cardAlpha > 0.6 ? 'auto' : 'none';
-              climaxCardRef.current.style.transform = `scale(${0.96 + cardAlpha * 0.04}) translateY(${(1 - cardAlpha) * 16}px)`;
+              climaxCardRef.current.style.transform = `scale(${0.96 + cardAlpha * 0.04})`;
             } else {
               climaxCardRef.current.style.opacity = '0';
               climaxCardRef.current.style.pointerEvents = 'none';
-              climaxCardRef.current.style.transform = 'scale(0.95) translateY(24px)';
+              climaxCardRef.current.style.transform = 'scale(0.95)';
             }
           }
         },
@@ -243,22 +243,19 @@ export function BuildingTransformationHero() {
         ref={containerRef}
         id="hero-transformation"
         data-pinned="true"
-        className="relative w-full h-screen overflow-hidden bg-[#0c1421] text-white flex flex-col justify-between select-none"
+        className="relative w-full h-[100svh] min-h-[100svh] overflow-hidden bg-[#0c1421] text-white select-none"
       >
-        {/* ─── BASE SKY GRADIENT: DEEP NIGHT NAVY ─── */}
+        {/* ─── BASE SKY GRADIENT: DEEP NIGHT NAVY (z-0) ─── */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#080d17] via-[#0c1524] to-[#111e33] z-0 pointer-events-none" />
 
-        {/* ─── NAV READABILITY VIGNETTE GRADIENT ─── */}
-        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[#080d17]/90 via-[#080d17]/40 to-transparent z-20 pointer-events-none" />
-
-        {/* ─── SUNSET ORANGE / GOLDEN AMBER OVERLAY (Stage C) ─── */}
+        {/* ─── SUNSET ORANGE / GOLDEN AMBER OVERLAY: Stage C (z-0) ─── */}
         <div
           ref={skySunsetRef}
           style={{ opacity: 0 }}
           className="absolute inset-0 bg-gradient-to-t from-[#ea580c]/35 via-[#9a3412]/20 to-transparent z-0 transition-opacity duration-150 pointer-events-none"
         />
 
-        {/* ─── 3D PROCEDURAL INTERACTIVE CANVAS ─── */}
+        {/* ─── 3D PROCEDURAL INTERACTIVE CANVAS (z-10) ─── */}
         {use3D && isInView && (
           <div className="absolute inset-0 z-10 w-full h-full pointer-events-none">
             <GanpatiBuilding3D
@@ -269,7 +266,7 @@ export function BuildingTransformationHero() {
           </div>
         )}
 
-        {/* ─── 2D FALLBACK CANVAS (If WebGL disabled or unsupported) ─── */}
+        {/* ─── 2D FALLBACK CANVAS: If WebGL disabled or unsupported (z-10) ─── */}
         {(!use3D || !isInView) && (
           <canvas
             ref={canvas2DRef}
@@ -277,34 +274,54 @@ export function BuildingTransformationHero() {
           />
         )}
 
-        {/* ─── TOP BAR: MILESTONE & PROGRESS SCRUBBER OVERLAY ─── */}
+        {/* ─── SUBTLE GRADIENT OVERLAY BEHIND NAVBAR (z-20) ─── */}
         <div
-          className="absolute top-0 left-0 right-0 z-30 pointer-events-none"
-          style={{ paddingTop: 'max(88px, env(safe-area-inset-top, 0px) + 88px)' }}
+          className="absolute top-0 inset-x-0 pointer-events-none z-20"
+          style={{
+            height: 'calc(var(--nav-h, 76px) + 60px)',
+            background: 'linear-gradient(180deg, rgba(10, 15, 30, 0.85) 0%, rgba(10, 15, 30, 0.4) 65%, transparent 100%)',
+          }}
+        />
+
+        {/* ─── ONE FLEX COLUMN HERO TEXT CONTAINER (z-30, Normal Flow, No Overlaps) ─── */}
+        <div
+          className="absolute inset-0 flex flex-col items-center text-center pointer-events-none z-30 px-4"
+          style={{
+            paddingTop: 'calc(var(--nav-h, 76px) + 24px)',
+            gap: '16px',
+          }}
         >
-          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-center sm:justify-between gap-2.5 sm:gap-4">
-            {/* Milestone Badge */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-[#0c1421]/90 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[#D4A462]/35 shadow-xl [text-shadow:_0_1px_8px_rgba(0,0,0,0.8)] min-w-0 max-w-full">
+          {/* 1. HUD Pills Row */}
+          <div
+            className="flex justify-center flex-wrap pointer-events-auto"
+            style={{
+              gap: '12px',
+              maxWidth: 'calc(100vw - 32px)',
+              marginInline: 'auto',
+            }}
+          >
+            {/* Stage Pill */}
+            <div className="flex items-center gap-2 sm:gap-2.5 bg-[#0c1421]/90 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[#D4A462]/35 shadow-xl [text-shadow:_0_1px_8px_rgba(0,0,0,0.8)]">
               <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#D4A462] animate-pulse shrink-0" />
               <span
                 ref={milestoneStepRef}
-                className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-[#D4A462] truncate"
+                className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-[#D4A462] sm:whitespace-nowrap"
               >
                 STAGE A: EXISTING SOCIETY
               </span>
-              <span className="text-white/40 text-xs shrink-0">|</span>
+              <span className="text-white/40 text-xs shrink-0 hidden sm:inline">|</span>
               <span
                 ref={milestoneTitleRef}
-                className="text-[10px] sm:text-xs text-white/95 font-medium truncate max-w-[140px] xs:max-w-xs sm:max-w-md"
+                className="text-[10px] sm:text-xs text-white/95 font-medium sm:whitespace-nowrap hidden sm:inline"
               >
                 Aging 4-Storey CHS Structure
               </span>
             </div>
 
-            {/* Scroll Scrubber Progress Bar */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-[#0c1421]/90 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-white/10 text-[10px] sm:text-xs font-mono [text-shadow:_0_1px_8px_rgba(0,0,0,0.8)] shrink-0">
-              <span className="text-white/70 hidden xs:inline">3D RECONSTRUCTION</span>
-              <div className="w-16 sm:w-24 h-1.5 rounded-full bg-white/20 overflow-hidden">
+            {/* Progress Pill */}
+            <div className="flex items-center gap-2 sm:gap-3 bg-[#0c1421]/90 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-white/10 text-[10px] sm:text-xs font-mono [text-shadow:_0_1px_8px_rgba(0,0,0,0.8)] whitespace-nowrap shrink-0">
+              <span className="text-white/70 hidden md:inline">3D RECONSTRUCTION</span>
+              <div className="w-16 sm:w-20 h-1.5 rounded-full bg-white/20 overflow-hidden">
                 <div
                   ref={progressBarRef}
                   style={{ width: '0%' }}
@@ -316,76 +333,94 @@ export function BuildingTransformationHero() {
               </span>
             </div>
           </div>
-        </div>
 
-        {/* ─── BOTTOM HERO OVERLAYS: PROMPT & CLIMAX CARD ─── */}
-        <div className="relative z-30 max-w-4xl mx-auto px-6 pb-10 md:pb-14 text-center pointer-events-none">
-          {/* Stage A Initial Prompt: Fades out on scroll */}
+          {/* Initial Prompt Group: Headline, Subtitle, Scroll Cue (fades out as user scrolls) */}
           <div
             ref={initialPromptRef}
-            className="transition-transform duration-300 flex flex-col items-center gap-3 pointer-events-auto [text-shadow:_0_2px_14px_rgba(0,0,0,0.95)]"
+            className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto"
+            style={{ gap: '16px' }}
           >
-            <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl font-bold text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] leading-tight tracking-tight">
+            {/* 2. Headline */}
+            <h1
+              className="font-heading font-bold text-white tracking-tight"
+              style={{
+                fontSize: 'clamp(2rem, 5.5vw, 4.5rem)',
+                lineHeight: 1.1,
+                maxWidth: '90vw',
+                textWrap: 'balance',
+                textShadow: '0 2px 16px rgba(0, 0, 0, 0.9), 0 4px 32px rgba(0, 0, 0, 0.75)',
+              }}
+            >
               Watch Trust Rise Floor By Floor
             </h1>
-            <p className="text-xs sm:text-sm md:text-base text-white/90 max-w-lg drop-shadow-[0_2px_10px_rgba(0,0,0,0.95)] leading-relaxed font-medium">
+
+            {/* 3. Subtitle */}
+            <p
+              className="text-white/90 font-medium leading-relaxed"
+              style={{
+                maxWidth: '60ch',
+                marginInline: 'auto',
+                fontSize: 'clamp(0.95rem, 1.4vw, 1.15rem)',
+                textShadow: '0 2px 12px rgba(0, 0, 0, 0.9), 0 4px 20px rgba(0, 0, 0, 0.7)',
+              }}
+            >
               Scroll down to watch an aging housing society transform into Ganpati CHS, Nerul.
             </p>
 
-            {/* Animated Mouse/Finger Indicator */}
-            <div className="mt-3 flex flex-col items-center gap-1.5 text-[11px] font-mono text-[#D4A462] uppercase tracking-wider font-semibold drop-shadow-md">
-              <span>Scroll to Transform</span>
-              <div className="w-5 h-8 rounded-full border border-[#D4A462]/80 flex items-start justify-center p-1 bg-black/30">
+            {/* 4. Scroll to Transform Cue */}
+            <div className="flex flex-col items-center gap-1.5 text-[11px] font-mono text-[#D4A462] uppercase tracking-wider font-semibold pt-1">
+              <span style={{ textShadow: '0 1px 8px rgba(0, 0, 0, 0.9)' }}>Scroll to Transform</span>
+              <div className="w-5 h-8 rounded-full border border-[#D4A462]/80 flex items-start justify-center p-1 bg-black/40 backdrop-blur-sm shadow-lg">
                 <div className="w-1.5 h-2.5 rounded-full bg-[#D4A462] animate-bounce" />
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Stage C Climax Card: Sankalp Logo & CTAs */}
-          <div
-            ref={climaxCardRef}
-            style={{ opacity: 0, transform: 'scale(0.95) translateY(24px)' }}
-            className="transition-all duration-500 bg-[#0c1421]/95 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-[#D4A462]/50 shadow-2xl shadow-[#154C96]/40 flex flex-col items-center pointer-events-none"
-          >
-            {/* Sankalp Logo */}
-            <div className="relative w-52 sm:w-64 h-16 sm:h-20 mb-3">
-              <Image
-                src="/assets/sankalp-logo.png"
-                alt="Sankalp — Redevelopment with Responsibility"
-                fill
-                priority
-                className="object-contain drop-shadow-[0_4px_16px_rgba(212,164,98,0.4)]"
-              />
-            </div>
+        {/* ─── STAGE C CLIMAX CARD: DELIVERED LANDMARK & CTAs (z-30) ─── */}
+        <div
+          ref={climaxCardRef}
+          style={{ opacity: 0, transform: 'scale(0.95)' }}
+          className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl z-30 transition-all duration-300 bg-[#0c1421]/95 backdrop-blur-xl p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-[#D4A462]/50 shadow-2xl shadow-[#154C96]/40 flex flex-col items-center pointer-events-none"
+        >
+          {/* Sankalp Logo */}
+          <div className="relative w-48 sm:w-60 h-14 sm:h-18 mb-2 sm:mb-3">
+            <Image
+              src="/assets/sankalp-logo.png"
+              alt="Sankalp — Redevelopment with Responsibility"
+              fill
+              priority
+              className="object-contain drop-shadow-[0_4px_16px_rgba(212,164,98,0.4)]"
+            />
+          </div>
 
-            {/* Official Tagline */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className="h-[1px] w-8 bg-[#D4A462]" />
-              <p className="text-xs sm:text-sm font-semibold tracking-widest text-[#D4A462] uppercase">
-                Redevelopment with Responsibility
-              </p>
-              <span className="h-[1px] w-8 bg-[#D4A462]" />
-            </div>
-
-            <p className="text-xs sm:text-sm text-text-muted max-w-lg mb-6 leading-relaxed">
-              From our project portfolio: <strong className="text-white">Ganpati Society at Nerul</strong> — fully constructed with 8 floors, cantilevered white architectural frames, walnut-wood soffits, illuminated glass balconies, and stilt parking.
+          {/* Official Tagline */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="h-[1px] w-8 bg-[#D4A462]" />
+            <p className="text-[11px] sm:text-xs font-semibold tracking-widest text-[#D4A462] uppercase">
+              Redevelopment with Responsibility
             </p>
+            <span className="h-[1px] w-8 bg-[#D4A462]" />
+          </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto pointer-events-auto">
-              <Link
-                href="/contact-us"
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#D4A462] hover:bg-[#e6be85] text-[#0c1421] font-bold text-sm shadow-lg shadow-[#D4A462]/25 transition-all flex items-center justify-center gap-2"
-              >
-                Schedule Committee Meeting
-                <span>→</span>
-              </Link>
-              <a
-                href="#process-step-1"
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#154C96] hover:bg-[#1d5bb8] text-white font-semibold text-sm border border-white/20 transition-all text-center"
-              >
-                Explore 10-Step Process
-              </a>
-            </div>
+          <p className="text-xs sm:text-sm text-text-muted max-w-lg mb-5 leading-relaxed text-center">
+            From our project portfolio: <strong className="text-white">Ganpati Society at Nerul</strong> — fully constructed with 8 floors, cantilevered white architectural frames, walnut-wood soffits, illuminated glass balconies, and stilt parking.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto pointer-events-auto">
+            <Link
+              href="/contact-us"
+              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl bg-[#D4A462] hover:bg-[#e6be85] text-[#0c1421] font-bold text-xs sm:text-sm shadow-lg shadow-[#D4A462]/25 transition-all flex items-center justify-center gap-2"
+            >
+              Schedule Committee Meeting
+              <span>→</span>
+            </Link>
+            <a
+              href="#process-step-1"
+              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl bg-[#154C96] hover:bg-[#1d5bb8] text-white font-semibold text-xs sm:text-sm border border-white/20 transition-all text-center"
+            >
+              Explore 10-Step Process
+            </a>
           </div>
         </div>
       </section>
