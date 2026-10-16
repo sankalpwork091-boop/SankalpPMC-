@@ -21,16 +21,24 @@ export const HERO_3D_SETTINGS = {
     endTarget: [0, 8, 0] as [number, number, number],
   },
   colors: {
-    concreteWhite: '#f8fafc',
+    concreteWhite: '#FFFFFF',
     woodAccent: '#78350f',      // Walnut wood finish
-    darkBands: '#1e293b',
-    glassDay: '#38bdf8',
-    glassLit: '#fef08a',       // Warm yellow lit windows
-    goldSign: '#D4A462',
-    oldConcrete: '#64748b',
-    oldStains: '#475569',
-    road: '#1e293b',
+    darkBands: '#1B1B1F',       // Charcoal contrast bands
+    glassDay: '#E0F2FE',       // Clear daylight glass
+    glassLit: '#FEF08A',       // Warm yellow lit windows
+    goldSign: '#B8913A',       // Royal primary gold
+    goldLight: '#D4AF5A',      // Royal light gold
+    goldDeep: '#8F6B1E',       // Royal deep gold
+    oldConcrete: '#D8D2C6',    // Warm aged concrete
+    oldStains: '#BCB3A4',      // Warm weathered stains
+    oldWindow: '#7C756B',      // Aged warm glass
+    road: '#E5DFD3',           // Pale warm grey road
     grass: '#15803d',
-    blueprintCyan: '#06b6d4',
+    ground: '#FAF7F0',         // Warm ivory ground plot
+    stiltWall: '#EDE7DC',      // Warm ivory boundary walls
+    bgSilhouette: '#EAE4D8',   // Pale background building silhouettes
+    fog: '#FAF7F0',            // Warm ivory atmospheric fog
+    wireframeGold: '#B8913A',  // Gold wireframe (replaces cyan)
+    scaffoldGold: '#D4AF5A',   // Gold scaffolding (replaces cyan)
   },
 };

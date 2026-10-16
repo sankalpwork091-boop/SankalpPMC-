@@ -37,6 +37,19 @@ function SceneContent({
   const treesGroupRef = useRef<THREE.Group>(null);
   const carsGroupRef = useRef<THREE.Group>(null);
   const windowMaterialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
+  const particlesRef = useRef<THREE.Points>(null);
+
+  // Subtle floating gold motes
+  const particleCount = 45;
+  const particlePositions = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 26;
+      pos[i * 3 + 1] = Math.random() * 18 + 0.5;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 24;
+    }
+    return pos;
+  }, []);
 
   // Mouse parallax tracking
   const mouse = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
@@ -89,11 +102,11 @@ function SceneContent({
         roughness: 0.6,
       }),
       stiltWall: new THREE.MeshStandardMaterial({
-        color: '#334155',
+        color: colors.stiltWall,
         roughness: 0.7,
       }),
       ground: new THREE.MeshStandardMaterial({
-        color: '#0f172a',
+        color: colors.ground,
         roughness: 0.85,
       }),
       road: new THREE.MeshStandardMaterial({
@@ -105,7 +118,7 @@ function SceneContent({
         roughness: 0.8,
       }),
       balconyGlass: new THREE.MeshStandardMaterial({
-        color: '#7dd3fc',
+        color: colors.glassDay,
         transparent: true,
         opacity: 0.65,
         roughness: 0.1,
@@ -124,34 +137,38 @@ function SceneContent({
         opacity: 1,
       }),
       oldWindow: new THREE.MeshStandardMaterial({
-        color: '#1e293b',
+        color: colors.oldWindow,
         roughness: 0.7,
         transparent: true,
         opacity: 1,
       }),
       blueprintWireframe: new THREE.MeshBasicMaterial({
-        color: colors.blueprintCyan,
+        color: colors.wireframeGold,
         wireframe: true,
         transparent: true,
         opacity: 0.85,
       }),
       craneYellow: new THREE.MeshStandardMaterial({
-        color: '#eab308',
+        color: colors.wireframeGold,
         roughness: 0.4,
-        metalness: 0.3,
+        metalness: 0.4,
       }),
       scaffolding: new THREE.MeshBasicMaterial({
-        color: '#38bdf8',
+        color: colors.scaffoldGold,
         wireframe: true,
         transparent: true,
         opacity: 0.55,
       }),
       goldPlaque: new THREE.MeshStandardMaterial({
         color: colors.goldSign,
-        metalness: 0.8,
+        metalness: 0.85,
         roughness: 0.25,
         emissive: colors.goldSign,
-        emissiveIntensity: 0.2,
+        emissiveIntensity: 0.25,
+      }),
+      bgSilhouette: new THREE.MeshStandardMaterial({
+        color: colors.bgSilhouette,
+        roughness: 0.85,
       }),
     };
   }, []);
@@ -339,26 +356,31 @@ function SceneContent({
       carsGroupRef.current.visible = carScale > 0.01;
     }
 
-    // Sun & lighting transition (Dusk -> Clear Midday / Golden Hour)
+    // Lightly animate floating subtle gold particles
+    if (particlesRef.current) {
+      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.015;
+    }
+
+    // Sun & lighting transition (Soft warm daylight throughout)
     if (sunLightRef.current && ambientLightRef.current) {
       if (progress < 0.3) {
-        // Stage A: Hazy, cool diffuse light
-        sunLightRef.current.intensity = 1.0;
-        sunLightRef.current.color.set('#94a3b8');
-        ambientLightRef.current.intensity = 0.7;
-        ambientLightRef.current.color.set('#475569');
+        // Stage A: Soft warm morning light
+        sunLightRef.current.intensity = 1.2;
+        sunLightRef.current.color.set('#FFFDF7');
+        ambientLightRef.current.intensity = 0.75;
+        ambientLightRef.current.color.set('#FAF7F0');
       } else if (progress < 0.75) {
-        // Stage B: Bright crisp daylight
-        sunLightRef.current.intensity = 1.6;
-        sunLightRef.current.color.set('#f8fafc');
-        ambientLightRef.current.intensity = 0.9;
-        ambientLightRef.current.color.set('#cbd5e1');
+        // Stage B: Crisp warm daylight
+        sunLightRef.current.intensity = 1.35;
+        sunLightRef.current.color.set('#FFFFFF');
+        ambientLightRef.current.intensity = 0.8;
+        ambientLightRef.current.color.set('#FAF7F0');
       } else {
-        // Stage C: Golden sunset celebration
+        // Stage C: Radiant warm gold celebration
         const warmRatio = (progress - 0.75) / 0.25;
-        sunLightRef.current.intensity = THREE.MathUtils.lerp(1.6, 2.2, warmRatio);
-        sunLightRef.current.color.lerpColors(new THREE.Color('#f8fafc'), new THREE.Color('#fdba74'), warmRatio);
-        ambientLightRef.current.color.lerpColors(new THREE.Color('#cbd5e1'), new THREE.Color('#fed7aa'), warmRatio);
+        sunLightRef.current.intensity = THREE.MathUtils.lerp(1.35, 1.5, warmRatio);
+        sunLightRef.current.color.lerpColors(new THREE.Color('#FFFFFF'), new THREE.Color('#FEF3C7'), warmRatio);
+        ambientLightRef.current.color.lerpColors(new THREE.Color('#FAF7F0'), new THREE.Color('#F6EFDD'), warmRatio);
       }
     }
   });
@@ -366,11 +388,12 @@ function SceneContent({
   return (
     <>
       {/* ─── LIGHTING & ENVIRONMENT ─── */}
-      <ambientLight ref={ambientLightRef} intensity={0.8} />
+      <hemisphereLight args={['#FFFFFF', colors.ground, 0.75]} />
+      <ambientLight ref={ambientLightRef} intensity={0.75} color="#FFF8EE" />
       <directionalLight
         ref={sunLightRef}
-        position={[14, 22, 16]}
-        intensity={1.8}
+        position={[-14, 22, 16]}
+        intensity={1.35}
         castShadow={!isMobile}
         shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.5}
@@ -382,6 +405,23 @@ function SceneContent({
         shadow-bias={-0.0005}
       />
       <Environment preset="city" />
+
+      {/* ─── SUBTLE FLOATING GOLD PARTICLES ─── */}
+      <points ref={particlesRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[particlePositions, 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.12}
+          color={colors.goldLight}
+          transparent
+          opacity={0.35}
+          sizeAttenuation
+        />
+      </points>
 
       {/* ─── GROUND PLOT, ROAD & NEIGHBOURHOOD ─── */}
       <group position={[0, 0, 0]}>
@@ -424,7 +464,7 @@ function SceneContent({
 
         {/* Background Skyline Buildings */}
         {backgroundBuildings.map((b, idx) => (
-          <mesh key={idx} position={b.pos} material={sharedMaterials.stiltWall}>
+          <mesh key={idx} position={b.pos} material={sharedMaterials.bgSilhouette}>
             <boxGeometry args={b.size} />
           </mesh>
         ))}
@@ -613,7 +653,7 @@ function SceneContent({
                 ref={signTextRef}
                 position={[0, 0, 0.16]}
                 fontSize={0.42}
-                color="#0c1421"
+                color="#1B1B1F"
                 anchorX="center"
                 anchorY="middle"
                 fontWeight={700}
@@ -686,6 +726,8 @@ export default function GanpatiBuilding3D({
         pointerEvents: 'none',
       }}
     >
+      <color attach="background" args={[colors.fog]} />
+      <fog attach="fog" args={[colors.fog, 28, 80]} />
       <SceneContent
         progressRef={progressRef}
         isMobile={isMobile}

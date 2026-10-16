@@ -18,7 +18,7 @@ const GanpatiBuilding3D = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#0c1421] gap-3">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#FAF7F0] gap-3">
         <PinwheelLoader size="xl" label="Loading 3D Architectural Transformation..." />
       </div>
     ),
@@ -120,11 +120,11 @@ export function BuildingTransformationHero() {
     const width = canvas.width;
     const height = canvas.height;
 
-    // Gradient background
+    // Gradient background: Warm ivory daylight
     const sky = ctx.createLinearGradient(0, 0, 0, height);
-    sky.addColorStop(0, '#0c1524');
-    sky.addColorStop(0.75, p > 0.6 ? '#9a3412' : '#1e293b');
-    sky.addColorStop(1, '#0284c7');
+    sky.addColorStop(0, '#FFFFFF');
+    sky.addColorStop(0.65, '#FAF7F0');
+    sky.addColorStop(1, p > 0.6 ? '#F6EFDD' : '#EAE4D8');
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, width, height);
 
@@ -231,16 +231,16 @@ export function BuildingTransformationHero() {
         id="hero-transformation"
         data-pinned="true"
         data-section="0"
-        className="relative w-full h-[100svh] min-h-[100svh] overflow-hidden bg-[#0c1421] text-white select-none"
+        className="relative w-full h-[100svh] min-h-[100svh] overflow-hidden bg-[#FAF7F0] text-[#1B1B1F] select-none border-b border-[#E9E2D0]"
       >
-        {/* ─── BASE SKY GRADIENT: DEEP NIGHT NAVY (z-0) ─── */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#080d17] via-[#0c1524] to-[#111e33] z-0 pointer-events-none" />
+        {/* ─── BASE SKY GRADIENT: WARM IVORY DAYLIGHT (z-0) ─── */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-[#FAF7F0] to-[#FAF7F0] z-0 pointer-events-none" />
 
-        {/* ─── SUNSET ORANGE / GOLDEN AMBER OVERLAY: Stage C (z-0) ─── */}
+        {/* ─── GOLDEN HIGHLIGHT OVERLAY: Stage C (z-0) ─── */}
         <div
           ref={skySunsetRef}
           style={{ opacity: 0 }}
-          className="absolute inset-0 bg-gradient-to-t from-[#ea580c]/35 via-[#9a3412]/20 to-transparent z-0 transition-opacity duration-150 pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-t from-[#B8913A]/10 via-[#D4AF5A]/5 to-transparent z-0 transition-opacity duration-150 pointer-events-none"
         />
 
         {/* ─── 3D PROCEDURAL INTERACTIVE CANVAS (z-10) ─── */}
@@ -262,12 +262,12 @@ export function BuildingTransformationHero() {
           />
         )}
 
-        {/* ─── SUBTLE GRADIENT OVERLAY BEHIND NAVBAR (z-20) ─── */}
+        {/* ─── SUBTLE WHITE FADE OVERLAY BEHIND NAVBAR (z-20) ─── */}
         <div
           className="absolute top-0 inset-x-0 pointer-events-none z-20"
           style={{
             height: 'calc(var(--nav-h, 76px) + 60px)',
-            background: 'linear-gradient(180deg, rgba(10, 15, 30, 0.85) 0%, rgba(10, 15, 30, 0.4) 65%, transparent 100%)',
+            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.4) 65%, transparent 100%)',
           }}
         />
 
@@ -282,26 +282,22 @@ export function BuildingTransformationHero() {
           {/* Initial Prompt Group: Headline (fades out as user scrolls) */}
           <div
             ref={initialPromptRef}
-            className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto"
+            className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto w-full max-w-5xl px-3"
           >
-            {/* Headline */}
-            <h1
-              className="font-heading font-bold text-white tracking-tight"
-              style={{
-                fontSize: 'clamp(2rem, 5.5vw, 4.5rem)',
-                lineHeight: 1.1,
-                maxWidth: '90vw',
-                textWrap: 'balance',
-                textShadow: '0 2px 16px rgba(0, 0, 0, 0.9), 0 4px 32px rgba(0, 0, 0, 0.75)',
-              }}
-            >
-              Watch Trust Rise Floor By Floor
+            {/* Eyebrow badge matching other sections */}
+            <span className="section-eyebrow text-[10px] sm:text-xs mb-2 sm:mb-3">
+              3D Architectural Transformation
+            </span>
+
+            {/* Headline with one gold accent word */}
+            <h1 className="font-heading font-bold text-[#1B1B1F] tracking-tight text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight sm:leading-none max-w-full">
+              Watch Trust <span className="italic text-[#B8913A]">Rise</span> Floor By Floor
             </h1>
+
+            {/* Decorative Gold Accent Underline */}
+            <span className="heading-gold-line mx-auto" />
           </div>
         </div>
-
-        {/* ─── SUBTLE BOTTOM GRADIENT VIGNETTE (z-20) ─── */}
-        <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-[#080d17]/85 via-[#080d17]/30 to-transparent z-20 pointer-events-none" />
 
         {/* ─── SCROLL TO TRANSFORM CUE (Direct child of pinned hero, bottom centre) (z-30) ─── */}
         <div
@@ -312,14 +308,11 @@ export function BuildingTransformationHero() {
             gap: '8px',
           }}
         >
-          <span
-            className="text-[11px] font-mono text-[#D4A462] uppercase tracking-wider font-semibold"
-            style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.95)' }}
-          >
+          <span className="text-[11px] font-mono text-[#8F6B1E] uppercase tracking-wider font-semibold">
             Scroll to Transform
           </span>
-          <div className="w-5 h-8 rounded-full border border-[#D4A462]/80 flex items-start justify-center p-1 bg-black/40 backdrop-blur-sm shadow-lg">
-            <div className="w-1.5 h-2.5 rounded-full bg-[#D4A462] animate-bounce" />
+          <div className="w-5 h-8 rounded-full border border-[#B8913A]/70 flex items-start justify-center p-1 bg-white/80 backdrop-blur-md shadow-[0_4px_16px_rgba(143,107,30,0.12)]">
+            <div className="w-1.5 h-2.5 rounded-full bg-[#B8913A] animate-bounce" />
           </div>
         </div>
 
@@ -327,7 +320,7 @@ export function BuildingTransformationHero() {
         <div
           ref={climaxCardRef}
           style={{ opacity: 0, transform: 'scale(0.95)' }}
-          className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl z-30 transition-all duration-300 bg-[#0c1421]/95 backdrop-blur-xl p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-[#D4A462]/50 shadow-2xl shadow-[#154C96]/40 flex flex-col items-center pointer-events-none"
+          className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl z-30 transition-all duration-300 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#E9E2D0] shadow-[0_12px_40px_rgba(143,107,30,0.12)] flex flex-col items-center pointer-events-none"
         >
           {/* Sankalp Logo */}
           <div className="relative w-48 sm:w-60 h-14 sm:h-18 mb-2 sm:mb-3">
@@ -336,34 +329,34 @@ export function BuildingTransformationHero() {
               alt="Sankalp — Redevelopment with Responsibility"
               fill
               priority
-              className="object-contain drop-shadow-[0_4px_16px_rgba(212,164,98,0.4)]"
+              className="object-contain"
             />
           </div>
 
           {/* Official Tagline */}
           <div className="flex items-center gap-2 mb-3">
-            <span className="h-[1px] w-8 bg-[#D4A462]" />
-            <p className="text-[11px] sm:text-xs font-semibold tracking-widest text-[#D4A462] uppercase">
+            <span className="h-[1px] w-8 bg-[#B8913A]" />
+            <p className="text-[11px] sm:text-xs font-semibold tracking-widest text-[#8F6B1E] uppercase">
               Redevelopment with Responsibility
             </p>
-            <span className="h-[1px] w-8 bg-[#D4A462]" />
+            <span className="h-[1px] w-8 bg-[#B8913A]" />
           </div>
 
-          <p className="text-xs sm:text-sm text-text-muted max-w-lg mb-5 leading-relaxed text-center">
-            From our project portfolio: <strong className="text-white">Ganpati Society at Nerul</strong> — fully constructed with 8 floors, cantilevered white architectural frames, walnut-wood soffits, illuminated glass balconies, and stilt parking.
+          <p className="text-xs sm:text-sm text-[#5B5B63] max-w-lg mb-5 leading-relaxed text-center">
+            From our project portfolio: <strong className="text-[#1B1B1F]">Ganpati Society at Nerul</strong> — fully constructed with 8 floors, cantilevered white architectural frames, walnut-wood soffits, illuminated glass balconies, and stilt parking.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto pointer-events-auto">
             <Link
               href="/contact-us"
-              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl bg-[#D4A462] hover:bg-[#e6be85] text-[#0c1421] font-bold text-xs sm:text-sm shadow-lg shadow-[#D4A462]/25 transition-all flex items-center justify-center gap-2"
+              className="btn-primary w-full sm:w-auto !py-2.5 sm:!py-3 !px-6 text-xs sm:text-sm flex items-center justify-center gap-2"
             >
               Schedule Committee Meeting
               <span>→</span>
             </Link>
             <Link
               href="/services"
-              className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl bg-[#154C96] hover:bg-[#1d5bb8] text-white font-semibold text-xs sm:text-sm border border-white/20 transition-all text-center"
+              className="btn-secondary w-full sm:w-auto !py-2.5 sm:!py-3 !px-6 text-xs sm:text-sm text-center"
             >
               Explore 10-Step Process
             </Link>

@@ -9,33 +9,11 @@ import { siteConfig } from '@/data/siteConfig';
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-
-  const isHome = pathname === '/';
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
-    };
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Navbar sits over dark hero on home page before scrolling.
-  // On all other pages and after scrolling past hero, switches to royal white bar.
-  const isDarkHero = isHome && !isScrolled;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
-      <div
-        className={`mx-3 mt-3 md:mx-6 md:mt-4 px-4 py-3 md:px-6 md:py-3 flex items-center justify-between rounded-2xl transition-all duration-300 ${
-          isDarkHero
-            ? 'bg-[#0c1421]/80 backdrop-blur-xl border border-white/10 shadow-2xl'
-            : 'bg-white/90 backdrop-blur-xl border border-[#E9E2D0] shadow-[0_4px_24px_rgba(143,107,30,0.07)]'
-        }`}
-      >
+      <div className="mx-3 mt-3 md:mx-6 md:mt-4 px-4 py-3 md:px-6 md:py-3 flex items-center justify-between rounded-2xl transition-all duration-300 bg-white/90 backdrop-blur-xl border border-[#E9E2D0] shadow-[0_4px_24px_rgba(143,107,30,0.07)]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 shrink-0" aria-label="Sankalp PMC Home">
           <Image
@@ -47,18 +25,10 @@ export function Header() {
             priority
           />
           <div className="hidden sm:block">
-            <p
-              className={`font-heading text-sm font-bold leading-tight transition-colors duration-300 ${
-                isDarkHero ? 'text-white' : 'text-[#1B1B1F]'
-              }`}
-            >
+            <p className="font-heading text-sm font-bold leading-tight transition-colors duration-300 text-[#1B1B1F]">
               Sankalp PMC
             </p>
-            <p
-              className={`text-[10px] leading-tight transition-colors duration-300 ${
-                isDarkHero ? 'text-white/60' : 'text-[#5B5B63]'
-              }`}
-            >
+            <p className="text-[10px] leading-tight transition-colors duration-300 text-[#5B5B63]">
               Project Management Consultants
             </p>
           </div>
@@ -73,11 +43,7 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={`relative px-3 py-2 text-sm font-medium transition-colors duration-300 rounded-md group ${
-                  isDarkHero
-                    ? isActive
-                      ? 'text-[#D4AF5A]'
-                      : 'text-white/80 hover:text-[#D4AF5A]'
-                    : isActive
+                  isActive
                     ? 'text-[#8F6B1E]'
                     : 'text-[#5B5B63] hover:text-[#8F6B1E]'
                 }`}
@@ -87,11 +53,7 @@ export function Header() {
                 <span
                   className={`absolute bottom-0 left-3 right-3 h-[2px] rounded-full transition-all duration-300 ${
                     isActive
-                      ? isDarkHero
-                        ? 'bg-[#D4AF5A] opacity-100 scale-x-100'
-                        : 'bg-[#B8913A] opacity-100 scale-x-100'
-                      : isDarkHero
-                      ? 'bg-[#D4AF5A] opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
+                      ? 'bg-[#B8913A] opacity-100 scale-x-100'
                       : 'bg-[#B8913A] opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100'
                   }`}
                 />
@@ -114,28 +76,26 @@ export function Header() {
 
           {/* Mobile menu button */}
           <button
-            className={`lg:hidden w-10 h-10 flex items-center justify-center rounded-md transition-colors ${
-              isDarkHero ? 'hover:bg-white/10' : 'hover:bg-black/5'
-            }`}
+            className="lg:hidden w-10 h-10 flex items-center justify-center rounded-md transition-colors hover:bg-black/5"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isOpen}
           >
             <div className="w-5 h-4 flex flex-col justify-between">
               <span
-                className={`w-full h-[2px] transition-all duration-300 ${
-                  isDarkHero ? 'bg-white' : 'bg-[#1B1B1F]'
-                } ${isOpen ? 'rotate-45 translate-y-[7px]' : ''}`}
+                className={`w-full h-[2px] transition-all duration-300 bg-[#1B1B1F] ${
+                  isOpen ? 'rotate-45 translate-y-[7px]' : ''
+                }`}
               />
               <span
-                className={`w-full h-[2px] transition-all duration-300 ${
-                  isDarkHero ? 'bg-white' : 'bg-[#1B1B1F]'
-                } ${isOpen ? 'opacity-0' : ''}`}
+                className={`w-full h-[2px] transition-all duration-300 bg-[#1B1B1F] ${
+                  isOpen ? 'opacity-0' : ''
+                }`}
               />
               <span
-                className={`w-full h-[2px] transition-all duration-300 ${
-                  isDarkHero ? 'bg-white' : 'bg-[#1B1B1F]'
-                } ${isOpen ? '-rotate-45 -translate-y-[7px]' : ''}`}
+                className={`w-full h-[2px] transition-all duration-300 bg-[#1B1B1F] ${
+                  isOpen ? '-rotate-45 -translate-y-[7px]' : ''
+                }`}
               />
             </div>
           </button>
@@ -150,11 +110,7 @@ export function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className={`lg:hidden mx-3 mt-2 p-4 rounded-2xl border transition-all duration-300 ${
-              isDarkHero
-                ? 'bg-[#0c1421]/95 border-white/10 text-white shadow-2xl'
-                : 'bg-white/95 border-[#E9E2D0] text-[#1B1B1F] shadow-xl'
-            }`}
+            className="lg:hidden mx-3 mt-2 p-4 rounded-2xl border transition-all duration-300 bg-white/95 border-[#E9E2D0] text-[#1B1B1F] shadow-xl"
             aria-label="Mobile navigation"
           >
             {siteConfig.nav.map((item) => {
@@ -165,11 +121,7 @@ export function Header() {
                   href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={`block px-4 py-3 text-base rounded-md font-medium transition-colors ${
-                    isDarkHero
-                      ? isActive
-                        ? 'text-[#D4AF5A] bg-white/5 font-semibold'
-                        : 'text-white/80 hover:text-[#D4AF5A] hover:bg-white/5'
-                      : isActive
+                    isActive
                       ? 'text-[#8F6B1E] bg-[#FAF7F0] font-semibold'
                       : 'text-[#5B5B63] hover:text-[#8F6B1E] hover:bg-[#FAF7F0]'
                   }`}
@@ -178,11 +130,7 @@ export function Header() {
                 </Link>
               );
             })}
-            <div
-              className={`mt-3 pt-3 border-t ${
-                isDarkHero ? 'border-white/10' : 'border-[#E9E2D0]'
-              }`}
-            >
+            <div className="mt-3 pt-3 border-t border-[#E9E2D0]">
               <a
                 href={`tel:${siteConfig.phones[0].replace(/\s/g, '')}`}
                 className="btn-primary w-full justify-center text-sm"
