@@ -271,9 +271,9 @@ function SceneContent({
       }
     });
 
-    // Crane motion & visibility
+    // Crane motion & visibility (Construction Stage B only, fully gone before Stage C)
     if (craneGroup.current) {
-      if (progress >= 0.28 && progress < 0.78) {
+      if (!prefersReducedMotion && progress >= 0.28 && progress < 0.74) {
         craneGroup.current.visible = true;
         // Crane rotates as floors climb
         craneGroup.current.rotation.y = progress * Math.PI * 4.5;
@@ -281,20 +281,21 @@ function SceneContent({
         const targetFloorIndex = Math.min(floorCount - 1, Math.floor(((progress - 0.3) / 0.42) * floorCount));
         const craneY = (targetFloorIndex + 1) * floorHeight + stiltHeight;
         craneGroup.current.position.y = craneY;
-        const craneFade = progress > 0.72 ? (0.78 - progress) / 0.06 : 1;
+        const craneFade = progress > 0.68 ? Math.max(0, (0.74 - progress) / 0.06) : 1;
         craneGroup.current.scale.setScalar(craneFade);
       } else {
         craneGroup.current.visible = false;
+        craneGroup.current.scale.setScalar(0);
       }
     }
 
-    // Scaffolding visibility
+    // Scaffolding visibility (Construction Stage B only, fully gone before Stage C)
     if (scaffoldingGroup.current) {
-      if (progress >= 0.32 && progress < 0.76) {
+      if (!prefersReducedMotion && progress >= 0.32 && progress < 0.74) {
         scaffoldingGroup.current.visible = true;
         const targetFloor = Math.min(floorCount - 1, Math.floor(((progress - 0.3) / 0.42) * floorCount));
         scaffoldingGroup.current.position.y = targetFloor * floorHeight + stiltHeight - 1.0;
-        const scaffoldAlpha = progress > 0.7 ? (0.76 - progress) / 0.06 : 0.65;
+        const scaffoldAlpha = progress > 0.68 ? Math.max(0, (0.74 - progress) / 0.06) * 0.65 : 0.65;
         sharedMaterials.scaffolding.opacity = scaffoldAlpha;
       } else {
         scaffoldingGroup.current.visible = false;
