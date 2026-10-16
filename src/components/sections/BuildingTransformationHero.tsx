@@ -33,10 +33,6 @@ export function BuildingTransformationHero() {
 
   // Fast direct DOM refs to avoid 60fps React re-renders
   const skySunsetRef = useRef<HTMLDivElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const progressPercentRef = useRef<HTMLSpanElement>(null);
-  const milestoneStepRef = useRef<HTMLSpanElement>(null);
-  const milestoneTitleRef = useRef<HTMLSpanElement>(null);
   const initialPromptRef = useRef<HTMLDivElement>(null);
   const scrollCueRef = useRef<HTMLDivElement>(null);
   const climaxCardRef = useRef<HTMLDivElement>(null);
@@ -167,33 +163,10 @@ export function BuildingTransformationHero() {
             drawFallback2D(p);
           }
 
-          // Direct DOM updates for 60fps indicators
-          if (progressBarRef.current) {
-            progressBarRef.current.style.width = `${Math.round(p * 100)}%`;
-          }
-          if (progressPercentRef.current) {
-            progressPercentRef.current.textContent = `${Math.round(p * 100)}%`;
-          }
-
           // Sky Sunset Amber Overlay (0.5 -> 1.0)
           if (skySunsetRef.current) {
             const sunsetOpacity = p < 0.4 ? 0 : Math.min(1, (p - 0.4) / 0.55);
             skySunsetRef.current.style.opacity = `${sunsetOpacity}`;
-          }
-
-          // Milestone badge text
-          if (milestoneStepRef.current && milestoneTitleRef.current) {
-            if (p < 0.30) {
-              milestoneStepRef.current.textContent = 'STAGE A: EXISTING SOCIETY';
-              milestoneTitleRef.current.textContent = 'Aging 4-Storey CHS Structure';
-            } else if (p < 0.75) {
-              const currentFloor = Math.min(8, Math.max(1, Math.floor(((p - 0.30) / 0.42) * 8) + 1));
-              milestoneStepRef.current.textContent = `STAGE B: CONSTRUCTION — FLOOR ${currentFloor} OF 8`;
-              milestoneTitleRef.current.textContent = 'Section 79A Structural Transformation';
-            } else {
-              milestoneStepRef.current.textContent = 'STAGE C: COMPLETED LANDMARK';
-              milestoneTitleRef.current.textContent = 'Ganpati CHS, Nerul Delivered';
-            }
           }
 
           // Initial Scroll Prompt Fade (fades out as user scrolls past 0.22)
@@ -306,50 +279,7 @@ export function BuildingTransformationHero() {
             gap: '16px',
           }}
         >
-          {/* 1. HUD Pills Row */}
-          <div
-            className="flex justify-center flex-wrap pointer-events-auto"
-            style={{
-              gap: '12px',
-              maxWidth: 'calc(100vw - 32px)',
-              marginInline: 'auto',
-            }}
-          >
-            {/* Stage Pill */}
-            <div className="flex items-center gap-2 sm:gap-2.5 bg-[#0c1421]/90 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-[#D4A462]/35 shadow-xl [text-shadow:_0_1px_8px_rgba(0,0,0,0.8)]">
-              <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#D4A462] animate-pulse shrink-0" />
-              <span
-                ref={milestoneStepRef}
-                className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-[#D4A462] sm:whitespace-nowrap"
-              >
-                STAGE A: EXISTING SOCIETY
-              </span>
-              <span className="text-white/40 text-xs shrink-0 hidden sm:inline">|</span>
-              <span
-                ref={milestoneTitleRef}
-                className="text-[10px] sm:text-xs text-white/95 font-medium sm:whitespace-nowrap hidden sm:inline"
-              >
-                Aging 4-Storey CHS Structure
-              </span>
-            </div>
-
-            {/* Progress Pill */}
-            <div className="flex items-center gap-2 sm:gap-3 bg-[#0c1421]/90 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-white/10 text-[10px] sm:text-xs font-mono [text-shadow:_0_1px_8px_rgba(0,0,0,0.8)] whitespace-nowrap shrink-0">
-              <span className="text-white/70 hidden md:inline">3D RECONSTRUCTION</span>
-              <div className="w-16 sm:w-20 h-1.5 rounded-full bg-white/20 overflow-hidden">
-                <div
-                  ref={progressBarRef}
-                  style={{ width: '0%' }}
-                  className="h-full bg-gradient-to-r from-[#154C96] to-[#D4A462] transition-all duration-75"
-                />
-              </div>
-              <span ref={progressPercentRef} className="text-[#D4A462] font-bold min-w-[3ch] text-right">
-                0%
-              </span>
-            </div>
-          </div>
-
-          {/* Initial Prompt Group: Headline, Subtitle, Scroll Cue (fades out as user scrolls) */}
+          {/* Initial Prompt Group: Headline & Subtitle (fades out as user scrolls) */}
           <div
             ref={initialPromptRef}
             className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto"
