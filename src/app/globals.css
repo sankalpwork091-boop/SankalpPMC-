@@ -6,6 +6,16 @@
   --brand-blue: #154C96;
   --brand-gold: #D4A462;
 
+  /* Sovereign Blue & Gilded Glass Tokens (from Stitch) */
+  --sovereign-navy: #154C96;
+  --abyssal-navy: #081B38;
+  --gilded-brass: #D4A462;
+  --gilded-glow: #DFB97D;
+  --gilded-light: #F3E5AB;
+  --surface-canvas: #F8F9FA;
+  --glass-border-gold: rgba(212, 164, 98, 0.35);
+  --glass-border-navy: rgba(21, 76, 150, 0.12);
+
   /* Navy palette — primary dark backgrounds */
   --navy: 215 45% 10%;
   --navy-light: 215 40% 18%;
@@ -31,6 +41,10 @@
   --glass-border: 220 20% 95% / 0.12;
   --glass-blur: 16px;
 
+  /* Elevation Shadows (from Stitch) */
+  --shadow-resting: 0 12px 32px -8px rgba(8, 27, 56, 0.08);
+  --shadow-floating: 0 24px 64px -12px rgba(8, 27, 56, 0.18);
+
   /* Transitions */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-normal: 400ms;
@@ -40,6 +54,12 @@
 @theme inline {
   --color-brand-blue: #154C96;
   --color-brand-gold: #D4A462;
+  --color-sovereign-navy: var(--sovereign-navy);
+  --color-abyssal-navy: var(--abyssal-navy);
+  --color-gilded-brass: var(--gilded-brass);
+  --color-gilded-glow: var(--gilded-glow);
+  --color-gilded-light: var(--gilded-light);
+  --color-surface-canvas: var(--surface-canvas);
   --color-royal-blue: hsl(var(--royal-blue));
   --color-navy: hsl(var(--navy));
   --color-navy-light: hsl(var(--navy-light));
@@ -54,7 +74,8 @@
   --color-text-dark: hsl(var(--text-dark));
 
   --font-heading: "Playfair Display", Georgia, serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --font-body: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-jakarta: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
 }
 
 /* ─── Base ─── */

@@ -11,6 +11,7 @@ const Scene = dynamic(
   }
 );
 import { ScrollObserver } from '@/components/scroll/ScrollObserver';
+import { Scroll3DController } from '@/components/scroll/Scroll3DController';
 import { ProcessRail } from '@/components/scroll/ProcessRail';
 import { BuildingTransformationHero } from '@/components/sections/BuildingTransformationHero';
 import { HeroSection } from '@/components/sections/HeroSection';
@@ -32,11 +33,14 @@ export default function Home() {
       {/* GSAP ScrollTrigger & Timeline Observer */}
       <ScrollObserver />
 
+      {/* Scroll-Driven 3D Section Transformation Layer */}
+      <Scroll3DController />
+
       {/* Floating 10-Step Timeline Indicator */}
       <ProcessRail />
 
       {/* Main Narrative Scroll Story (Sections 0 to 17) */}
-      <div className="relative z-10">
+      <div className="relative z-10" id="scroll-3d-container">
         <BuildingTransformationHero />
         <HeroSection />
         <ForewordSection />
