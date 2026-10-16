@@ -7,7 +7,7 @@
  *
  * ─── KILL SWITCH ───
  * To completely disable this animation, set ENABLE_3D_SCROLL_ANIMATION = false
- * or append ?no3d=true to the URL in development.
+ * or append ?no3d=true to the URL in the browser.
  */
 
 import gsap from 'gsap';
@@ -19,8 +19,12 @@ export interface Scroll3DOptions {
   containerSelector?: string;
   sectionSelector?: string;
   perspective?: number;
-  maxRotateX?: number;
-  maxTranslateZ?: number;
+  enterTranslateZ?: number;
+  enterRotateX?: number;
+  enterScale?: number;
+  exitRotateX?: number;
+  exitYPercent?: number;
+  scrub?: number;
 }
 
 export function initScroll3DAnimation(options: Scroll3DOptions = {}): () => void {
@@ -35,27 +39,35 @@ export function initScroll3DAnimation(options: Scroll3DOptions = {}): () => void
   }
 
   // URL override kill-switch: ?no3d=true or ?disable3d=true
-  if (window.location.search.includes('no3d=true') || window.location.search.includes('disable3d=true')) {
-    console.info('[Scroll3D] Disabled via URL parameter.');
+  if (
+    window.location.search.includes('no3d=true') ||
+    window.location.search.includes('disable3d=true')
+  ) {
+    console.info('[Scroll3D] Disabled via URL parameter (?no3d=true).');
     return () => {};
   }
 
   // 2. Respect OS-level Accessibility: prefers-reduced-motion
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion) {
-    console.info('[Scroll3D] prefers-reduced-motion detected. 3D transforms bypassed for accessibility.');
+    console.info('[Scroll3D] prefers-reduced-motion active. 3D transforms bypassed for accessibility.');
     return () => {};
   }
 
-  // 3. Register GSAP Plugin
+  // 3. Register GSAP Plugin & configure to ignore mobile address bar resize jumps
   gsap.registerPlugin(ScrollTrigger);
+  ScrollTrigger.config({ ignoreMobileResize: true });
 
   const {
     containerSelector = '#scroll-3d-container',
     sectionSelector = '[data-section]',
     perspective = 1400,
-    maxRotateX = 5,       // Max degrees of 3D tilt
-    maxTranslateZ = -140, // Max depth in pixels
+    enterTranslateZ = -60,   // Tone down: -60px depth
+    enterRotateX = 2,        // Tone down: 2deg tilt
+    enterScale = 0.97,       // Tone down: 0.97 scale
+    exitRotateX = -1.5,      // Tone down: -1.5deg exit tilt
+    exitYPercent = -2,       // Tone down: -2% parallax lift
+    scrub = 0.5,             // Smooth scrub
   } = options;
 
   const container = document.querySelector<HTMLElement>(containerSelector);
@@ -63,133 +75,141 @@ export function initScroll3DAnimation(options: Scroll3DOptions = {}): () => void
     return () => {};
   }
 
+  // Ensure horizontal overflow is clipped without setting perspective on container
+  container.style.overflowX = 'clip';
+
   // 4. Mobile performance gating (60fps guarantee)
-  // On mobile screens (< 768px), disable heavy 3D matrix math and preserve battery
   const isMobile = window.innerWidth < 768;
 
-  // Set perspective on container
-  container.style.perspective = `${perspective}px`;
-  container.style.perspectiveOrigin = '50% 50%';
-  container.style.transformStyle = 'preserve-3d';
-
-  const sections = Array.from(container.querySelectorAll<HTMLElement>(sectionSelector));
-  if (sections.length === 0) {
+  // Query candidate sections
+  const candidateSections = Array.from(container.querySelectorAll<HTMLElement>(sectionSelector));
+  if (candidateSections.length === 0) {
     return () => {};
   }
 
-  const triggers: ScrollTrigger[] = [];
+  // Filter out any pinned sections or heroes to avoid transform/fixed conflicts
+  const validSections = candidateSections.filter((section) => {
+    const isHero =
+      section.id === 'hero-transformation' ||
+      section.querySelector('#hero-transformation') !== null;
+    const isPinned =
+      section.hasAttribute('data-pinned') ||
+      section.classList.contains('pin-spacer');
 
-  sections.forEach((section, index) => {
-    // Avoid double-transforming pinned sections like the transformation hero
-    const isPinned = section.hasAttribute('data-pinned') || section.classList.contains('pin-spacer');
+    return !isHero && !isPinned;
+  });
 
-    // Add 3D transform properties to the section
-    section.style.transformStyle = 'preserve-3d';
-    section.style.backfaceVisibility = 'hidden';
-    section.style.willChange = 'transform, opacity';
+  // 5. Build GSAP Context for 100% clean teardown in React StrictMode
+  const ctx = gsap.context(() => {
+    validSections.forEach((section, index) => {
+      // Apply transformPerspective to individual section (NOT on container)
+      gsap.set(section, {
+        transformPerspective: perspective,
+        transformOrigin: '50% 50%',
+      });
 
-    if (isMobile) {
-      // Lightweight mobile scroll-parallax: zero 3D rotation, subtle scale/fade
-      const tween = gsap.fromTo(
-        section,
-        {
-          opacity: index === 0 ? 1 : 0.88,
-          scale: index === 0 ? 1 : 0.98,
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          ease: 'none',
+      if (isMobile) {
+        // Mobile: Subtle opacity/scale scrub without 3D rotation or depth matrix
+        const st = ScrollTrigger.create({
+          trigger: section,
+          start: 'top 95%',
+          end: 'top 35%',
+          scrub: 0.4,
+          onToggle: (self) => {
+            section.style.willChange = self.isActive ? 'opacity, transform' : 'auto';
+          },
+        });
+
+        gsap.fromTo(
+          section,
+          {
+            opacity: index === 0 ? 1 : 0.9,
+            scale: index === 0 ? 1 : 0.985,
+          },
+          {
+            opacity: 1,
+            scale: 1,
+            ease: 'power1.out',
+            scrollTrigger: st,
+            onComplete: () => {
+              gsap.set(section, { clearProps: 'willChange' });
+            },
+          }
+        );
+      } else {
+        // Desktop: High-precision, toned-down 3D depth and tilt
+        const tl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
             start: 'top bottom',
-            end: 'top center',
-            scrub: 0.5,
-            invalidateOnRefresh: true,
+            end: 'bottom top',
+            scrub,
+            onToggle: (self) => {
+              // Apply will-change only while section is actively animating in viewport
+              section.style.willChange = self.isActive ? 'transform, opacity' : 'auto';
+            },
+            onLeave: () => {
+              // Clear props or settle cleanly when section scrolls past
+              gsap.set(section, { clearProps: 'willChange' });
+            },
+            onLeaveBack: () => {
+              // Clear props or settle cleanly when scrolling back up above section
+              gsap.set(section, { clearProps: 'willChange' });
+            },
           },
-        }
-      );
-      if (tween.scrollTrigger) triggers.push(tween.scrollTrigger);
-    } else {
-      // Full Desktop 3D Experience (Depth + Tilt + Parallax)
-      // Timeline phases: Enter (depth in) -> Focus (flat & sharp) -> Exit (tilt & float away)
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: isPinned ? 'top top' : 'top bottom',
-          end: isPinned ? '+=120%' : 'bottom top',
-          scrub: 0.8, // Smooth GSAP scrub synced with Lenis
-          invalidateOnRefresh: true,
-        },
-      });
+        });
 
-      if (!isPinned) {
+        // Phase 1: Enter viewport -> Arrive at focal center (flat, sharp, 100% scale)
         tl.fromTo(
           section,
           {
-            rotateX: maxRotateX,
-            translateZ: maxTranslateZ,
-            scale: 0.94,
-            opacity: index === 0 ? 1 : 0.85,
-            transformOrigin: '50% 100%',
+            z: enterTranslateZ,
+            rotateX: enterRotateX,
+            scale: enterScale,
+            opacity: index === 0 ? 1 : 0.88,
           },
           {
+            z: 0,
             rotateX: 0,
-            translateZ: 0,
             scale: 1,
             opacity: 1,
-            transformOrigin: '50% 50%',
             ease: 'power1.out',
             duration: 0.5,
           }
-        ).to(section, {
-          rotateX: -maxRotateX * 0.75,
-          translateZ: maxTranslateZ * 0.6,
-          scale: 0.96,
-          opacity: 0.85,
-          yPercent: -4, // Subtle parallax lift
-          transformOrigin: '50% 0%',
+        )
+        // Phase 2: Exit center -> Leave viewport gracefully
+        .to(section, {
+          z: enterTranslateZ * 0.4,
+          rotateX: exitRotateX,
+          yPercent: exitYPercent,
+          opacity: 0.9,
           ease: 'power1.in',
           duration: 0.5,
         });
-      } else {
-        // For pinned sections, apply subtle depth breathing without disrupting pin
-        tl.fromTo(
-          section,
-          { translateZ: -60, scale: 0.98 },
-          { translateZ: 0, scale: 1, ease: 'none' }
-        );
       }
+    });
 
-      if (tl.scrollTrigger) {
-        triggers.push(tl.scrollTrigger);
-      }
+    // 6. Refresh ScrollTrigger once fonts and images load
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(() => {
+        ScrollTrigger.refresh();
+      }).catch(() => {});
     }
-  });
 
-  // Handle window resize dynamically
-  const handleResize = () => {
-    ScrollTrigger.refresh();
-  };
-  window.addEventListener('resize', handleResize);
+    const onWindowLoad = () => {
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener('load', onWindowLoad, { once: true });
+  }, container);
 
-  // Return cleanup function
+  // 7. Cleanup function: Reverts context, removes triggers, restores original styles
   return () => {
-    window.removeEventListener('resize', handleResize);
-    triggers.forEach((st) => st.kill());
-    // Reset styles on container
+    ctx.revert();
     if (container) {
-      container.style.perspective = '';
-      container.style.perspectiveOrigin = '';
-      container.style.transformStyle = '';
+      container.style.overflowX = '';
     }
-    // Reset styles on sections
-    sections.forEach((section) => {
-      section.style.transform = '';
-      section.style.transformStyle = '';
-      section.style.backfaceVisibility = '';
-      section.style.willChange = '';
-      section.style.opacity = '';
+    validSections.forEach((section) => {
+      gsap.set(section, { clearProps: 'all' });
     });
   };
 }

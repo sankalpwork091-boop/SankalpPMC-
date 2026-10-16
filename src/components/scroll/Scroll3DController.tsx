@@ -7,22 +7,27 @@ export function Scroll3DController() {
   useEffect(() => {
     if (!ENABLE_3D_SCROLL_ANIMATION) return;
 
-    // Small timeout to allow DOM elements and layout to stabilize
+    let cleanup: (() => void) | undefined;
+
+    // Small delay ensures DOM elements and Lenis have settled
     const timeout = setTimeout(() => {
-      const cleanup = initScroll3DAnimation({
+      cleanup = initScroll3DAnimation({
         containerSelector: '#scroll-3d-container',
         sectionSelector: '[data-section]',
         perspective: 1400,
-        maxRotateX: 5,
-        maxTranslateZ: -140,
+        enterTranslateZ: -60,
+        enterRotateX: 2,
+        enterScale: 0.97,
+        exitRotateX: -1.5,
+        exitYPercent: -2,
+        scrub: 0.5,
       });
+    }, 100);
 
-      return () => {
-        cleanup();
-      };
-    }, 150);
-
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      if (cleanup) cleanup();
+    };
   }, []);
 
   return null;

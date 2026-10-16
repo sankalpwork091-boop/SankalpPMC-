@@ -40,7 +40,7 @@ export default function Home() {
       <ProcessRail />
 
       {/* Main Narrative Scroll Story (Sections 0 to 17) */}
-      <div className="relative z-10" id="scroll-3d-container">
+      <div className="relative z-10 overflow-x-clip" id="scroll-3d-container">
         <BuildingTransformationHero />
         <HeroSection />
         <ForewordSection />
