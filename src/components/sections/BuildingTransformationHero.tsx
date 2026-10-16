@@ -279,13 +279,12 @@ export function BuildingTransformationHero() {
             gap: '16px',
           }}
         >
-          {/* Initial Prompt Group: Headline & Subtitle (fades out as user scrolls) */}
+          {/* Initial Prompt Group: Headline (fades out as user scrolls) */}
           <div
             ref={initialPromptRef}
             className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto"
-            style={{ gap: '16px' }}
           >
-            {/* 2. Headline */}
+            {/* Headline */}
             <h1
               className="font-heading font-bold text-white tracking-tight"
               style={{
@@ -298,19 +297,6 @@ export function BuildingTransformationHero() {
             >
               Watch Trust Rise Floor By Floor
             </h1>
-
-            {/* 3. Subtitle */}
-            <p
-              className="text-white/90 font-medium leading-relaxed"
-              style={{
-                maxWidth: '60ch',
-                marginInline: 'auto',
-                fontSize: 'clamp(0.95rem, 1.4vw, 1.15rem)',
-                textShadow: '0 2px 12px rgba(0, 0, 0, 0.9), 0 4px 20px rgba(0, 0, 0, 0.7)',
-              }}
-            >
-              Scroll down to watch an aging housing society transform into Ganpati CHS, Nerul.
-            </p>
           </div>
         </div>
 
