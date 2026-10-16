@@ -1,10 +1,16 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { siteConfig } from '@/data/siteConfig';
 
 export function Footer() {
+  const pathname = usePathname();
+
+  // On home page, hero is the exclusive section
+  if (pathname === '/') return null;
+
   return (
     <footer className="relative z-10 bg-navy-light/50 border-t border-white/5">
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">

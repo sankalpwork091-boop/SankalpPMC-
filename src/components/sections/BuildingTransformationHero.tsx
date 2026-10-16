@@ -154,7 +154,7 @@ export function BuildingTransformationHero() {
       ScrollTrigger.create({
         trigger: pinEl,
         start: 'top top',
-        end: '+=250%',
+        end: '+=500%',
         pin: true,
         pinSpacing: true,
         scrub: 0.6,
@@ -235,6 +235,9 @@ export function BuildingTransformationHero() {
           }
         },
       });
+
+      // Refresh ScrollTrigger calculations after mounting
+      ScrollTrigger.refresh();
     }, pinWrapperRef);
 
     return () => {
@@ -442,12 +445,12 @@ export function BuildingTransformationHero() {
               Schedule Committee Meeting
               <span>→</span>
             </Link>
-            <a
-              href="#process-step-1"
+            <Link
+              href="/services"
               className="w-full sm:w-auto px-6 py-2.5 sm:py-3 rounded-xl bg-[#154C96] hover:bg-[#1d5bb8] text-white font-semibold text-xs sm:text-sm border border-white/20 transition-all text-center"
             >
               Explore 10-Step Process
-            </a>
+            </Link>
           </div>
         </div>
       </section>
