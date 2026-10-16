@@ -5,7 +5,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Text, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import { HERO_3D_SETTINGS } from '@/config/hero3d';
-import { BUILDING_PALETTE } from '@/animations/buildingPalette';
+import { SCENE_PALETTE } from '@/animations/scenePalette';
 
 interface GanpatiBuilding3DProps {
   progressRef: React.MutableRefObject<number>;
@@ -13,11 +13,16 @@ interface GanpatiBuilding3DProps {
   prefersReducedMotion?: boolean;
 }
 
-const { floorCount, floorHeight, towerWidth, towerDepth, stiltHeight, camera, colors } =
+const { floorCount, floorHeight, towerWidth, towerDepth, stiltHeight, camera } =
   HERO_3D_SETTINGS;
 
 // ─── Procedural Texture Generators (Zero external network requests) ───
 
+/**
+ * Procedural Walnut Grain Texture (Canvas 256x256)
+ * Generates natural architectural wood grain with warm walnut tones
+ * Base tone: SCENE_PALETTE.stageC.walnut (#7A4A2B)
+ */
 function createWalnutGrainTexture(): THREE.CanvasTexture | null {
   if (typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
@@ -26,21 +31,23 @@ function createWalnutGrainTexture(): THREE.CanvasTexture | null {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  ctx.fillStyle = BUILDING_PALETTE.stageC.walnut;
+  ctx.fillStyle = SCENE_PALETTE.stageC.walnut;
   ctx.fillRect(0, 0, 256, 256);
 
   const imgData = ctx.getImageData(0, 0, 256, 256);
   const d = imgData.data;
+  // Natural walnut wood base RGB: 122, 74, 43
   for (let y = 0; y < 256; y++) {
-    const ring = Math.sin(y * 0.15 + Math.sin(y * 0.04) * 3.8) * 0.5 + 0.5;
+    const ring = Math.sin(y * 0.14 + Math.sin(y * 0.038) * 3.6) * 0.5 + 0.5;
     for (let x = 0; x < 256; x++) {
-      const fineNoise = (Math.random() - 0.5) * 14;
-      const fiber = Math.sin(y * 0.95 + x * 0.025) * 7;
-      const delta = ring * 20 + fiber + fineNoise - 10;
+      const fineGrain = (Math.random() - 0.5) * 12;
+      const fiber = Math.sin(y * 0.88 + x * 0.02) * 6;
+      const delta = ring * 18 + fiber + fineGrain - 8;
       const idx = (y * 256 + x) * 4;
-      d[idx] = Math.min(255, Math.max(0, 118 + delta * 0.88));
-      d[idx + 1] = Math.min(255, Math.max(0, 70 + delta * 0.56));
-      d[idx + 2] = Math.min(255, Math.max(0, 38 + delta * 0.36));
+      // Natural walnut wood base RGB: 132, 80, 48 (warm golden-brown undertone)
+      d[idx] = Math.min(255, Math.max(0, 132 + delta * 0.85));
+      d[idx + 1] = Math.min(255, Math.max(0, 80 + delta * 0.55));
+      d[idx + 2] = Math.min(255, Math.max(0, 48 + delta * 0.35));
       d[idx + 3] = 255;
     }
   }
@@ -53,6 +60,10 @@ function createWalnutGrainTexture(): THREE.CanvasTexture | null {
   return texture;
 }
 
+/**
+ * Procedural Glass Gradient Texture (Canvas 128x256)
+ * Smooth sky reflection gradient: Light blue daylight sheen
+ */
 function createGlassGradientTexture(): THREE.CanvasTexture | null {
   if (typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
@@ -62,10 +73,10 @@ function createGlassGradientTexture(): THREE.CanvasTexture | null {
   if (!ctx) return null;
 
   const grad = ctx.createLinearGradient(0, 0, 0, 256);
-  grad.addColorStop(0, BUILDING_PALETTE.stageC.glassLight); // light sky sheen at top
-  grad.addColorStop(0.3, '#B9D7ED');
-  grad.addColorStop(0.7, BUILDING_PALETTE.stageC.glass);     // mid blue
-  grad.addColorStop(1, BUILDING_PALETTE.stageC.glassDeep); // deeper reflection at bottom
+  grad.addColorStop(0, SCENE_PALETTE.stageC.glassBlueLight); // top sky highlight (#B8D7EB)
+  grad.addColorStop(0.35, '#A8CCE4');
+  grad.addColorStop(0.7, SCENE_PALETTE.stageC.glassBlue);     // mid daylight blue (#9CC3DD)
+  grad.addColorStop(1, SCENE_PALETTE.stageC.glassBlueDeep);   // lower horizon reflection (#82AECB)
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 128, 256);
 
@@ -73,6 +84,10 @@ function createGlassGradientTexture(): THREE.CanvasTexture | null {
   return texture;
 }
 
+/**
+ * Procedural Contact Shadow Texture (Canvas 256x256)
+ * Warm, soft radial occlusion under building footprint
+ */
 function createContactShadowTexture(): THREE.CanvasTexture | null {
   if (typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
@@ -81,10 +96,10 @@ function createContactShadowTexture(): THREE.CanvasTexture | null {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  const grad = ctx.createRadialGradient(128, 128, 25, 128, 128, 122);
-  grad.addColorStop(0, 'rgba(24, 20, 16, 0.45)');
-  grad.addColorStop(0.5, 'rgba(38, 32, 26, 0.24)');
-  grad.addColorStop(0.8, 'rgba(75, 68, 60, 0.07)');
+  const grad = ctx.createRadialGradient(128, 128, 20, 128, 128, 120);
+  grad.addColorStop(0, 'rgba(42, 36, 30, 0.48)');
+  grad.addColorStop(0.45, 'rgba(56, 48, 40, 0.22)');
+  grad.addColorStop(0.78, 'rgba(85, 75, 65, 0.06)');
   grad.addColorStop(1, 'rgba(120, 110, 100, 0)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 256, 256);
@@ -99,9 +114,9 @@ function SceneContent({
   isMobile = false,
   prefersReducedMotion = false,
 }: GanpatiBuilding3DProps) {
-  const { camera: threeCamera } = useThree();
+  const { camera: threeCamera, scene } = useThree();
 
-  // References for dynamic animated objects
+  // References for animated objects
   const oldBuildingGroup = useRef<THREE.Group>(null);
   const newTowerGroup = useRef<THREE.Group>(null);
   const stiltGroupRef = useRef<THREE.Group>(null);
@@ -112,13 +127,14 @@ function SceneContent({
   const signRef = useRef<THREE.Mesh>(null);
   const signTextRef = useRef<any>(null);
   const sunLightRef = useRef<THREE.DirectionalLight>(null);
+  const hemiLightRef = useRef<THREE.HemisphereLight>(null);
   const ambientLightRef = useRef<THREE.AmbientLight>(null);
   const treesGroupRef = useRef<THREE.Group>(null);
   const carsGroupRef = useRef<THREE.Group>(null);
   const particlesRef = useRef<THREE.Points>(null);
 
   // Subtle floating gold motes
-  const particleCount = 45;
+  const particleCount = 40;
   const particlePositions = useMemo(() => {
     const pos = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount; i++) {
@@ -142,7 +158,7 @@ function SceneContent({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isMobile, prefersReducedMotion]);
 
-  // Procedural Textures (skipped on mobile for performance)
+  // Procedural Textures (skipped on mobile for strict flat colour performance)
   const textures = useMemo(() => {
     if (isMobile) {
       return { walnut: null, glass: null, shadow: null };
@@ -169,7 +185,7 @@ function SceneContent({
       balconySoffit: new THREE.BoxGeometry(towerWidth * 0.45, 0.02, 1.38),
       balconyGlass: new THREE.BoxGeometry(towerWidth * 0.46, 0.85, 0.05),
       balconyRail: new THREE.BoxGeometry(towerWidth * 0.46, 0.06, 0.06),
-      downlightDot: new THREE.CylinderGeometry(0.08, 0.08, 0.02, 8),
+      downlightDot: new THREE.CylinderGeometry(0.12, 0.12, 0.02, 10),
       acUnit: new THREE.BoxGeometry(0.75, 0.48, 0.35),
       louver: new THREE.BoxGeometry(towerWidth - 0.2, 0.08, 0.2),
       floorWireCage: new THREE.BoxGeometry(towerWidth + 0.42, floorHeight, towerDepth + 0.42),
@@ -178,99 +194,123 @@ function SceneContent({
       carBody: new THREE.BoxGeometry(1.8, 0.75, 3.6),
       carCabin: new THREE.BoxGeometry(1.5, 0.65, 2.0),
       roadMarking: new THREE.PlaneGeometry(1.8, 0.3),
+      sideFlange: new THREE.BoxGeometry(0.35, floorHeight + 0.1, towerDepth + 0.3),
+      sideRecessedBand: new THREE.BoxGeometry(0.36, 0.22, towerDepth + 0.32),
     };
   }, []);
 
-  // Natural walnut wood tones for subtle floor-by-floor natural variation
+  // Natural walnut wood tones for subtle floor-by-floor natural variation (range #6B4026 to #8A5A34)
   const walnutBandColors = useMemo(
     () => [
-      BUILDING_PALETTE.stageC.walnut,
-      BUILDING_PALETTE.stageC.walnutLight,
-      BUILDING_PALETTE.stageC.walnutDark,
-      BUILDING_PALETTE.stageC.walnutWarm,
+      SCENE_PALETTE.stageC.walnut,      // #7A4A2B
+      SCENE_PALETTE.stageC.walnutLight, // #8A5A34
+      SCENE_PALETTE.stageC.walnutDark,  // #6B4026
+      SCENE_PALETTE.stageC.walnutWarm,  // #734526
     ],
     []
   );
 
-  // Pre-allocated per-floor material instances for smooth colour lerping (created once, no frame alloc)
+  // Pre-allocated per-floor material instances for smooth colour lerping (created once, zero frame allocations)
   const floorMaterials = useMemo(() => {
     return Array.from({ length: floorCount }, (_, fIdx) => {
+      // Crisp matte white front frames (roughness 0.80)
       const frame = new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.frameWhite,
-        roughness: 0.78,
-        metalness: 0.04,
+        color: SCENE_PALETTE.stageC.frameWhite,
+        roughness: 0.8,
+        metalness: 0.03,
       });
+
+      // Subtle per-face shade on side faces (#ECE6DC) so it separates crisply from pale background
+      const sideFrame = new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.stageC.frameWhiteSideShade,
+        roughness: 0.82,
+        metalness: 0.03,
+      });
+
+      // Walnut wood spandrels and balcony soffits with grain and warm satin sheen
       const wood = new THREE.MeshStandardMaterial({
         color: walnutBandColors[fIdx % 4],
-        map: textures.walnut || undefined,
-        roughness: 0.55,
+        ...(textures.walnut ? { map: textures.walnut } : {}),
+        roughness: 0.50,
         metalness: 0.08,
       });
+
+      // Light sky blue daylight glass with gentle reflections
       const glass = new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.glass,
-        map: textures.glass || undefined,
+        color: SCENE_PALETTE.stageC.glassBlue,
+        ...(textures.glass ? { map: textures.glass } : {}),
         transparent: true,
         opacity: 0.88,
         roughness: 0.08,
-        metalness: 0.18,
-        emissive: new THREE.Color(BUILDING_PALETTE.stageC.warmLight),
+        metalness: 0.20,
+        emissive: new THREE.Color(SCENE_PALETTE.stageC.warmLight),
         emissiveIntensity: 0.0,
-      });
-      const balconyGlass = new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.glass,
-        map: textures.glass || undefined,
-        transparent: true,
-        opacity: 0.68,
-        roughness: 0.1,
-        metalness: 0.15,
-      });
-      const downlight = new THREE.MeshStandardMaterial({
-        color: '#FFFFFF',
-        emissive: new THREE.Color(BUILDING_PALETTE.stageC.warmLight),
-        emissiveIntensity: 0.0,
-        roughness: 0.3,
       });
 
-      return { frame, wood, glass, balconyGlass, downlight };
+      // Balcony glass railing
+      const balconyGlass = new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.stageC.glassBlue,
+        ...(textures.glass ? { map: textures.glass } : {}),
+        transparent: true,
+        opacity: 0.72,
+        roughness: 0.08,
+        metalness: 0.20,
+      });
+
+      // Warm balcony downlights (modest emissive, no bloom overload)
+      const downlight = new THREE.MeshStandardMaterial({
+        color: '#FFFFFF',
+        emissive: new THREE.Color(SCENE_PALETTE.stageC.warmLight),
+        emissiveIntensity: 0.0,
+        roughness: 0.35,
+      });
+
+      return { frame, sideFrame, wood, glass, balconyGlass, downlight };
     });
   }, [textures, walnutBandColors]);
 
-  // Stage A weathered materials
+  // Stage A weathered society materials (aged warm stone, alternating per floor, low saturation, authentic weathering)
   const stageAMaterials = useMemo(() => {
     return {
-      stoneBase: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageA.stoneBase,
-        roughness: 0.9,
+      plinth: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.stageA.plinth, // #A89886
+        roughness: 0.92,
         transparent: true,
         opacity: 1,
       }),
       stoneFloors: [
-        new THREE.MeshStandardMaterial({ color: BUILDING_PALETTE.stageA.stoneFloor1, roughness: 0.88, transparent: true, opacity: 1 }),
-        new THREE.MeshStandardMaterial({ color: BUILDING_PALETTE.stageA.stoneFloor2, roughness: 0.88, transparent: true, opacity: 1 }),
-        new THREE.MeshStandardMaterial({ color: BUILDING_PALETTE.stageA.stoneFloor3, roughness: 0.86, transparent: true, opacity: 1 }),
-        new THREE.MeshStandardMaterial({ color: BUILDING_PALETTE.stageA.stoneFloor4, roughness: 0.85, transparent: true, opacity: 1 }),
+        new THREE.MeshStandardMaterial({ color: SCENE_PALETTE.stageA.stoneFloorA, roughness: 0.88, transparent: true, opacity: 1 }), // #B9A48C
+        new THREE.MeshStandardMaterial({ color: SCENE_PALETTE.stageA.stoneFloorB, roughness: 0.88, transparent: true, opacity: 1 }), // #AE977E
+        new THREE.MeshStandardMaterial({ color: SCENE_PALETTE.stageA.stoneFloorA, roughness: 0.86, transparent: true, opacity: 1 }), // #B9A48C
+        new THREE.MeshStandardMaterial({ color: SCENE_PALETTE.stageA.stoneFloorB, roughness: 0.85, transparent: true, opacity: 1 }), // #AE977E
       ],
-      stainRust: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageA.stainRust,
-        roughness: 0.95,
+      stainPatch: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.stageA.stainTone, // #A08A72
+        roughness: 0.96,
         transparent: true,
-        opacity: 1,
-      }),
-      stainDark: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageA.stainDark,
-        roughness: 0.95,
-        transparent: true,
-        opacity: 1,
+        opacity: 0.45,
       }),
       dullGlass: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageA.dullGlass,
-        roughness: 0.75,
+        color: SCENE_PALETTE.stageA.dullGlass, // #8FA3B0
+        roughness: 0.72,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.52,
+      }),
+      waterTank: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.stageA.waterTank, // #A08A72
+        roughness: 0.9,
+        transparent: true,
+        opacity: 1,
       }),
       fadedWood: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageA.fadedWood,
+        color: SCENE_PALETTE.stageA.pillarWalnut, // #6B4026
         roughness: 0.8,
+        transparent: true,
+        opacity: 1,
+      }),
+      mutedTree: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.stageA.mutedTreeGreen, // #86A07A
+        roughness: 0.85,
         transparent: true,
         opacity: 1,
       }),
@@ -281,117 +321,137 @@ function SceneContent({
   const sharedMaterials = useMemo(() => {
     return {
       whiteFrame: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.frameWhite,
-        roughness: 0.78,
-        metalness: 0.04,
+        color: SCENE_PALETTE.stageC.frameWhite,
+        roughness: 0.8,
+        metalness: 0.03,
       }),
       walnutWood: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.walnut,
-        map: textures.walnut || undefined,
-        roughness: 0.55,
-        metalness: 0.08,
+        color: SCENE_PALETTE.stageC.walnut,
+        ...(textures.walnut ? { map: textures.walnut } : {}),
+        roughness: 0.58,
+        metalness: 0.06,
       }),
       mullions: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.mullions,
-        roughness: 0.5,
-        metalness: 0.2,
+        color: SCENE_PALETTE.stageC.darkMullions, // #2B2F38
+        roughness: 0.52,
+        metalness: 0.18,
+      }),
+      darkRecessedBands: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.stageC.darkRecessedBands, // #2B2F38
+        roughness: 0.6,
+        metalness: 0.15,
       }),
       interiorBacking: new THREE.MeshStandardMaterial({
-        color: '#1A1D24',
-        roughness: 0.9,
+        color: SCENE_PALETTE.stageC.glassCurtain, // #EFECE6 daylight curtain layer
+        roughness: 0.72,
       }),
       stiltLouvreWhite: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.stiltLouvreWhite,
-        roughness: 0.75,
+        color: SCENE_PALETTE.stageC.stiltLouvreWhite, // #F6F3EC
+        roughness: 0.78,
       }),
       stiltLouvreWalnut: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.stiltLouvreWalnut,
-        map: textures.walnut || undefined,
+        color: SCENE_PALETTE.stageC.stiltLouvreWalnut, // #7A4A2B
+        ...(textures.walnut ? { map: textures.walnut } : {}),
         roughness: 0.58,
       }),
       stiltRecessDark: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.stiltRecessDark,
-        roughness: 0.92,
+        color: SCENE_PALETTE.stageC.stiltRecessDark, // #23262D
+        roughness: 0.94,
       }),
       gatePillar: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageA.fadedWood,
-        map: textures.walnut || undefined,
-        roughness: 0.65,
+        color: SCENE_PALETTE.stageA.pillarWalnut, // #6B4026
+        ...(textures.walnut ? { map: textures.walnut } : {}),
+        roughness: 0.68,
       }),
       gatePillarCap: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.gatePillarCapWhite,
-        roughness: 0.75,
+        color: SCENE_PALETTE.stageA.pillarCap, // #EDE8DC
+        roughness: 0.78,
       }),
       signboardWood: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageC.signboardWood,
-        map: textures.walnut || undefined,
+        color: SCENE_PALETTE.stageC.signboardWalnut, // #6B4026
+        ...(textures.walnut ? { map: textures.walnut } : {}),
         roughness: 0.6,
-        emissive: new THREE.Color(BUILDING_PALETTE.stageC.signboardGlow),
+      }),
+      signTextGold: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.stageC.goldSign, // #B8913A
+        roughness: 0.35,
+        metalness: 0.4,
+        emissive: new THREE.Color(SCENE_PALETTE.stageC.signboardGlow),
         emissiveIntensity: 0.0,
       }),
       blueprintWireframe: new THREE.MeshBasicMaterial({
-        color: BUILDING_PALETTE.stageB.wireframeGold,
+        color: SCENE_PALETTE.stageB.wireframeGold, // #B8913A
         wireframe: true,
         transparent: true,
         opacity: 0.85,
       }),
       craneYellow: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.stageB.craneGold,
-        roughness: 0.4,
-        metalness: 0.4,
+        color: SCENE_PALETTE.stageB.craneGold,
+        roughness: 0.45,
+        metalness: 0.35,
       }),
       scaffolding: new THREE.MeshBasicMaterial({
-        color: BUILDING_PALETTE.stageB.scaffoldGold,
+        color: SCENE_PALETTE.stageB.scaffoldGold,
         wireframe: true,
         transparent: true,
         opacity: 0.55,
       }),
       ground: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.environment.ground,
-        roughness: 0.85,
-      }),
-      road: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.environment.road,
-        roughness: 0.9,
-      }),
-      boundaryWall: new THREE.MeshStandardMaterial({
-        color: colors.stiltWall,
-        roughness: 0.75,
-      }),
-      bgSilhouette: new THREE.MeshStandardMaterial({
-        color: BUILDING_PALETTE.environment.bgSilhouette,
+        color: SCENE_PALETTE.ground.sand, // #E6E0D0
         roughness: 0.88,
       }),
+      road: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.ground.road, // #D9D3C4
+        roughness: 0.92,
+      }),
+      roadMarking: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.ground.laneMarks, // #FAF7F0
+        roughness: 0.8,
+      }),
+      boundaryWall: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.ground.compoundWall, // #D8CFBB
+        roughness: 0.8,
+      }),
+      bgSilhouetteCool: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.backgroundBuildings.cool, // #D9DFE4
+        roughness: 0.92,
+      }),
+      bgSilhouetteWarm: new THREE.MeshStandardMaterial({
+        color: SCENE_PALETTE.backgroundBuildings.warm, // #E3DDD2
+        roughness: 0.92,
+      }),
       foliage: [
-        new THREE.MeshStandardMaterial({ color: BUILDING_PALETTE.stageC.palmGreen, roughness: 0.8 }),
-        new THREE.MeshStandardMaterial({ color: BUILDING_PALETTE.stageC.palmGreenLight, roughness: 0.75 }),
-        new THREE.MeshStandardMaterial({ color: BUILDING_PALETTE.stageC.palmGreenDeep, roughness: 0.85 }),
+        new THREE.MeshStandardMaterial({ color: SCENE_PALETTE.stageC.leafGreen, roughness: 0.82 }),      // #6E9A62
+        new THREE.MeshStandardMaterial({ color: SCENE_PALETTE.stageC.leafGreenLight, roughness: 0.78 }), // #7EA673
+        new THREE.MeshStandardMaterial({ color: SCENE_PALETTE.stageC.leafGreenDark, roughness: 0.85 }),  // #5E8853
       ],
     };
   }, [textures]);
 
-  // Background neighbouring buildings for depth (pale ivory silhouettes)
+  // Background neighbouring buildings for depth (cool and warm low contrast silhouettes)
   const backgroundBuildings = useMemo(() => {
     return [
-      { pos: [-16, 7, -18] as [number, number, number], size: [9, 14, 8] as [number, number, number] },
-      { pos: [18, 9, -20] as [number, number, number], size: [11, 18, 9] as [number, number, number] },
-      { pos: [-12, 12, -26] as [number, number, number], size: [14, 24, 10] as [number, number, number] },
-      { pos: [14, 11, -28] as [number, number, number], size: [12, 22, 10] as [number, number, number] },
+      { pos: [-16, 7, -18] as [number, number, number], size: [9, 14, 8] as [number, number, number], cool: true },
+      { pos: [18, 9, -20] as [number, number, number], size: [11, 18, 9] as [number, number, number], cool: false },
+      { pos: [-12, 12, -26] as [number, number, number], size: [14, 24, 10] as [number, number, number], cool: true },
+      { pos: [14, 11, -28] as [number, number, number], size: [12, 22, 10] as [number, number, number], cool: false },
     ];
   }, []);
 
-  // Color constants for lerping without allocations inside useFrame
+  // Pre-cached Color instances for zero-allocation useFrame lerping
   const lerpColors = useMemo(() => {
     return {
-      wireframeGold: new THREE.Color(BUILDING_PALETTE.stageB.wireframeGold),
-      frameWhite: new THREE.Color(BUILDING_PALETTE.stageC.frameWhite),
-      glass: new THREE.Color(BUILDING_PALETTE.stageC.glass),
-      gateFaded: new THREE.Color(BUILDING_PALETTE.stageA.fadedWood),
-      gateWalnut: new THREE.Color(BUILDING_PALETTE.stageC.gatePillarWalnut),
-      gateCapStone: new THREE.Color(BUILDING_PALETTE.stageA.stoneFloor2),
-      gateCapWhite: new THREE.Color(BUILDING_PALETTE.stageC.gatePillarCapWhite),
-      warmLight: new THREE.Color(BUILDING_PALETTE.stageC.warmLight),
-      signGlow: new THREE.Color(BUILDING_PALETTE.stageC.signboardGlow),
+      wireframeGold: new THREE.Color(SCENE_PALETTE.stageB.wireframeGold),
+      frameWhite: new THREE.Color(SCENE_PALETTE.stageC.frameWhite),
+      frameWhiteSide: new THREE.Color(SCENE_PALETTE.stageC.frameWhiteSideShade),
+      glass: new THREE.Color(SCENE_PALETTE.stageC.glassBlue),
+      gateWalnut: new THREE.Color(SCENE_PALETTE.stageC.pillarWalnut),
+      gateCapOld: new THREE.Color(SCENE_PALETTE.stageA.pillarCap),
+      gateCapNew: new THREE.Color(SCENE_PALETTE.stageC.pillarCapStageC),
+      warmLight: new THREE.Color(SCENE_PALETTE.stageC.warmLight),
+      signGlow: new THREE.Color(SCENE_PALETTE.stageC.signboardGlow),
+      skyHaze: new THREE.Color(SCENE_PALETTE.sky.hazeTop),
+      skyStageC: new THREE.Color(SCENE_PALETTE.sky.stageCSky),
     };
   }, []);
 
@@ -413,6 +473,7 @@ function SceneContent({
       });
       floorMaterials.forEach((fm) => {
         fm.frame.dispose();
+        fm.sideFrame.dispose();
         fm.wood.dispose();
         fm.glass.dispose();
         fm.balconyGlass.dispose();
@@ -430,7 +491,7 @@ function SceneContent({
     mouse.current.x += (mouse.current.targetX - mouse.current.x) * 0.05;
     mouse.current.y += (mouse.current.targetY - mouse.current.y) * 0.05;
 
-    // ─── CAMERA MOTION: Preserved exact orbit & push-in ───
+    // ─── CAMERA MOTION: Exact preserved path ───
     if (!prefersReducedMotion) {
       const camStart = new THREE.Vector3(...camera.startPos);
       const camEnd = new THREE.Vector3(...camera.endPos);
@@ -452,17 +513,36 @@ function SceneContent({
       threeCamera.lookAt(new THREE.Vector3(...camera.endTarget));
     }
 
-    // ─── STAGE A: Old Weathered Building (0 to 0.30) ───
+    // ─── SCENE BACKGROUND & FOG TRANSITION: Pale sky haze -> Stage C slightly bluer (#E6EFF6) ───
+    if (scene.background instanceof THREE.Color) {
+      if (progress < 0.6) {
+        scene.background.copy(lerpColors.skyHaze);
+      } else {
+        const skyLerp = (progress - 0.6) / 0.4;
+        scene.background.lerpColors(lerpColors.skyHaze, lerpColors.skyStageC, skyLerp);
+      }
+    }
+    if (scene.fog) {
+      if (progress < 0.6) {
+        scene.fog.color.copy(lerpColors.skyHaze);
+      } else {
+        const fogLerp = (progress - 0.6) / 0.4;
+        scene.fog.color.lerpColors(lerpColors.skyHaze, lerpColors.skyStageC, fogLerp);
+      }
+    }
+
+    // ─── STAGE A: Old Weathered Building (0 to 0.32) ───
     if (oldBuildingGroup.current) {
       if (progress < 0.32) {
         const fade = THREE.MathUtils.clamp(1 - (progress - 0.18) / 0.14, 0, 1);
         oldBuildingGroup.current.visible = fade > 0.001;
-        stageAMaterials.stoneBase.opacity = fade;
+        stageAMaterials.plinth.opacity = fade;
         stageAMaterials.stoneFloors.forEach((sf) => (sf.opacity = fade));
-        stageAMaterials.stainRust.opacity = fade;
-        stageAMaterials.stainDark.opacity = fade;
-        stageAMaterials.dullGlass.opacity = fade * 0.5;
+        stageAMaterials.stainPatch.opacity = fade * 0.45;
+        stageAMaterials.dullGlass.opacity = fade * 0.52;
+        stageAMaterials.waterTank.opacity = fade;
         stageAMaterials.fadedWood.opacity = fade;
+        stageAMaterials.mutedTree.opacity = fade;
         oldBuildingGroup.current.position.y = (1 - fade) * -1.5;
       } else {
         oldBuildingGroup.current.visible = false;
@@ -474,10 +554,9 @@ function SceneContent({
       newTowerGroup.current.visible = progress >= 0.22;
     }
 
-    // Gate Pillars smooth transition from weathered faded wood to rich walnut + white cap
+    // Gate Pillars smooth transition from aged walnut + pale cap to Stage C rich walnut + white cap
     const gateLerp = THREE.MathUtils.clamp((progress - 0.26) / 0.45, 0, 1);
-    sharedMaterials.gatePillar.color.lerpColors(lerpColors.gateFaded, lerpColors.gateWalnut, gateLerp);
-    sharedMaterials.gatePillarCap.color.lerpColors(lerpColors.gateCapStone, lerpColors.gateCapWhite, gateLerp);
+    sharedMaterials.gatePillarCap.color.lerpColors(lerpColors.gateCapOld, lerpColors.gateCapNew, gateLerp);
 
     // Stilt floor Level 0 entrance blend
     if (stiltGroupRef.current) {
@@ -519,6 +598,7 @@ function SceneContent({
       const fm = floorMaterials[index];
       const targetWoodCol = new THREE.Color(walnutBandColors[index % 4]);
       fm.frame.color.lerpColors(lerpColors.wireframeGold, lerpColors.frameWhite, blendFactor);
+      fm.sideFrame.color.lerpColors(lerpColors.wireframeGold, lerpColors.frameWhiteSide, blendFactor);
       fm.wood.color.lerpColors(lerpColors.wireframeGold, targetWoodCol, blendFactor);
       fm.glass.color.lerpColors(lerpColors.wireframeGold, lerpColors.glass, blendFactor);
       fm.balconyGlass.color.lerpColors(lerpColors.wireframeGold, lerpColors.glass, blendFactor);
@@ -531,14 +611,32 @@ function SceneContent({
         (wireMesh.material as THREE.Material).opacity = wireOpacity;
       }
 
-      // ─── STAGE C: Warm Window & Balcony Downlights (0.76 to 0.96) ───
-      const lightThreshold = 0.76 + (index / floorCount) * 0.18;
-      if (progress >= lightThreshold) {
-        const glow = Math.min(1.0, (progress - lightThreshold) / 0.04);
-        fm.glass.emissive.copy(lerpColors.warmLight);
-        fm.glass.emissiveIntensity = THREE.MathUtils.lerp(0.0, 0.42, glow);
-        fm.downlight.emissive.copy(lerpColors.warmLight);
-        fm.downlight.emissiveIntensity = THREE.MathUtils.lerp(0.0, 0.95, glow);
+      // ─── STAGE C: Warm Downlights & Window Lighting (bottom-to-top wave, only a few lit at once, modest emissive) ───
+      // As progress moves from 0.76 to 0.96, light switches on floor by floor.
+      // In the final frame, only a few floors (floors 1, 3, 6) remain softly lit for authentic living elegance without bloom overload.
+      if (progress >= 0.76) {
+        const waveProgress = THREE.MathUtils.clamp((progress - 0.76) / 0.18, 0, 1);
+        const activeWaveFloor = waveProgress * (floorCount - 1);
+
+        // During scroll wave, only 2-3 floors around activeWaveFloor are lit
+        const distanceToWave = Math.abs(index - activeWaveFloor);
+        const waveIntensity = Math.max(0, 1 - distanceToWave * 0.9);
+
+        // In final frame (p > 0.94), maintain subtle living lights on selected floors (1, 3, 6)
+        const isSelectedFinishedFloor = index === 1 || index === 3 || index === 6;
+        const finalFloorGlow = isSelectedFinishedFloor ? 0.85 : 0.08;
+
+        const combinedGlow = THREE.MathUtils.lerp(waveIntensity, finalFloorGlow, Math.min(1, Math.max(0, (progress - 0.90) / 0.08)));
+
+        if (combinedGlow > 0.05) {
+          fm.glass.emissive.copy(lerpColors.warmLight);
+          fm.glass.emissiveIntensity = combinedGlow * 0.22; // modest interior glow
+          fm.downlight.emissive.copy(lerpColors.warmLight);
+          fm.downlight.emissiveIntensity = combinedGlow * 0.48; // modest downlight dot, no bloom overload
+        } else {
+          fm.glass.emissiveIntensity = 0.0;
+          fm.downlight.emissiveIntensity = 0.0;
+        }
       } else {
         fm.glass.emissiveIntensity = 0.0;
         fm.downlight.emissiveIntensity = 0.0;
@@ -574,30 +672,29 @@ function SceneContent({
       }
     }
 
-    // Sign "GANPATI CHS": Walnut panel with soft warm glowing letters
+    // Sign "GANPATI CHS": Gold sign letters on walnut panel
     if (signRef.current) {
-      if (progress >= 0.82) {
-        const signGlow = (progress - 0.82) / 0.18;
-        sharedMaterials.signboardWood.emissiveIntensity = THREE.MathUtils.lerp(0.0, 0.22, signGlow);
+      if (progress >= 0.80) {
+        const signGlow = (progress - 0.80) / 0.20;
         if (signTextRef.current?.material) {
           signTextRef.current.material.emissive = lerpColors.signGlow;
-          signTextRef.current.material.emissiveIntensity = THREE.MathUtils.lerp(0.1, 0.85, signGlow);
+          signTextRef.current.material.emissiveIntensity = THREE.MathUtils.lerp(0.05, 0.35, signGlow);
         }
       } else {
-        sharedMaterials.signboardWood.emissiveIntensity = 0.0;
         if (signTextRef.current?.material) {
           signTextRef.current.material.emissiveIntensity = 0.0;
         }
       }
     }
 
-    // Landscaping & cars revealed in finishing sequence
+    // Landscaping (two palms + shrubs) revealed in finishing sequence
     if (treesGroupRef.current) {
       const treeScale = THREE.MathUtils.clamp((progress - 0.74) / 0.12, 0, 1);
       treesGroupRef.current.scale.setScalar(treeScale);
       treesGroupRef.current.visible = treeScale > 0.01;
     }
 
+    // Cars revealed in stilt & entrance
     if (carsGroupRef.current) {
       const carScale = THREE.MathUtils.clamp((progress - 0.78) / 0.12, 0, 1);
       carsGroupRef.current.scale.setScalar(carScale);
@@ -609,37 +706,43 @@ function SceneContent({
       particlesRef.current.rotation.y = state.clock.elapsedTime * 0.015;
     }
 
-    // Sun & lighting transition (Soft warm daylight throughout, tuned exposure & architectural side-shading)
-    if (sunLightRef.current && ambientLightRef.current) {
+    // Soft warm daylight lighting rig transition
+    if (sunLightRef.current && hemiLightRef.current && ambientLightRef.current) {
       if (progress < 0.3) {
         sunLightRef.current.intensity = 1.25;
-        sunLightRef.current.color.set('#FFFDF7');
-        ambientLightRef.current.intensity = 0.65;
-        ambientLightRef.current.color.set('#FAF7F0');
+        hemiLightRef.current.intensity = 0.65;
+        ambientLightRef.current.intensity = 0.40;
       } else if (progress < 0.75) {
         sunLightRef.current.intensity = 1.35;
-        sunLightRef.current.color.set('#FFFFFF');
-        ambientLightRef.current.intensity = 0.7;
-        ambientLightRef.current.color.set('#FAF7F0');
+        hemiLightRef.current.intensity = 0.70;
+        ambientLightRef.current.intensity = 0.42;
       } else {
         const warmRatio = (progress - 0.75) / 0.25;
-        sunLightRef.current.intensity = THREE.MathUtils.lerp(1.35, 1.45, warmRatio);
-        sunLightRef.current.color.lerpColors(new THREE.Color('#FFFFFF'), new THREE.Color('#FFF8EE'), warmRatio);
-        ambientLightRef.current.color.lerpColors(new THREE.Color('#FAF7F0'), new THREE.Color('#F6EFDD'), warmRatio);
+        sunLightRef.current.intensity = THREE.MathUtils.lerp(1.35, 1.40, warmRatio);
+        hemiLightRef.current.intensity = THREE.MathUtils.lerp(0.70, 0.75, warmRatio);
+        ambientLightRef.current.intensity = THREE.MathUtils.lerp(0.42, 0.45, warmRatio);
       }
     }
   });
 
   return (
     <>
-      {/* ─── LIGHTING & ENVIRONMENT ─── */}
-      <hemisphereLight args={['#FFFFFF', '#E8E2D5', 0.65]} />
-      <ambientLight ref={ambientLightRef} intensity={0.68} color="#FFF6E8" />
+      {/* ─── SOFT WARM DAYLIGHT RIG (Warm-white key from upper left, soft hemisphere sky/ground) ─── */}
+      <hemisphereLight
+        ref={hemiLightRef}
+        args={[SCENE_PALETTE.lighting.hemiSky, SCENE_PALETTE.lighting.hemiGround, SCENE_PALETTE.lighting.hemiIntensity]}
+      />
+      <ambientLight
+        ref={ambientLightRef}
+        intensity={SCENE_PALETTE.lighting.ambientIntensity}
+        color={SCENE_PALETTE.lighting.ambientColor}
+      />
       <directionalLight
         ref={sunLightRef}
         position={[-14, 22, 16]}
-        intensity={1.35}
-        castShadow={!isMobile}
+        intensity={SCENE_PALETTE.lighting.keyLightIntensity}
+        color={SCENE_PALETTE.lighting.keyLightColor}
+        castShadow={!isMobile && !prefersReducedMotion}
         shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.5}
         shadow-camera-far={60}
@@ -647,11 +750,11 @@ function SceneContent({
         shadow-camera-right={15}
         shadow-camera-top={20}
         shadow-camera-bottom={-10}
-        shadow-bias={-0.0005}
+        shadow-bias={-0.0004}
       />
       <Environment preset="city" />
 
-      {/* ─── SUBTLE FLOATING GOLD PARTICLES ─── */}
+      {/* ─── SUBTLE FLOATING GOLD MOTES (Small, gold-light, low opacity) ─── */}
       <points ref={particlesRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -660,49 +763,49 @@ function SceneContent({
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.12}
-          color={colors.goldLight}
+          size={0.09}
+          color={SCENE_PALETTE.stageB.scaffoldGold}
           transparent
-          opacity={0.35}
+          opacity={0.24}
           sizeAttenuation
         />
       </points>
 
       {/* ─── GROUND PLOT, ROAD & NEIGHBOURHOOD (Pale ivory backdrop) ─── */}
       <group position={[0, 0, 0]}>
-        {/* Soft Contact Shadow beneath building for strong visual grounding */}
+        {/* Soft Contact Shadow beneath building for grounded depth */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0]}>
           <planeGeometry args={[18, 16]} />
           <meshBasicMaterial
-            map={textures.shadow || undefined}
+            {...(textures.shadow ? { map: textures.shadow } : {})}
             color="#2A241E"
             transparent
-            opacity={textures.shadow ? 0.72 : 0.25}
+            opacity={textures.shadow ? 0.65 : 0.22}
           />
         </mesh>
 
-        {/* Main Plot Ground */}
+        {/* Main Plot Ground (Sand #E6E0D0) */}
         <mesh receiveShadow={!isMobile} position={[0, -0.05, 0]} material={sharedMaterials.ground}>
           <boxGeometry args={[26, 0.1, 24]} />
         </mesh>
 
-        {/* Front Road */}
+        {/* Front Road (#D9D3C4) */}
         <mesh receiveShadow={!isMobile} position={[0, -0.04, 11]} material={sharedMaterials.road}>
           <boxGeometry args={[36, 0.08, 6]} />
         </mesh>
 
-        {/* Road Dashed Centerlines */}
+        {/* Road Dashed Centerlines (Lane marks #FAF7F0) */}
         {[-8, -4, 0, 4, 8].map((rx, idx) => (
           <mesh
             key={idx}
             rotation={[-Math.PI / 2, 0, 0]}
             position={[rx, 0.01, 11]}
-            material={sharedMaterials.whiteFrame}
+            material={sharedMaterials.roadMarking}
             geometry={sharedGeometries.roadMarking}
           />
         ))}
 
-        {/* Boundary Compound Wall with Gate Opening */}
+        {/* Compound Boundary Wall (#D8CFBB) with Gate Opening */}
         <mesh position={[-6.8, 0.55, 7.5]} material={sharedMaterials.boundaryWall}>
           <boxGeometry args={[11, 1.1, 0.25]} />
         </mesh>
@@ -710,7 +813,7 @@ function SceneContent({
           <boxGeometry args={[11, 1.1, 0.25]} />
         </mesh>
 
-        {/* Entrance Gate Pillars (Walnut tone with bright white caps) */}
+        {/* Entrance Gate Pillars (Walnut #6B4026 with pale caps #EDE8DC transitioning to #F6F3EC) */}
         <group position={[-1.2, 1.1, 7.5]}>
           <mesh material={sharedMaterials.gatePillar}>
             <boxGeometry args={[0.55, 2.2, 0.55]} />
@@ -728,20 +831,24 @@ function SceneContent({
           </mesh>
         </group>
 
-        {/* Background Skyline Buildings (Pale silhouettes) */}
+        {/* Background Skyline Buildings (Cool #D9DFE4 and Warm #E3DDD2 low contrast silhouettes) */}
         {backgroundBuildings.map((b, idx) => (
-          <mesh key={idx} position={b.pos} material={sharedMaterials.bgSilhouette}>
+          <mesh
+            key={idx}
+            position={b.pos}
+            material={b.cool ? sharedMaterials.bgSilhouetteCool : sharedMaterials.bgSilhouetteWarm}
+          >
             <boxGeometry args={b.size} />
           </mesh>
         ))}
 
-        {/* Landscaping Trees & Shrubs (Natural multi-tone greens) */}
+        {/* Landscaping: Two Palms at the sides + Shrubs (Finished Stage C sequence) */}
         <group ref={treesGroupRef} visible={false}>
           {[
             { pos: [-9.5, 0, 6], shade: 0 },
             { pos: [-10.5, 0, 2], shade: 1 },
-            { pos: [9.5, 0, 6], shade: 2 },
-            { pos: [10.5, 0, 2], shade: 0 },
+            { pos: [9.5, 0, 6], shade: 0 },
+            { pos: [10.5, 0, 2], shade: 2 },
             { pos: [-11, 0, -4], shade: 1 },
             { pos: [11, 0, -4], shade: 2 },
           ].map((t, idx) => (
@@ -756,28 +863,29 @@ function SceneContent({
         <group ref={carsGroupRef} visible={false}>
           {[
             { pos: [-2.4, 0.4, 1.5] as [number, number, number], rot: 0, col: '#F8FAFC' },
-            { pos: [2.4, 0.4, 1.5] as [number, number, number], rot: 0, col: '#1E293B' },
-            { pos: [7.5, 0.4, 9.8] as [number, number, number], rot: Math.PI / 2, col: '#D4A462' },
+            { pos: [2.4, 0.4, 1.5] as [number, number, number], rot: 0, col: '#2B2F38' },
+            { pos: [7.5, 0.4, 9.8] as [number, number, number], rot: Math.PI / 2, col: '#C8A878' },
           ].map((car, idx) => (
             <group key={idx} position={car.pos} rotation={[0, car.rot, 0]}>
               <mesh geometry={sharedGeometries.carBody}>
-                <meshStandardMaterial color={car.col} roughness={0.3} metalness={0.4} />
+                <meshStandardMaterial color={car.col} roughness={0.35} metalness={0.3} />
               </mesh>
               <mesh position={[0, 0.55, -0.2]} geometry={sharedGeometries.carCabin}>
-                <meshStandardMaterial color="#0284C7" roughness={0.1} metalness={0.8} />
+                <meshStandardMaterial color={SCENE_PALETTE.stageC.glassBlue} roughness={0.12} metalness={0.5} />
               </mesh>
             </group>
           ))}
         </group>
       </group>
 
-      {/* ─── STAGE A: OLD WEATHERED 4-STOREY BUILDING (Muted warm stone, authentic aging) ─── */}
+      {/* ─── STAGE A: OLD WEATHERED 4-STOREY BUILDING (Aged warm stone, subtle per-floor variation, dull glass, muted tree) ─── */}
       <group ref={oldBuildingGroup} position={[0, 0, 0]}>
-        {/* Old Building Stilt Base */}
-        <mesh position={[0, 1.0, 0]} material={stageAMaterials.stoneBase}>
+        {/* Weathered Stone Plinth Base (#A89886) */}
+        <mesh position={[0, 1.0, 0]} material={stageAMaterials.plinth}>
           <boxGeometry args={[towerWidth * 0.9, 2.0, towerDepth * 0.9]} />
         </mesh>
-        {/* 4 Weathered Floors with vertical tone gradient & rust/water stains */}
+
+        {/* 4 Weathered Floors alternating #B9A48C and #AE977E with faint stain patches */}
         {Array.from({ length: 4 }).map((_, fIdx) => {
           const y = 2.0 + fIdx * 1.6 + 0.8;
           return (
@@ -786,14 +894,13 @@ function SceneContent({
               <mesh material={stageAMaterials.stoneFloors[fIdx]}>
                 <boxGeometry args={[towerWidth * 0.9, 1.5, towerDepth * 0.9]} />
               </mesh>
-              {/* Concrete Water & Rust Stain Stripes */}
-              <mesh
-                position={[0, 0, towerDepth * 0.45 + 0.02]}
-                material={fIdx % 2 === 0 ? stageAMaterials.stainRust : stageAMaterials.stainDark}
-              >
-                <boxGeometry args={[towerWidth * 0.88, 1.48, 0.02]} />
-              </mesh>
-              {/* Old Dull Grey-Blue Windows */}
+              {/* Faint weathering stain patch on floors 1 and 3 */}
+              {(fIdx === 1 || fIdx === 3) && (
+                <mesh position={[0, 0, towerDepth * 0.45 + 0.02]} material={stageAMaterials.stainPatch}>
+                  <boxGeometry args={[towerWidth * 0.88, 1.48, 0.02]} />
+                </mesh>
+              )}
+              {/* Old Dull Grey-Blue Windows (#8FA3B0) */}
               <mesh position={[-2.2, 0, towerDepth * 0.45 + 0.04]} material={stageAMaterials.dullGlass}>
                 <boxGeometry args={[1.6, 0.9, 0.04]} />
               </mesh>
@@ -801,16 +908,23 @@ function SceneContent({
                 <boxGeometry args={[1.6, 0.9, 0.04]} />
               </mesh>
               {/* Floor Slab Divider */}
-              <mesh position={[0, -0.75, 0]} material={stageAMaterials.stainDark}>
+              <mesh position={[0, -0.75, 0]} material={stageAMaterials.plinth}>
                 <boxGeometry args={[towerWidth * 0.92, 0.12, towerDepth * 0.92]} />
               </mesh>
             </group>
           );
         })}
-        {/* Rusted Water Tank on Old Roof */}
-        <mesh position={[2.0, 8.9, 0]} material={stageAMaterials.stainRust}>
+
+        {/* Small Water Tank on Old Roof (#A08A72) */}
+        <mesh position={[2.0, 8.9, 0]} material={stageAMaterials.waterTank}>
           <cylinderGeometry args={[0.9, 0.9, 1.4, 12]} />
         </mesh>
+
+        {/* One Muted Tree in Old Society Grounds (#86A07A) */}
+        <group position={[-6.5, 0, 4.8]}>
+          <mesh position={[0, 0.9, 0]} geometry={sharedGeometries.treeTrunk} material={stageAMaterials.fadedWood} />
+          <mesh position={[0, 2.3, 0]} geometry={sharedGeometries.treeFoliage} material={stageAMaterials.mutedTree} />
+        </group>
       </group>
 
       {/* ─── STAGE B & C: NEW 8-STOREY GANPATI TOWER ─── */}
@@ -848,7 +962,7 @@ function SceneContent({
             <boxGeometry args={[towerWidth - 0.15, stiltHeight - 0.3, 0.08]} />
           </mesh>
 
-          {/* Alternating White & Walnut Louvre Strips */}
+          {/* Alternating White (#F6F3EC) & Walnut (#7A4A2B) Louvre Strips */}
           {[-1.8, -1.5, -1.2, -0.9, -0.6].map((ly, idx) => (
             <mesh
               key={idx}
@@ -887,13 +1001,15 @@ function SceneContent({
               <mesh position={[-towerWidth * 0.44, floorHeight / 2, towerDepth * 0.42]} geometry={sharedGeometries.column} material={floorMaterials[fIdx].frame} />
               <mesh position={[towerWidth * 0.44, floorHeight / 2, towerDepth * 0.42]} geometry={sharedGeometries.column} material={floorMaterials[fIdx].frame} />
 
-              {/* White Architectural Staggered Framing Flanges */}
-              <mesh position={[-towerWidth * 0.46, floorHeight / 2, 0]} material={floorMaterials[fIdx].frame}>
-                <boxGeometry args={[0.35, floorHeight + 0.1, towerDepth + 0.3]} />
-              </mesh>
-              <mesh position={[towerWidth * 0.46, floorHeight / 2, 0]} material={floorMaterials[fIdx].frame}>
-                <boxGeometry args={[0.35, floorHeight + 0.1, towerDepth + 0.3]} />
-              </mesh>
+              {/* White Architectural Framing Flange (Left) with subtle side shading */}
+              <mesh position={[-towerWidth * 0.46, floorHeight / 2, 0]} geometry={sharedGeometries.sideFlange} material={floorMaterials[fIdx].sideFrame} />
+
+              {/* Side Lift Core (Right) in warm white with dark recessed bands */}
+              <group position={[towerWidth * 0.46, floorHeight / 2, 0]}>
+                <mesh geometry={sharedGeometries.sideFlange} material={floorMaterials[fIdx].sideFrame} />
+                {/* Dark horizontal recessed band */}
+                <mesh position={[0.01, 0, 0]} geometry={sharedGeometries.sideRecessedBand} material={sharedMaterials.darkRecessedBands} />
+              </group>
 
               {/* Walnut Wood Finish Spandrel Band Beneath Balcony */}
               <mesh position={[0, 0.25, towerDepth * 0.44]} material={floorMaterials[fIdx].wood}>
@@ -965,7 +1081,7 @@ function SceneContent({
               </mesh>
             </group>
 
-            {/* Lift Machine Room */}
+            {/* Lift Machine Room in warm white */}
             <mesh position={[-1.8, 1.2, -1.2]} material={sharedMaterials.whiteFrame}>
               <boxGeometry args={[3.2, 1.8, 3.0]} />
             </mesh>
@@ -975,7 +1091,7 @@ function SceneContent({
               <boxGeometry args={[2.4, 1.5, 2.4]} />
             </mesh>
 
-            {/* Grand Crown Signboard: White Letters on Walnut Wood Panel */}
+            {/* Grand Crown Signboard: Gold Letters on Walnut Wood Panel */}
             <group position={[0, 1.2, towerDepth * 0.48]}>
               <mesh ref={signRef} material={sharedMaterials.signboardWood}>
                 <boxGeometry args={[6.2, 0.9, 0.25]} />
@@ -984,7 +1100,7 @@ function SceneContent({
                 ref={signTextRef}
                 position={[0, 0, 0.16]}
                 fontSize={0.42}
-                color="#FFFFFF"
+                color={SCENE_PALETTE.stageC.goldSign}
                 anchorX="center"
                 anchorY="middle"
                 fontWeight={700}
@@ -1038,7 +1154,7 @@ export default function GanpatiBuilding3D({
         powerPreference: 'high-performance',
         alpha: true,
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 0.95,
+        toneMappingExposure: SCENE_PALETTE.lighting.toneMappingExposure,
       }}
       camera={{
         position: camera.startPos,
@@ -1055,8 +1171,8 @@ export default function GanpatiBuilding3D({
         pointerEvents: 'none',
       }}
     >
-      <color attach="background" args={[BUILDING_PALETTE.environment.fog]} />
-      <fog attach="fog" args={[BUILDING_PALETTE.environment.fog, 28, 80]} />
+      <color attach="background" args={[SCENE_PALETTE.sky.hazeTop]} />
+      <fog attach="fog" args={[SCENE_PALETTE.sky.fog, 24, 75]} />
       <SceneContent
         progressRef={progressRef}
         isMobile={isMobile}

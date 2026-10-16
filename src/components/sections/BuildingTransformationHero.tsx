@@ -18,7 +18,7 @@ const GanpatiBuilding3D = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#FAF7F0] gap-3">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#F4F3EE] gap-3">
         <PinwheelLoader size="xl" label="Loading 3D Architectural Transformation..." />
       </div>
     ),
@@ -120,11 +120,11 @@ export function BuildingTransformationHero() {
     const width = canvas.width;
     const height = canvas.height;
 
-    // Gradient background: Warm ivory daylight
+    // Gradient background: Pale sky haze top #EAF0F4 fading to ivory #F4F3EE
     const sky = ctx.createLinearGradient(0, 0, 0, height);
-    sky.addColorStop(0, '#FFFFFF');
-    sky.addColorStop(0.65, '#FAF7F0');
-    sky.addColorStop(1, p > 0.6 ? '#F6EFDD' : '#EAE4D8');
+    sky.addColorStop(0, '#EAF0F4');
+    sky.addColorStop(0.65, '#F4F3EE');
+    sky.addColorStop(1, p > 0.6 ? '#E6EFF6' : '#E6E0D0');
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, width, height);
 
@@ -231,16 +231,16 @@ export function BuildingTransformationHero() {
         id="hero-transformation"
         data-pinned="true"
         data-section="0"
-        className="relative w-full h-[100svh] min-h-[100svh] overflow-hidden bg-[#FAF7F0] text-[#1B1B1F] select-none border-b border-[#E9E2D0]"
+        className="relative w-full h-[100svh] min-h-[100svh] overflow-hidden bg-[#F4F3EE] text-[#1B1B1F] select-none border-b border-[#E9E2D0]"
       >
-        {/* ─── BASE SKY GRADIENT: WARM IVORY DAYLIGHT (z-0) ─── */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-[#FAF7F0] to-[#FAF7F0] z-0 pointer-events-none" />
+        {/* ─── BASE SKY GRADIENT: SKY HAZE TOP #EAF0F4 FADING TO IVORY #F4F3EE (z-0) ─── */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#EAF0F4] via-[#F4F3EE] to-[#F4F3EE] z-0 pointer-events-none" />
 
-        {/* ─── GOLDEN HIGHLIGHT OVERLAY: Stage C (z-0) ─── */}
+        {/* ─── STAGE C SKY BLUING OVERLAY: (#E6EFF6) (z-0) ─── */}
         <div
           ref={skySunsetRef}
           style={{ opacity: 0 }}
-          className="absolute inset-0 bg-gradient-to-t from-[#B8913A]/10 via-[#D4AF5A]/5 to-transparent z-0 transition-opacity duration-150 pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-t from-[#E6EFF6]/60 via-[#EAF0F4]/20 to-transparent z-0 transition-opacity duration-150 pointer-events-none"
         />
 
         {/* ─── 3D PROCEDURAL INTERACTIVE CANVAS (z-10) ─── */}
@@ -328,6 +328,7 @@ export function BuildingTransformationHero() {
               src="/assets/sankalp-logo.png"
               alt="Sankalp — Redevelopment with Responsibility"
               fill
+              sizes="(max-width: 640px) 192px, 240px"
               priority
               className="object-contain"
             />

@@ -1,84 +1,60 @@
 /**
  * Procedural Building Palette
- * Sampled directly from public/ref/ganpati-final.jpg
+ * Re-exports from scenePalette.ts (single source of truth)
  * Sankalp PMC — Ganpati CHS 3D Hero Transformation
  */
 
+import { SCENE_PALETTE } from './scenePalette';
+
 export const BUILDING_PALETTE = {
-  // ─── STAGE C: Completed Landmark (Rich architectural render palette) ───
   stageC: {
-    // White architectural frames & slabs (matte, roughness ~0.8)
-    frameWhite: '#F3F1EC',
-    frameWhiteTrim: '#FAF8F3',
-    frameWhiteShade: '#DDD9D0',
-
-    // Natural walnut wood bands, balcony soffits, and crown canopy
-    walnut: '#734526',
-    walnutDark: '#5C331B',
-    walnutLight: '#8A5A34',
-    walnutWarm: '#7B4A2B',
-
-    // Glass facades & balconies with light blue daylight reflections
-    glass: '#7FAFD0',
-    glassDeep: '#5A8DB5',
-    glassLight: '#A9CBE3',
-    glassCurtain: '#F5EFE6',
-
-    // Dark window mullions & architectural accent reveals
-    mullions: '#2B2F38',
-    darkAccents: '#1F2228',
-
-    // Stilt floor alternating louvre strips & parking bays
-    stiltLouvreWhite: '#F0ECE4',
-    stiltLouvreWalnut: '#6B4026',
-    stiltRecessDark: '#222329',
-
-    // Grand crown sign "GANPATI CHS"
-    signboardWood: '#6E3E22',
-    signboardLetter: '#FFFFFF',
-    signboardGlow: '#FFE5B4',
-
-    // Compound entrance gate pillars & boundary
-    gatePillarWalnut: '#6B4026',
-    gatePillarCapWhite: '#F3F1EC',
-    gateFencingDark: '#2B2F38',
-
-    // Natural landscaping greens
-    palmGreen: '#3F7A3A',
-    palmGreenLight: '#52964A',
-    palmGreenDeep: '#2F5C2B',
-
-    // Warm window & balcony downlights (emissive warm white-gold)
-    warmLight: '#FFD9A0',
-    warmLightLit: '#FFE8C2',
+    frameWhite: SCENE_PALETTE.stageC.frameWhite,
+    frameWhiteTrim: SCENE_PALETTE.stageC.frameWhiteTopHighlight,
+    frameWhiteShade: SCENE_PALETTE.stageC.frameWhiteSideShade,
+    walnut: SCENE_PALETTE.stageC.walnut,
+    walnutDark: SCENE_PALETTE.stageC.walnutDark,
+    walnutLight: SCENE_PALETTE.stageC.walnutLight,
+    walnutWarm: SCENE_PALETTE.stageC.walnutWarm,
+    glass: SCENE_PALETTE.stageC.glassBlue,
+    glassDeep: SCENE_PALETTE.stageC.glassBlueDeep,
+    glassLight: SCENE_PALETTE.stageC.glassBlueLight,
+    mullions: SCENE_PALETTE.stageC.darkMullions,
+    darkAccents: SCENE_PALETTE.stageC.darkRecessedBands,
+    stiltLouvreWhite: SCENE_PALETTE.stageC.stiltLouvreWhite,
+    stiltLouvreWalnut: SCENE_PALETTE.stageC.stiltLouvreWalnut,
+    stiltRecessDark: SCENE_PALETTE.stageC.stiltRecessDark,
+    signboardWood: SCENE_PALETTE.stageC.signboardWalnut,
+    signboardLetter: SCENE_PALETTE.stageC.goldSign,
+    signboardGlow: SCENE_PALETTE.stageC.signboardGlow,
+    gatePillarWalnut: SCENE_PALETTE.stageC.pillarWalnut,
+    gatePillarCapWhite: SCENE_PALETTE.stageC.pillarCapStageC,
+    palmGreen: SCENE_PALETTE.stageC.leafGreen,
+    palmGreenLight: SCENE_PALETTE.stageC.leafGreenLight,
+    palmGreenDeep: SCENE_PALETTE.stageC.leafGreenDark,
+    warmLight: SCENE_PALETTE.stageC.warmLight,
+    warmLightLit: SCENE_PALETTE.stageC.warmLightLit,
   },
-
-  // ─── STAGE A: Existing Society (Weathered, aged stone, muted low-saturation) ───
   stageA: {
-    stoneBase: '#A49E92',
-    stoneFloor1: '#A8A296',
-    stoneFloor2: '#B0AA9E',
-    stoneFloor3: '#B8B2A6',
-    stoneFloor4: '#C0BAAE',
-    stainRust: '#857463',
-    stainDark: '#6E6152',
-    dullGlass: '#7C8B94',
-    fadedWood: '#756654',
+    stoneBase: SCENE_PALETTE.stageA.plinth,
+    stoneFloor1: SCENE_PALETTE.stageA.stoneFloorA,
+    stoneFloor2: SCENE_PALETTE.stageA.stoneFloorB,
+    stoneFloor3: SCENE_PALETTE.stageA.stoneFloorA,
+    stoneFloor4: SCENE_PALETTE.stageA.stoneFloorB,
+    stainRust: SCENE_PALETTE.stageA.stainTone,
+    stainDark: SCENE_PALETTE.stageA.stainPatch,
+    dullGlass: SCENE_PALETTE.stageA.dullGlass,
+    fadedWood: SCENE_PALETTE.stageA.pillarWalnut,
   },
-
-  // ─── STAGE B: Construction Blueprint ───
   stageB: {
-    wireframeGold: '#B8913A',
-    scaffoldGold: '#D4AF5A',
-    craneGold: '#B8913A',
+    wireframeGold: SCENE_PALETTE.stageB.wireframeGold,
+    scaffoldGold: SCENE_PALETTE.stageB.scaffoldGold,
+    craneGold: SCENE_PALETTE.stageB.craneGold,
   },
-
-  // ─── Surrounding Environment (Kept pale ivory/warm grey to let building pop) ───
   environment: {
-    fog: '#FAF7F0',
-    ground: '#FAF7F0',
-    road: '#E5DFD3',
-    bgSilhouette: '#EAE4D8',
+    fog: SCENE_PALETTE.sky.fog,
+    ground: SCENE_PALETTE.ground.sand,
+    road: SCENE_PALETTE.ground.road,
+    bgSilhouette: SCENE_PALETTE.backgroundBuildings.warm,
   },
 } as const;
 
