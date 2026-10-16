@@ -254,6 +254,7 @@ export function BuildingTransformationHero() {
         ref={containerRef}
         id="hero-transformation"
         data-pinned="true"
+        data-section="0"
         className="relative w-full h-[100svh] min-h-[100svh] overflow-hidden bg-[#0c1421] text-white select-none"
       >
         {/* ─── BASE SKY GRADIENT: DEEP NIGHT NAVY (z-0) ─── */}
