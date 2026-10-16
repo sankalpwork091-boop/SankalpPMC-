@@ -44,7 +44,7 @@ export function ProcessRail() {
       <nav
         role="navigation"
         aria-label="Redevelopment Process Steps"
-        className="bg-navy-light/85 backdrop-blur-md p-2.5 rounded-full border border-white/10 shadow-2xl flex flex-col items-center gap-2"
+        className="bg-white/90 backdrop-blur-md p-2.5 rounded-full border border-[#E9E2D0] shadow-xl flex flex-col items-center gap-2"
       >
         {processSteps.map((step, index) => {
           const isActive = currentStepId === step.id;
@@ -60,12 +60,12 @@ export function ProcessRail() {
               onKeyDown={(e) => handleKeyDown(e, index)}
               aria-label={`Step ${step.id} of 10: ${step.title}${isActive ? ' (Current Step)' : ''}`}
               aria-current={isActive ? 'step' : undefined}
-              className="group relative flex items-center justify-center p-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-navy focus-visible:outline-none transition-all"
+              className="group relative flex items-center justify-center p-1.5 rounded-full focus-visible:ring-2 focus-visible:ring-[#B8913A] focus-visible:outline-none transition-all"
             >
               {/* Tooltip on Hover and Focus */}
               <span
                 role="tooltip"
-                className="absolute right-9 px-2.5 py-1 rounded bg-navy-mid/95 text-xs text-text-light font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none border border-white/10 shadow-lg"
+                className="absolute right-9 px-2.5 py-1 rounded-lg bg-white text-xs text-[#1B1B1F] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none border border-[#E9E2D0] shadow-lg"
               >
                 Step {step.id}: {step.title}
               </span>
@@ -74,10 +74,10 @@ export function ProcessRail() {
               <div
                 className={`rounded-full transition-all duration-300 ${
                   isActive
-                    ? 'w-3.5 h-3.5 bg-gold ring-4 ring-gold/25'
+                    ? 'w-3.5 h-3.5 bg-[#B8913A] ring-4 ring-[#B8913A]/25'
                     : isPassed
-                    ? 'w-2.5 h-2.5 bg-gold/70'
-                    : 'w-2.5 h-2.5 bg-white/25 group-hover:bg-white/50'
+                    ? 'w-2.5 h-2.5 bg-[#D4AF5A]'
+                    : 'w-2.5 h-2.5 bg-[#E9E2D0] group-hover:bg-[#B8913A]/50'
                 }`}
               />
             </a>

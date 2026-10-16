@@ -2,6 +2,12 @@ import type { Metadata } from 'next';
 import { siteConfig } from '@/data/siteConfig';
 import { ConsultationSection } from '@/components/sections/ConsultationSection';
 import { GlassCard } from '@/components/ui/GlassCard';
+import {
+  ScrollReveal,
+  StaggerContainer,
+  StaggerItem,
+  HeadingWithGoldLine,
+} from '@/components/ui/ScrollReveal';
 
 export const metadata: Metadata = {
   title: 'Contact Us — Head Office & Branch Advisory',
@@ -17,66 +23,72 @@ export const metadata: Metadata = {
 
 export default function ContactUsPage() {
   return (
-    <div className="relative pt-28 pb-20">
-      {/* Page Header */}
-      <section className="px-6 py-16 md:py-20 text-center max-w-5xl mx-auto">
-        <span className="text-xs uppercase tracking-widest text-gold font-semibold mb-3 inline-block">
-          Get In Touch
-        </span>
-        <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-text-light mb-6">
-          Start Your Redevelopment Right
-        </h1>
-        <p className="max-w-2xl mx-auto text-base sm:text-lg text-text-muted">
-          Our senior advocates, architects, and project managers are ready to meet your committee. Reach us at our offices in CBD Belapur or Sanpada.
-        </p>
+    <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
+      {/* ─── Page Header (Warm Ivory) ─── */}
+      <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
+        <ScrollReveal className="max-w-4xl mx-auto">
+          <span className="section-eyebrow mb-3">
+            Get In Touch
+          </span>
+          <HeadingWithGoldLine align="center">
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-[#1B1B1F] mb-6">
+              Start Your Redevelopment <span className="italic text-[#B8913A]">Right</span>
+            </h1>
+          </HeadingWithGoldLine>
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#5B5B63] mt-4 leading-relaxed">
+            Our senior advocates, architects, and project managers are ready to meet your committee. Reach us at our offices in CBD Belapur or Sanpada.
+          </p>
+        </ScrollReveal>
       </section>
 
-      {/* Office Locations Grid */}
-      <section className="max-w-6xl mx-auto px-6 mb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* ─── Office Locations Grid (White) ─── */}
+      <section className="max-w-6xl mx-auto px-6 py-20">
+        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {siteConfig.addresses.map((addr, i) => (
-            <GlassCard key={i} variant="default" className="p-8 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-semibold text-gold uppercase tracking-wider bg-gold/10 px-3 py-1 rounded-full border border-gold/20">
-                    {addr.label}
-                  </span>
-                  <span className="text-xl">📍</span>
+            <StaggerItem key={i}>
+              <GlassCard variant="default" className="p-8 flex flex-col justify-between h-full bg-white">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-bold text-[#8F6B1E] uppercase tracking-wider bg-[#F6EFDD] px-3 py-1 rounded-full border border-[#D4AF5A]/30">
+                      {addr.label}
+                    </span>
+                    <span className="text-xl">📍</span>
+                  </div>
+                  <h2 className="font-heading text-xl font-bold text-[#1B1B1F] mb-3">
+                    {addr.line1}
+                  </h2>
+                  <p className="text-sm text-[#5B5B63] leading-relaxed">
+                    {addr.line2}<br />
+                    {addr.city}, {addr.state} — {addr.pin}
+                  </p>
                 </div>
-                <h2 className="font-heading text-xl font-bold text-text-light mb-3">
-                  {addr.line1}
-                </h2>
-                <p className="text-sm text-text-muted leading-relaxed">
-                  {addr.line2}<br />
-                  {addr.city}, {addr.state} — {addr.pin}
-                </p>
-              </div>
 
-              <div className="pt-6 mt-6 border-t border-white/10 flex flex-col sm:flex-row gap-3">
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    `${addr.line1}, ${addr.line2}, ${addr.city} ${addr.pin}`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary text-xs !py-2 text-center"
-                >
-                  View on Google Maps ↗
-                </a>
-                <a
-                  href={`tel:${siteConfig.phones[i % siteConfig.phones.length].replace(/\s/g, '')}`}
-                  className="btn-primary text-xs !py-2 text-center"
-                >
-                  Call Office
-                </a>
-              </div>
-            </GlassCard>
+                <div className="pt-6 mt-6 border-t border-[#E9E2D0] flex flex-col sm:flex-row gap-3">
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      `${addr.line1}, ${addr.line2}, ${addr.city} ${addr.pin}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary text-xs !py-2.5 text-center flex-1"
+                  >
+                    View on Google Maps ↗
+                  </a>
+                  <a
+                    href={`tel:${siteConfig.phones[i % siteConfig.phones.length].replace(/\s/g, '')}`}
+                    className="btn-primary text-xs !py-2.5 text-center flex-1"
+                  >
+                    Call Office
+                  </a>
+                </div>
+              </GlassCard>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </section>
 
-      {/* Integrated Consultation Form Component */}
-      <div className="-mt-12">
+      {/* ─── Integrated Consultation Form Component (Warm Ivory) ─── */}
+      <div>
         <ConsultationSection />
       </div>
     </div>

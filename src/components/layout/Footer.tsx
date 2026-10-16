@@ -12,7 +12,7 @@ export function Footer() {
   if (pathname === '/') return null;
 
   return (
-    <footer className="relative z-10 bg-navy-light/50 border-t border-white/5">
+    <footer className="relative z-10 bg-[#1B1B1F] border-t border-[#B8913A]/25 text-[#FAF7F0]">
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
@@ -23,25 +23,25 @@ export function Footer() {
                 alt="Sankalp PMC Logo"
                 width={48}
                 height={48}
-                className="w-12 h-12"
+                className="w-12 h-12 object-contain"
               />
               <div>
-                <p className="font-heading text-base font-bold text-text-light">
+                <p className="font-heading text-base font-bold text-[#FAF7F0]">
                   Sankalp PMC
                 </p>
-                <p className="text-xs text-text-muted">
+                <p className="text-xs text-[#FAF7F0]/60">
                   Project Management Consultants
                 </p>
               </div>
             </Link>
-            <p className="text-sm text-text-muted leading-relaxed max-w-xs">
+            <p className="text-sm text-[#FAF7F0]/75 leading-relaxed max-w-xs">
               {siteConfig.description}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-sm font-semibold text-gold uppercase tracking-wider mb-5">
+            <h3 className="text-sm font-semibold text-[#D4AF5A] uppercase tracking-wider mb-5">
               Quick Links
             </h3>
             <nav className="flex flex-col gap-3" aria-label="Footer navigation">
@@ -49,7 +49,7 @@ export function Footer() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="text-sm text-text-muted hover:text-gold transition-colors"
+                  className="text-sm text-[#FAF7F0]/75 hover:text-[#D4AF5A] transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -59,16 +59,16 @@ export function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-sm font-semibold text-gold uppercase tracking-wider mb-5">
+            <h3 className="text-sm font-semibold text-[#D4AF5A] uppercase tracking-wider mb-5">
               Contact Us
             </h3>
             <div className="space-y-4">
               {siteConfig.addresses.map((addr) => (
                 <div key={addr.label}>
-                  <p className="text-xs font-semibold text-gold-soft mb-1">
+                  <p className="text-xs font-semibold text-[#D4AF5A] mb-1">
                     {addr.label}
                   </p>
-                  <p className="text-sm text-text-muted leading-relaxed">
+                  <p className="text-sm text-[#FAF7F0]/75 leading-relaxed">
                     {addr.line1}, {addr.line2}
                     <br />
                     {addr.city}, {addr.state} – {addr.pin}
@@ -80,7 +80,7 @@ export function Footer() {
                   <a
                     key={phone}
                     href={`tel:${phone.replace(/\s/g, '')}`}
-                    className="block text-sm text-text-muted hover:text-gold transition-colors"
+                    className="block text-sm text-[#FAF7F0]/75 hover:text-[#D4AF5A] transition-colors"
                   >
                     {phone}
                   </a>
@@ -91,7 +91,7 @@ export function Footer() {
 
           {/* Social */}
           <div>
-            <h3 className="text-sm font-semibold text-gold uppercase tracking-wider mb-5">
+            <h3 className="text-sm font-semibold text-[#D4AF5A] uppercase tracking-wider mb-5">
               Follow Us
             </h3>
             <div className="flex gap-4">
@@ -100,7 +100,7 @@ export function Footer() {
                   href={siteConfig.social.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-text-muted hover:bg-gold hover:text-navy transition-all"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#FAF7F0] hover:bg-[#B8913A] hover:text-[#1B1B1F] transition-all"
                   aria-label="Facebook"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -113,7 +113,7 @@ export function Footer() {
                   href={siteConfig.social.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-text-muted hover:bg-gold hover:text-navy transition-all"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#FAF7F0] hover:bg-[#B8913A] hover:text-[#1B1B1F] transition-all"
                   aria-label="YouTube"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -126,7 +126,7 @@ export function Footer() {
                   href={siteConfig.social.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-text-muted hover:bg-gold hover:text-navy transition-all"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#FAF7F0] hover:bg-[#B8913A] hover:text-[#1B1B1F] transition-all"
                   aria-label="Instagram"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -136,11 +136,11 @@ export function Footer() {
               )}
             </div>
 
-            {/* Social links TODO notice */}
+            {/* Social links notice */}
             {!siteConfig.social.facebook &&
               !siteConfig.social.youtube &&
               !siteConfig.social.instagram && (
-                <p className="text-xs text-text-muted mt-3 italic">
+                <p className="text-xs text-[#FAF7F0]/50 mt-3 italic">
                   Social links coming soon
                 </p>
               )}
@@ -148,11 +148,11 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-text-muted">
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-[#FAF7F0]/60">
             © 2025 {siteConfig.shortName}. All rights reserved.
           </p>
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-[#FAF7F0]/60">
             Redevelopment done right — for the hearts homes are built for.
           </p>
         </div>
