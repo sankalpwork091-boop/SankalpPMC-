@@ -15,12 +15,8 @@ Per our legal-first standards, **no numbers, testimonials, or awards are invente
 - [ ] `src/data/siteConfig.ts:78` — **Planning & Design Area**: Currently `0` (renders "Verified Cr sq ft"). Provide total square footage planned and engineered.
 
 ### B. Office Locations & Contact Details
-- [ ] `src/data/siteConfig.ts:13-17` — **Office Address Designation**: Confirm status of:
-  - `Head Office`: A Wing 1307, Shelton Sapphire, Sector 15, CBD Belapur, Navi Mumbai 400 614.
-  - `Branch Office`: Office No. 1105, Ellora Fiesta, Sector 11, Sanpada, Navi Mumbai 400 705.
-  *(Confirm whether both are active or if one is outdated).*
-- [ ] `src/data/siteConfig.ts:26` — **Head Office Map Embed**: Add official Google Maps iframe embed URL for Shelton Sapphire.
-- [ ] `src/data/siteConfig.ts:35` — **Branch Office Map Embed**: Add official Google Maps iframe embed URL for Ellora Fiesta.
+- [x] **Head Office Address**: Confirmed as Office No. 1105, Ellora Fiesta, Sector 11, Sanpada, Navi Mumbai 400 705.
+- [ ] `src/data/siteConfig.ts:18` — **Head Office Map Embed**: Add official Google Maps iframe embed URL for Ellora Fiesta.
 - [ ] `src/data/siteConfig.ts:9` — **Direct Phone Lines**: Verify active status for `+91 9372188181` and `+91 9321188181`.
 - [ ] `src/data/siteConfig.ts:10` — **Primary Inquiry Email**: Confirm `careers@sankalppmc.com` vs dedicated `contact@sankalppmc.com` or `info@sankalppmc.com`.
 

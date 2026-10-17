@@ -9,24 +9,9 @@ export const siteConfig = {
   phones: ['+91 9372188181', '+91 9321188181'],
   email: 'careers@sankalppmc.com',
 
-  /**
-   * TODO: The old site showed two different addresses.
-   * Contact page: A wing 1307, Shelton Sapphire, Sector 15, CBD Belapur, Navi Mumbai 400 614.
-   * Footer:       Office No. 1105, Ellora Fiesta, Sector 11, Sanpada, Navi Mumbai 400 705.
-   * Please confirm which is Head Office and which is Branch Office (or if one is outdated).
-   */
   addresses: [
     {
       label: 'Head Office',
-      line1: 'A Wing 1307, Shelton Sapphire',
-      line2: 'Sector 15, CBD Belapur',
-      city: 'Navi Mumbai',
-      state: 'Maharashtra',
-      pin: '400 614',
-      mapEmbedUrl: '', // TODO: add Google Maps embed URL
-    },
-    {
-      label: 'Branch Office',
       line1: 'Office No. 1105, Ellora Fiesta',
       line2: 'Sector 11, Sanpada',
       city: 'Navi Mumbai',

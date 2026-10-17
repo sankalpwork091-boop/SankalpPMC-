@@ -23,7 +23,7 @@ export function CareerClient() {
     {
       title: 'Legal Associate — Redevelopment',
       experience: '2–5 Years',
-      location: 'CBD Belapur / Sanpada',
+      location: 'Sanpada',
       type: 'Full-time',
       desc: 'Hands-on experience in Section 79A processes, drafting development agreements, and title searches.',
     },
@@ -37,7 +37,7 @@ export function CareerClient() {
     {
       title: 'Project Architect',
       experience: '3–6 Years',
-      location: 'CBD Belapur Head Office',
+      location: 'Sanpada Head Office',
       type: 'Full-time',
       desc: 'Proficient in AutoCad, Revit, FSI/TDR calculations, and housing society conceptual master planning.',
     },
