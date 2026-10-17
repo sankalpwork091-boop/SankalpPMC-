@@ -21,10 +21,10 @@ Per our legal-first standards, **no numbers, testimonials, or awards are invente
 - [ ] `src/data/siteConfig.ts:10` — **Primary Inquiry Email**: Confirm `careers@sankalppmc.com` vs dedicated `contact@sankalppmc.com` or `info@sankalppmc.com`.
 
 ### C. Social Media Links
-- [ ] `src/data/siteConfig.ts:41` — **Facebook Profile**: Add official page URL (omitted from UI when blank).
-- [ ] `src/data/siteConfig.ts:42` — **YouTube Channel**: Add official channel URL (omitted from UI when blank).
-- [ ] `src/data/siteConfig.ts:43` — **Instagram Profile**: Add official profile URL (omitted from UI when blank).
-- [ ] `src/components/layout/Footer.tsx:133` — Social icon display condition automatically reveals icons as soon as URLs are populated.
+- [ ] `src/data/siteConfig.ts:26` — **Facebook Profile**: Add official page URL (omitted from UI when blank).
+- [ ] `src/data/siteConfig.ts:27` — **YouTube Channel**: Add official channel URL (omitted from UI when blank).
+- [x] `src/data/siteConfig.ts:28` — **Instagram Profile**: Confirmed as `https://www.instagram.com/sankalp_pmc/`.
+- [x] `src/components/layout/Footer.tsx` — Social column renders populated links (Instagram) with 40px circle, gold border/hover gradient, and label.
 
 ### D. Awards & Recognition Details
 The gallery in `src/app/awards/page.tsx` renders 11 authentic photos downloaded from the legacy site. Titles, years, and issuing bodies need attribution:

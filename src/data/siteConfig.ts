@@ -21,11 +21,11 @@ export const siteConfig = {
     },
   ],
 
-  /** TODO: Replace with actual social media profile URLs */
+  /** Social media profile URLs */
   social: {
     facebook: '', // TODO: actual Facebook page URL
     youtube: '', // TODO: actual YouTube channel URL
-    instagram: '', // TODO: actual Instagram profile URL
+    instagram: 'https://www.instagram.com/sankalp_pmc/',
   },
 
   nav: [
