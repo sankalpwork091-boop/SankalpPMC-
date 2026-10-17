@@ -116,43 +116,46 @@ export default function AboutUsPage() {
             </HeadingWithGoldLine>
           </div>
 
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-            {leadership.map((member) => (
-              <StaggerItem key={member.id}>
-                <GlassCard variant="default" className="flex flex-col sm:flex-row gap-6 p-6 md:p-8 h-full">
-                  <div className="relative w-32 h-40 sm:w-40 sm:h-48 shrink-0 rounded-xl overflow-hidden bg-white border border-[#E9E2D0] shadow-sm">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col flex-1">
-                    <div className="mb-3">
-                      <h3 className="font-heading text-xl font-bold text-[#1B1B1F]">
-                        {member.name}
-                      </h3>
-                      <p className="text-xs font-semibold text-[#8F6B1E] mt-0.5">
-                        {member.title} {member.qualifications && `• ${member.qualifications}`}
-                      </p>
+          <div className="max-w-2xl mx-auto">
+            <StaggerContainer className="flex justify-center">
+              {leadership.map((member) => (
+                <StaggerItem key={member.id} className="w-full">
+                  <GlassCard variant="default" className="flex flex-col sm:flex-row gap-6 p-6 md:p-8 h-full">
+                    <div className="relative w-32 h-40 sm:w-40 sm:h-48 shrink-0 rounded-xl overflow-hidden bg-white border border-[#E9E2D0] shadow-sm">
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 128px, 160px"
+                      />
                     </div>
-                    <p className="text-xs sm:text-sm text-[#5B5B63] leading-relaxed mb-4 flex-1">
-                      {member.bio}
-                    </p>
-                    {member.awards && member.awards.length > 0 && (
-                      <div className="pt-3 border-t border-[#E9E2D0] flex items-center gap-2">
-                        <span className="text-sm">🏆</span>
-                        <span className="text-xs text-[#8F6B1E] font-medium">
-                          {member.awards.join(', ')}
-                        </span>
+                    <div className="flex flex-col flex-1">
+                      <div className="mb-3">
+                        <h3 className="font-heading text-xl font-bold text-[#1B1B1F]">
+                          {member.name}
+                        </h3>
+                        <p className="text-xs font-semibold text-[#8F6B1E] mt-0.5">
+                          {member.title} {member.qualifications && `• ${member.qualifications}`}
+                        </p>
                       </div>
-                    )}
-                  </div>
-                </GlassCard>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
+                      <p className="text-xs sm:text-sm text-[#5B5B63] leading-relaxed mb-4 flex-1">
+                        {member.bio}
+                      </p>
+                      {member.awards && member.awards.length > 0 && (
+                        <div className="pt-3 border-t border-[#E9E2D0] flex items-center gap-2">
+                          <span className="text-sm">🏆</span>
+                          <span className="text-xs text-[#8F6B1E] font-medium">
+                            {member.awards.join(', ')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </GlassCard>
+                </StaggerItem>
+              ))}
+            </StaggerContainer>
+          </div>
         </div>
       </section>
 
@@ -173,7 +176,7 @@ export default function AboutUsPage() {
             </p>
           </div>
 
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {technicalTeam.map((member) => (
               <StaggerItem key={member.id}>
                 <GlassCard variant="default" className="text-center p-6 flex flex-col items-center h-full">
@@ -183,6 +186,7 @@ export default function AboutUsPage() {
                       alt={member.name}
                       fill
                       className="object-cover"
+                      sizes="112px"
                     />
                   </div>
                   <h4 className="font-heading text-lg font-bold text-[#1B1B1F] mb-1">
