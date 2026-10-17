@@ -320,7 +320,7 @@ export function BuildingTransformationHero() {
         <div
           ref={climaxCardRef}
           style={{ opacity: 0, transform: 'scale(0.95)' }}
-          className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl z-30 transition-all duration-300 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#E9E2D0] shadow-[0_12px_40px_rgba(143,107,30,0.12)] flex flex-col items-center pointer-events-none"
+          className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md z-30 transition-all duration-300 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#E9E2D0] shadow-[0_12px_40px_rgba(143,107,30,0.12)] flex flex-col items-center pointer-events-none"
         >
           {/* Sankalp Logo */}
           <div className="relative w-48 sm:w-60 h-14 sm:h-18 mb-2 sm:mb-3">
@@ -335,7 +335,7 @@ export function BuildingTransformationHero() {
           </div>
 
           {/* Official Tagline */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-5 sm:mb-6">
             <span className="h-[1px] w-8 bg-[#B8913A]" />
             <p className="text-[11px] sm:text-xs font-semibold tracking-widest text-[#8F6B1E] uppercase">
               Redevelopment with Responsibility
@@ -343,23 +343,13 @@ export function BuildingTransformationHero() {
             <span className="h-[1px] w-8 bg-[#B8913A]" />
           </div>
 
-          <p className="text-xs sm:text-sm text-[#5B5B63] max-w-lg mb-5 leading-relaxed text-center">
-            From our project portfolio: <strong className="text-[#1B1B1F]">Ganpati Society at Nerul</strong> — fully constructed with 8 floors, cantilevered white architectural frames, walnut-wood soffits, illuminated glass balconies, and stilt parking.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto pointer-events-auto">
+          <div className="w-full max-w-[300px] pointer-events-auto">
             <Link
               href="/contact-us"
-              className="btn-primary w-full sm:w-auto !py-2.5 sm:!py-3 !px-6 text-xs sm:text-sm flex items-center justify-center gap-2"
+              className="btn-primary w-full !py-2.5 sm:!py-3 !px-6 text-xs sm:text-sm flex items-center justify-center gap-2 text-center"
             >
               Schedule Committee Meeting
               <span>→</span>
-            </Link>
-            <Link
-              href="/services"
-              className="btn-secondary w-full sm:w-auto !py-2.5 sm:!py-3 !px-6 text-xs sm:text-sm text-center"
-            >
-              Explore 10-Step Process
             </Link>
           </div>
         </div>
