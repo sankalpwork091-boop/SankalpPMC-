@@ -25,7 +25,7 @@ export function GlassCard({
 
   return (
     <div
-      className={`relative rounded-2xl border p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 ${variantStyles[variant]} ${className}`}
+      className={`relative rounded-2xl border p-6 md:p-8 transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 ${variantStyles[variant]} ${className}`}
       {...props}
     >
       {children}
