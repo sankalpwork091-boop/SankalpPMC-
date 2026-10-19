@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { LenisProvider } from '@/components/scroll/LenisProvider';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { MOTION_BOOT_SCRIPT } from '@/components/motion/motionScript';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -54,8 +55,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased font-sans">
+    <html lang="en" className="h-full antialiased font-sans" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: MOTION_BOOT_SCRIPT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

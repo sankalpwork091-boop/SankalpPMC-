@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { siteConfig } from '@/data/siteConfig';
+import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 
 export function Footer() {
   const pathname = usePathname();
@@ -47,9 +48,9 @@ export function Footer() {
   return (
     <footer className="relative z-10 bg-[#1B1B1F] border-t border-[#B8913A]/25 text-[#FAF7F0]">
       <div className="max-w-6xl mx-auto px-6 py-16 md:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] items-start gap-8 lg:gap-10">
+        <RevealGroup className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] items-start gap-8 lg:gap-10">
           {/* Column 1: Brand */}
-          <div>
+          <RevealItem>
             <div className="h-10 flex items-center mb-5">
               <Link href="/" className="flex items-center gap-3">
                 <Image
@@ -72,10 +73,10 @@ export function Footer() {
             <p className="text-sm text-[#FAF7F0]/75 leading-relaxed max-w-sm">
               {siteConfig.description}
             </p>
-          </div>
+          </RevealItem>
 
           {/* Column 2: Quick Links */}
-          <div>
+          <RevealItem>
             <div className="h-10 flex items-center mb-5">
               <h3 className="text-sm font-semibold !text-[#D4AF5A] uppercase tracking-wider">
                 Quick Links
@@ -92,10 +93,10 @@ export function Footer() {
                 </Link>
               ))}
             </nav>
-          </div>
+          </RevealItem>
 
           {/* Column 3: Contact Info */}
-          <div>
+          <RevealItem>
             <div className="h-10 flex items-center mb-5">
               <h3 className="text-sm font-semibold !text-[#D4AF5A] uppercase tracking-wider">
                 Contact Us
@@ -124,10 +125,10 @@ export function Footer() {
                 </a>
               ))}
             </div>
-          </div>
+          </RevealItem>
 
           {/* Column 4: Social */}
-          <div>
+          <RevealItem>
             <div className="h-10 flex items-center mb-5">
               <h3 className="text-sm font-semibold !text-[#D4AF5A] uppercase tracking-wider">
                 Follow Us
@@ -152,18 +153,18 @@ export function Footer() {
                 </a>
               ))}
             </div>
-          </div>
-        </div>
+          </RevealItem>
+        </RevealGroup>
 
         {/* Bottom Bar */}
-        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+        <Reveal className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[#FAF7F0]/60">
             © 2025 {siteConfig.shortName}. All rights reserved.
           </p>
           <p className="text-xs text-[#FAF7F0]/60">
             Redevelopment done right — for the hearts homes are built for.
           </p>
-        </div>
+        </Reveal>
       </div>
     </footer>
   );

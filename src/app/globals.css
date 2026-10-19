@@ -374,8 +374,100 @@ a.link-royal:hover {
   will-change: auto;
 }
 
+/* ─── Scroll motion (all pages except home) ───
+   Shared system: src/components/motion/Reveal.tsx. Rules only apply while
+   <html data-motion="on"> is set before first paint, so server-rendered
+   content stays visible without JS. Tune the timings here. */
+:root {
+  --reveal-distance: 24px;
+  --reveal-duration: 900ms;
+  --reveal-fade-duration: 600ms;
+  --reveal-image-duration: 1100ms;
+  --reveal-line-duration: 700ms;
+  --reveal-line-delay: 250ms;
+  --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (max-width: 767px) {
+  :root {
+    --reveal-distance: 14px;
+    --reveal-duration: 600ms;
+    --reveal-image-duration: 600ms;
+    --reveal-line-duration: 600ms;
+  }
+}
+
+[data-motion="on"] [data-reveal="up"] {
+  transition:
+    opacity var(--reveal-duration) var(--reveal-ease) var(--reveal-delay, 0ms),
+    translate var(--reveal-duration) var(--reveal-ease) var(--reveal-delay, 0ms);
+}
+[data-motion="on"] [data-reveal="up"]:not([data-revealed]) {
+  opacity: 0;
+  translate: 0 var(--reveal-distance);
+}
+/* A reveal nested in another reveal rides on its parent (no double move). */
+[data-motion="on"] [data-reveal] [data-reveal="up"]:not([data-revealed]) {
+  opacity: 1;
+  translate: none;
+}
+
+[data-motion="on"] [data-reveal="image"] {
+  transition:
+    opacity var(--reveal-image-duration) var(--reveal-ease) var(--reveal-delay, 0ms),
+    scale var(--reveal-image-duration) var(--reveal-ease) var(--reveal-delay, 0ms);
+}
+[data-motion="on"] [data-reveal="image"]:not([data-revealed]) {
+  opacity: 0;
+  scale: 1.04;
+}
+
+/* First block of a page: quick CSS-only fade on load, no movement. */
+[data-motion="on"] [data-reveal="fade"] {
+  animation: reveal-fade var(--reveal-fade-duration) var(--reveal-ease) backwards;
+}
+
+/* Existing gold heading lines and eyebrow rules draw in left to right. */
+[data-motion="on"] [data-reveal-line],
+[data-motion="on"] [data-reveal] .section-eyebrow::before {
+  transform-origin: left;
+  transition: transform var(--reveal-line-duration) var(--reveal-ease)
+    calc(var(--reveal-delay, 0ms) + var(--reveal-line-delay));
+}
+[data-motion="on"] [data-reveal]:not([data-revealed]) > [data-reveal-line],
+[data-motion="on"] [data-reveal="up"]:not([data-revealed]) .section-eyebrow::before {
+  transform: scaleX(0);
+}
+[data-motion="on"] [data-reveal="fade"] [data-reveal-line],
+[data-motion="on"] [data-reveal="fade"] .section-eyebrow::before {
+  animation: reveal-line var(--reveal-line-duration) var(--reveal-ease)
+    var(--reveal-fade-duration) both;
+}
+
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes reveal-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 /* ─── Accessibility: Prefers Reduced Motion ─── */
 @media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-line],
+  [data-reveal] .section-eyebrow::before {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
   *,
   *::before,
   *::after {

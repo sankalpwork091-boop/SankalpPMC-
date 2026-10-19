@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 
 export function CareerClient() {
   const [formState, setFormState] = useState({
@@ -124,7 +125,7 @@ export function CareerClient() {
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Hero Header (Warm Ivory) ─── */}
       <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
-        <div className="max-w-4xl mx-auto">
+        <Reveal variant="fade" className="max-w-4xl mx-auto">
           <span className="section-eyebrow mb-3">
             Join Our Mission
           </span>
@@ -134,12 +135,12 @@ export function CareerClient() {
           <p className="max-w-2xl mx-auto text-base sm:text-lg text-[#5B5B63] leading-relaxed">
             At Sankalp PMC, we don’t just engineer buildings; we safeguard families, legal rights, and urban futures. Join our multi-disciplinary team.
           </p>
-        </div>
+        </Reveal>
       </section>
 
       {/* ─── Open Roles (White) ─── */}
       <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center max-w-2xl mx-auto mb-14">
+        <Reveal className="text-center max-w-2xl mx-auto mb-14">
           <span className="section-eyebrow mb-2">
             Career Opportunities
           </span>
@@ -149,38 +150,40 @@ export function CareerClient() {
           <p className="text-sm text-[#5B5B63]">
             We are looking for dedicated legal, engineering, and architectural professionals.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+        <RevealGroup className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
           {openPositions.map((pos, idx) => (
-            <GlassCard key={idx} variant="default" className="flex flex-col p-6 md:p-8 bg-white h-full">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-[#8F6B1E] bg-[#F6EFDD] px-3 py-1 rounded-full border border-[#D4AF5A]/30">
-                  {pos.type} • {pos.location}
-                </span>
-                <span className="text-xs text-[#5B5B63] font-medium">{pos.experience}</span>
-              </div>
-              <h3 className="font-heading text-xl font-bold text-[#1B1B1F] mb-2">
-                {pos.title}
-              </h3>
-              <p className="text-xs sm:text-sm text-[#5B5B63] leading-relaxed flex-1 mb-5">
-                {pos.desc}
-              </p>
-              <button
-                onClick={() => {
-                  setFormState((prev) => ({ ...prev, role: pos.title }));
-                  document.getElementById('apply-form')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="text-xs font-semibold text-[#8F6B1E] hover:text-[#B8913A] flex items-center gap-1 self-start transition-colors"
-              >
-                Apply for this position →
-              </button>
-            </GlassCard>
+            <RevealItem key={idx}>
+              <GlassCard variant="default" className="flex flex-col p-6 md:p-8 bg-white h-full">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-semibold text-[#8F6B1E] bg-[#F6EFDD] px-3 py-1 rounded-full border border-[#D4AF5A]/30">
+                    {pos.type} • {pos.location}
+                  </span>
+                  <span className="text-xs text-[#5B5B63] font-medium">{pos.experience}</span>
+                </div>
+                <h3 className="font-heading text-xl font-bold text-[#1B1B1F] mb-2">
+                  {pos.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-[#5B5B63] leading-relaxed flex-1 mb-5">
+                  {pos.desc}
+                </p>
+                <button
+                  onClick={() => {
+                    setFormState((prev) => ({ ...prev, role: pos.title }));
+                    document.getElementById('apply-form')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="text-xs font-semibold text-[#8F6B1E] hover:text-[#B8913A] flex items-center gap-1 self-start transition-colors"
+                >
+                  Apply for this position →
+                </button>
+              </GlassCard>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
 
         {/* ─── Application Form (Warm Ivory Wrapper) ─── */}
-        <div id="apply-form" className="max-w-2xl mx-auto pt-6">
+        <Reveal id="apply-form" className="max-w-2xl mx-auto pt-6">
           <GlassCard variant="default" className="p-8 md:p-10 bg-white border border-[#E9E2D0]">
             <h3 className="font-heading text-xl sm:text-2xl font-bold text-[#1B1B1F] mb-2 text-center">
               Submit Your Candidacy
@@ -352,7 +355,7 @@ export function CareerClient() {
               </form>
             )}
           </GlassCard>
-        </div>
+        </Reveal>
       </section>
     </div>
   );

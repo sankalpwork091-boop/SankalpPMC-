@@ -34,7 +34,7 @@ export function NewUpdatesClient() {
           <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-[#FAF7F0]/90 to-[#FAF7F0]" />
         </div>
 
-        <ScrollReveal className="max-w-4xl mx-auto text-center">
+        <ScrollReveal variant="fade" className="max-w-4xl mx-auto text-center">
           <span className="section-eyebrow mb-3">
             Latest Bulletins
           </span>

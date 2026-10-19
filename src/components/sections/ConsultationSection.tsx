@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { siteConfig } from '@/data/siteConfig';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { Reveal } from '@/components/motion/Reveal';
 
 export function ConsultationSection() {
   const [formState, setFormState] = useState({
@@ -70,7 +71,7 @@ export function ConsultationSection() {
     >
       <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         {/* Left Column: Direct Contact & Assurances */}
-        <div className="lg:col-span-5 flex flex-col justify-center">
+        <Reveal className="lg:col-span-5 flex flex-col justify-center">
           <span className="section-eyebrow mb-3">
             Take The First Step
           </span>
@@ -114,10 +115,10 @@ export function ConsultationSection() {
               🔒 <strong className="text-[#8F6B1E]">100% Confidential:</strong> We never share society records or contact details. All initial feasibility evaluations are protected under professional privilege.
             </p>
           </div>
-        </div>
+        </Reveal>
 
         {/* Right Column: Lead Form */}
-        <div className="lg:col-span-7">
+        <Reveal delay={0.15} className="lg:col-span-7">
           <GlassCard variant="default" className="p-8 md:p-10 bg-white">
             <h3 className="font-heading text-xl sm:text-2xl font-bold text-[#1B1B1F] mb-2">
               Request Society Committee Consultation
@@ -302,7 +303,7 @@ export function ConsultationSection() {
               </form>
             )}
           </GlassCard>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

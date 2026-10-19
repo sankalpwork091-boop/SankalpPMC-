@@ -9,6 +9,7 @@ import {
   StaggerContainer,
   StaggerItem,
   HeadingWithGoldLine,
+  ImageReveal,
   AnimatedNumber,
 } from '@/components/ui/ScrollReveal';
 
@@ -43,7 +44,7 @@ export default function AboutUsPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-[#FAF7F0]/90 to-[#FAF7F0]" />
         </div>
 
-        <ScrollReveal className="max-w-4xl mx-auto text-center">
+        <ScrollReveal variant="fade" className="max-w-4xl mx-auto text-center">
           <span className="section-eyebrow mb-4">
             Our Purpose & Heritage
           </span>
@@ -105,7 +106,7 @@ export default function AboutUsPage() {
       {/* ─── Leadership Team (Warm Ivory) ─── */}
       <section className="bg-[#FAF7F0] border-y border-[#E9E2D0] py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <ScrollReveal className="text-center max-w-3xl mx-auto mb-16">
             <span className="section-eyebrow mb-2">
               Visionary Guidance
             </span>
@@ -114,7 +115,7 @@ export default function AboutUsPage() {
                 {teamSectionHeading}
               </h2>
             </HeadingWithGoldLine>
-          </div>
+          </ScrollReveal>
 
           <div className="max-w-2xl mx-auto">
             <StaggerContainer className="flex justify-center">
@@ -122,13 +123,15 @@ export default function AboutUsPage() {
                 <StaggerItem key={member.id} className="w-full">
                   <GlassCard variant="default" className="flex flex-col sm:flex-row gap-6 p-6 md:p-8 h-full">
                     <div className="relative w-32 h-40 sm:w-40 sm:h-48 shrink-0 rounded-xl overflow-hidden bg-white border border-[#E9E2D0] shadow-sm">
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 128px, 160px"
-                      />
+                      <ImageReveal>
+                        <Image
+                          src={member.image}
+                          alt={member.name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 128px, 160px"
+                        />
+                      </ImageReveal>
                     </div>
                     <div className="flex flex-col flex-1">
                       <div className="mb-3">
@@ -162,7 +165,7 @@ export default function AboutUsPage() {
       {/* ─── Technical Leadership (White) ─── */}
       <section className="bg-white py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-14">
+          <ScrollReveal className="text-center max-w-3xl mx-auto mb-14">
             <span className="section-eyebrow mb-2">
               Engineering & Architecture Board
             </span>
@@ -174,20 +177,22 @@ export default function AboutUsPage() {
             <p className="text-sm text-[#5B5B63] mt-4">
               {architectsHeading}
             </p>
-          </div>
+          </ScrollReveal>
 
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {technicalTeam.map((member) => (
               <StaggerItem key={member.id}>
                 <GlassCard variant="default" className="text-center p-6 flex flex-col items-center h-full">
                   <div className="relative w-28 h-32 rounded-xl overflow-hidden bg-white border border-[#E9E2D0] shadow-sm mb-4">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      className="object-cover"
-                      sizes="112px"
-                    />
+                    <ImageReveal>
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        className="object-cover"
+                        sizes="112px"
+                      />
+                    </ImageReveal>
                   </div>
                   <h4 className="font-heading text-lg font-bold text-[#1B1B1F] mb-1">
                     {member.name}

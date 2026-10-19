@@ -8,6 +8,7 @@ import {
   StaggerContainer,
   StaggerItem,
   HeadingWithGoldLine,
+  ImageReveal,
 } from '@/components/ui/ScrollReveal';
 
 export const metadata: Metadata = {
@@ -27,7 +28,7 @@ export default function AwardsPage() {
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Hero Header (Warm Ivory) ─── */}
       <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
-        <ScrollReveal className="max-w-4xl mx-auto">
+        <ScrollReveal variant="fade" className="max-w-4xl mx-auto">
           <span className="section-eyebrow mb-3">
             Industry Recognition
           </span>
@@ -68,7 +69,7 @@ export default function AwardsPage() {
       {/* ─── Awards Gallery (Warm Ivory) ─── */}
       <section className="bg-[#FAF7F0] border-y border-[#E9E2D0] py-20">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-14">
+          <ScrollReveal className="text-center max-w-2xl mx-auto mb-14">
             <span className="section-eyebrow mb-2">
               Distinguished Curation
             </span>
@@ -80,7 +81,7 @@ export default function AwardsPage() {
             <p className="text-sm text-[#5B5B63] mt-3">
               Moments of felicitations, symposium keynotes, and architectural citations.
             </p>
-          </div>
+          </ScrollReveal>
 
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {awards.map((award, index) => (
@@ -90,13 +91,15 @@ export default function AwardsPage() {
                   className="p-0 overflow-hidden flex flex-col group hover:border-[#B8913A]/50 transition-all duration-300 h-full bg-white"
                 >
                   <div className="relative aspect-[4/3] bg-white overflow-hidden">
-                    <Image
-                      src={award.image}
-                      alt={`Sankalp PMC Award ${index + 1}`}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
+                    <ImageReveal>
+                      <Image
+                        src={award.image}
+                        alt={`Sankalp PMC Award ${index + 1}`}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </ImageReveal>
                   </div>
                   <div className="p-5 flex items-center justify-between bg-white border-t border-[#E9E2D0]">
                     <div>

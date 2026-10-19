@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { projects, type Project } from '@/data/projects';
@@ -9,6 +9,7 @@ import {
   ScrollReveal,
   HeadingWithGoldLine,
 } from '@/components/ui/ScrollReveal';
+import { RevealGroup, useReveal } from '@/components/motion/Reveal';
 
 const FILTERS = ['All', 'Ongoing', 'Approved', 'Under construction', 'Completed'] as const;
 
@@ -93,96 +94,39 @@ const ProjectCard = React.memo(function ProjectCard({
   );
 });
 
-function ProjectsGrid({ items }: { items: Project[] }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const cards = container.querySelectorAll<HTMLElement>('.project-card-anim');
-
-    if (prefersReducedMotion) {
-      cards.forEach((card) => {
-        card.style.opacity = '1';
-        card.style.transform = 'none';
-      });
-      return;
-    }
-
-    // Shared single IntersectionObserver for all cards in the grid
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const el = entry.target as HTMLElement;
-            const indexStr = el.getAttribute('data-index');
-            const idx = indexStr ? parseInt(indexStr, 10) : 0;
-            const staggerDelay = (idx % 3) * 0.08;
-
-            el.style.transition = `opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) ${staggerDelay}s, transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) ${staggerDelay}s`;
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0)';
-
-            observer.unobserve(el);
-          }
-        });
-      },
-      {
-        threshold: 0.15,
-        rootMargin: '0px 0px -50px 0px',
-      }
-    );
-
-    cards.forEach((card) => {
-      const indexStr = card.getAttribute('data-index');
-      const idx = indexStr ? parseInt(indexStr, 10) : 0;
-      if (idx < 3) {
-        const staggerDelay = (idx % 3) * 0.08;
-        card.style.transition = `opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) ${staggerDelay}s, transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1) ${staggerDelay}s`;
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-      } else {
-        observer.observe(card);
-      }
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [items]);
-
+// The cards' single reveal, on the shared observer and timings. The first row is
+// already on screen, so it renders without a reveal (as before).
+function ProjectCardReveal({
+  skip,
+  children,
+}: {
+  skip: boolean;
+  children: React.ReactNode;
+}) {
+  const reveal = useReveal<HTMLDivElement>('up', { item: true, disabled: skip });
   return (
-    <div
-      ref={containerRef}
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-    >
+    <div {...reveal} className="project-card-anim">
+      {children}
+    </div>
+  );
+}
+
+function ProjectsGrid({ items }: { items: Project[] }) {
+  return (
+    <RevealGroup className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {items.map((project, index) => {
         const isFirstRow = index < 3;
         return (
-          <div
-            key={project.id}
-            data-index={index}
-            className="project-card-anim"
-            style={
-              isFirstRow
-                ? { opacity: 1, transform: 'translateY(0)' }
-                : { opacity: 0, transform: 'translateY(32px)' }
-            }
-          >
+          <ProjectCardReveal key={project.id} skip={isFirstRow}>
             <ProjectCard
               project={project}
               priority={isFirstRow}
               index={index}
             />
-          </div>
+          </ProjectCardReveal>
         );
       })}
-    </div>
+    </RevealGroup>
   );
 }
 
@@ -217,7 +161,7 @@ export function ProjectsClient() {
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Hero Header (Warm Ivory) ─── */}
       <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
-        <ScrollReveal className="max-w-4xl mx-auto">
+        <ScrollReveal variant="fade" className="max-w-4xl mx-auto">
           <span className="section-eyebrow mb-3">
             Delivered & Ongoing Excellence
           </span>
