@@ -37,7 +37,7 @@ const ProjectCard = React.memo(function ProjectCard({
         className="p-0 overflow-hidden flex flex-col group hover:border-[#B8913A]/60 h-full"
       >
         {/* Project Image: Natural Colors */}
-        <div className="relative aspect-[16/10] bg-[#FAF7F0] overflow-hidden">
+        <div className="relative aspect-[16/10] bg-white overflow-hidden">
           <Image
             src={project.image}
             alt={project.name}

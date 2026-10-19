@@ -23,7 +23,7 @@ export const projects: Project[] = [
     size: '5 lac sq ft',
     status: 'Ongoing',
     configuration: 'Single tower, G+29',
-    image: '/images/small/pro-1.jpg',
+    image: '/images/small/pro-1.webp',
     featured: true,
   },
   {
@@ -35,7 +35,7 @@ export const projects: Project[] = [
     size: '3.50 lac sq ft',
     status: 'Approved',
     configuration: '1 tower, G+26',
-    image: '/images/small/pro-2.jpg',
+    image: '/images/small/pro-2.webp',
     featured: true,
   },
   {
@@ -47,7 +47,7 @@ export const projects: Project[] = [
     size: '1.75 lac sq ft',
     status: 'Under construction',
     configuration: 'Single tower, G+22',
-    image: '/images/small/pro-3.jpg',
+    image: '/images/small/pro-3.webp',
     featured: true,
   },
   {
@@ -59,7 +59,7 @@ export const projects: Project[] = [
     size: '85,500 sq ft',
     status: 'Approved',
     configuration: 'Single tower, G+20',
-    image: '/images/small/pro-4.jpg',
+    image: '/images/small/pro-4.webp',
     featured: true,
   },
   {
@@ -71,7 +71,7 @@ export const projects: Project[] = [
     size: '1.20 lac sq ft',
     status: 'Approved',
     configuration: 'Single tower, G+20',
-    image: '/images/small/pro-5.jpg',
+    image: '/images/small/pro-5.webp',
     featured: true,
   },
   {
@@ -83,7 +83,7 @@ export const projects: Project[] = [
     size: '28,000 sq ft',
     status: 'Completed',
     configuration: 'G+7 storey',
-    image: '/images/small/pro-6.jpg',
+    image: '/images/small/pro-6.webp',
     featured: true,
   },
 
@@ -99,7 +99,7 @@ export const projects: Project[] = [
     configuration: '8 towers, G+29',
     brief:
       '1, 2, 3 BHK apartments, commercial shops and offices; 3-level podium parking, landscaped garden, modern amenities, clubhouse. Phase 1 delivered.',
-    image: '/images/small/pro-7.jpg',
+    image: '/images/small/pro-7.webp',
     featured: false,
   },
   {
@@ -112,7 +112,7 @@ export const projects: Project[] = [
     status: 'Under construction',
     configuration: '4 towers, 26 storeys each',
     brief: '2, 3 and 4 BHK; Green Building Rating Gold.',
-    image: '/images/small/pro-8.jpg',
+    image: '/images/small/pro-8.webp',
     featured: false,
   },
   {
@@ -124,7 +124,7 @@ export const projects: Project[] = [
     size: '6.35 lac sq ft',
     status: 'Presentation',
     configuration: 'Single tower, G+29',
-    image: '/images/small/pro-9.jpg',
+    image: '/images/small/pro-9.webp',
     featured: false,
   },
   {
@@ -136,7 +136,7 @@ export const projects: Project[] = [
     size: '6 lac sq ft',
     status: 'Presentation',
     configuration: 'Single tower, G+42',
-    image: '/images/small/pro-10.jpg',
+    image: '/images/small/pro-10.webp',
     featured: false,
   },
   {
@@ -148,7 +148,7 @@ export const projects: Project[] = [
     size: '3.50 lac sq ft',
     status: 'OC received',
     configuration: 'G+22',
-    image: '/images/small/pro-11.jpg',
+    image: '/images/small/pro-11.webp',
     featured: false,
   },
   {
@@ -160,7 +160,7 @@ export const projects: Project[] = [
     size: '3.50 lac sq ft',
     status: 'Under construction',
     configuration: 'G+20',
-    image: '/images/small/pro-12.jpg',
+    image: '/images/small/pro-12.webp',
     featured: false,
   },
   {
@@ -172,7 +172,7 @@ export const projects: Project[] = [
     size: '9 lac sq ft',
     status: 'Under construction',
     configuration: 'G+32 storeys IT park with shops on G+1',
-    image: '/images/small/pro-13.jpg',
+    image: '/images/small/pro-13.webp',
     featured: false,
   },
   {
@@ -184,7 +184,7 @@ export const projects: Project[] = [
     size: '2 lac sq ft',
     status: 'Completed',
     configuration: 'G+15 with office spaces, shops and recreational spaces',
-    image: '/images/small/pro-14.jpg',
+    image: '/images/small/pro-14.webp',
     featured: false,
   },
   {
@@ -197,7 +197,7 @@ export const projects: Project[] = [
     status: 'Under construction',
     configuration:
       '25-storey office building plus a 25-storey building with a 200-key hotel',
-    image: '/images/small/pro-15.jpg',
+    image: '/images/small/pro-15.webp',
     featured: false,
   },
   {
@@ -210,7 +210,7 @@ export const projects: Project[] = [
     status: 'Under construction',
     configuration:
       'Industrial galas, sheds, offices, cricket ground, amphitheatre',
-    image: '/images/small/pro-16.jpg',
+    image: '/images/small/pro-16.webp',
     featured: false,
   },
   {
@@ -222,7 +222,7 @@ export const projects: Project[] = [
     size: '6.35 lac sq ft',
     status: 'Design',
     configuration: 'City beautification: roundabouts, gates, public buildings',
-    image: '/images/small/pro-17.jpg',
+    image: '/images/small/pro-17.webp',
     featured: false,
   },
   {
@@ -234,7 +234,7 @@ export const projects: Project[] = [
     size: 'n/a',
     status: 'Design',
     configuration: 'City beautification: roundabouts, gates, public buildings',
-    image: '/images/small/pro-18.jpg',
+    image: '/images/small/pro-18.webp',
     featured: false,
   },
   {
@@ -246,7 +246,7 @@ export const projects: Project[] = [
     size: '500 acres',
     status: 'Design',
     configuration: 'Master planning of New Kalyan City',
-    image: '/images/small/pro-19.jpg',
+    image: '/images/small/pro-19.webp',
     featured: false,
   },
   {
@@ -258,7 +258,7 @@ export const projects: Project[] = [
     size: '30 million sq ft',
     status: 'Completed',
     configuration: 'Hotel, mall, water park',
-    image: '/images/small/pro-20.jpg',
+    image: '/images/small/pro-20.webp',
     featured: false,
   },
   {
@@ -270,7 +270,7 @@ export const projects: Project[] = [
     size: '50 million sq ft',
     status: 'Completed',
     configuration: '462-key luxury hotel',
-    image: '/images/small/pro-21.jpg',
+    image: '/images/small/pro-21.webp',
     featured: false,
   },
   {
@@ -282,7 +282,7 @@ export const projects: Project[] = [
     size: '50 million sq ft',
     status: 'Design',
     configuration: 'Mall, hotel, retail, bungalows',
-    image: '/images/small/pro-22.jpg',
+    image: '/images/small/pro-22.webp',
     featured: false,
   },
   {
@@ -294,7 +294,7 @@ export const projects: Project[] = [
     size: '2 lac sq ft',
     status: 'Design',
     configuration: 'Exhibition centre, museum, astro tourism facilities',
-    image: '/images/small/pro-23.jpg',
+    image: '/images/small/pro-23.webp',
     featured: false,
   },
 ];
