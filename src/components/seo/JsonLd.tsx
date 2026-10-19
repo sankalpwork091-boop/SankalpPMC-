@@ -55,8 +55,8 @@ export function JsonLd() {
         },
         geo: {
           '@type': 'GeoCoordinates',
-          latitude: '19.0144',
-          longitude: '73.0388',
+          latitude: '19.0535',
+          longitude: '73.0167',
         },
         areaServed: [
           { '@type': 'City', name: 'Navi Mumbai' },

@@ -15,20 +15,16 @@ Per our legal-first standards, **no numbers, testimonials, or awards are invente
 - [ ] `src/data/siteConfig.ts:78` — **Planning & Design Area**: Currently `0` (renders "Verified Cr sq ft"). Provide total square footage planned and engineered.
 
 ### B. Office Locations & Contact Details
-- [ ] `src/data/siteConfig.ts:13-17` — **Office Address Designation**: Confirm status of:
-  - `Head Office`: A Wing 1307, Shelton Sapphire, Sector 15, CBD Belapur, Navi Mumbai 400 614.
-  - `Branch Office`: Office No. 1105, Ellora Fiesta, Sector 11, Sanpada, Navi Mumbai 400 705.
-  *(Confirm whether both are active or if one is outdated).*
-- [ ] `src/data/siteConfig.ts:26` — **Head Office Map Embed**: Add official Google Maps iframe embed URL for Shelton Sapphire.
-- [ ] `src/data/siteConfig.ts:35` — **Branch Office Map Embed**: Add official Google Maps iframe embed URL for Ellora Fiesta.
+- [x] **Head Office Address**: Confirmed as Office No. 1105, Ellora Fiesta, Sector 11, Sanpada, Navi Mumbai 400 705.
+- [ ] `src/data/siteConfig.ts:18` — **Head Office Map Embed**: Add official Google Maps iframe embed URL for Ellora Fiesta.
 - [ ] `src/data/siteConfig.ts:9` — **Direct Phone Lines**: Verify active status for `+91 9372188181` and `+91 9321188181`.
 - [ ] `src/data/siteConfig.ts:10` — **Primary Inquiry Email**: Confirm `careers@sankalppmc.com` vs dedicated `contact@sankalppmc.com` or `info@sankalppmc.com`.
 
 ### C. Social Media Links
-- [ ] `src/data/siteConfig.ts:41` — **Facebook Profile**: Add official page URL (omitted from UI when blank).
-- [ ] `src/data/siteConfig.ts:42` — **YouTube Channel**: Add official channel URL (omitted from UI when blank).
-- [ ] `src/data/siteConfig.ts:43` — **Instagram Profile**: Add official profile URL (omitted from UI when blank).
-- [ ] `src/components/layout/Footer.tsx:133` — Social icon display condition automatically reveals icons as soon as URLs are populated.
+- [ ] `src/data/siteConfig.ts:26` — **Facebook Profile**: Add official page URL (omitted from UI when blank).
+- [ ] `src/data/siteConfig.ts:27` — **YouTube Channel**: Add official channel URL (omitted from UI when blank).
+- [x] `src/data/siteConfig.ts:28` — **Instagram Profile**: Confirmed as `https://www.instagram.com/sankalp_pmc/`.
+- [x] `src/components/layout/Footer.tsx` — Social column renders populated links (Instagram) with 40px circle, gold border/hover gradient, and label.
 
 ### D. Awards & Recognition Details
 The gallery in `src/app/awards/page.tsx` renders 11 authentic photos downloaded from the legacy site. Titles, years, and issuing bodies need attribution:

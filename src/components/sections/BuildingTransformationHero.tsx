@@ -1,24 +1,81 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import { PinwheelLoader } from '@/components/ui/PinwheelLoader';
+import { ENABLE_3D_BUILDING_HERO } from '@/config/hero3d';
+
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+// Dynamic import 3D Interactive Building with SSR disabled
+const GanpatiBuilding3D = dynamic(
+  () => import('@/components/hero/GanpatiBuilding3D'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#F4F3EE] gap-3">
+        <PinwheelLoader size="xl" label="Loading 3D Architectural Transformation..." />
+      </div>
+    ),
+  }
+);
 
 export function BuildingTransformationHero() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const pinWrapperRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  const canvas2DRef = useRef<HTMLCanvasElement>(null);
+  const progressRef = useRef<number>(0);
+
+  // Fast direct DOM refs to avoid 60fps React re-renders
+  const skySunsetRef = useRef<HTMLDivElement>(null);
+  const initialPromptRef = useRef<HTMLDivElement>(null);
+  const scrollCueRef = useRef<HTMLDivElement>(null);
+  const climaxCardRef = useRef<HTMLDivElement>(null);
+
   const [isMobile, setIsMobile] = useState(false);
-  const [mobileComparePos, setMobileComparePos] = useState(50); // 0-100% for mobile comparison slider
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [hasWebGL, setHasWebGL] = useState(true);
+  const [isKillSwitched, setIsKillSwitched] = useState(false);
+  const [isInView, setIsInView] = useState(true);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   const towerImageRef = useRef<HTMLImageElement | null>(null);
-  const logoImageRef = useRef<HTMLImageElement | null>(null);
 
-  // Check mobile viewport
+  // 1. Check Kill-Switch & WebGL capability
+  useEffect(() => {
+    // Check URL override: ?no3dbuilding=true
+    if (
+      !ENABLE_3D_BUILDING_HERO ||
+      (typeof window !== 'undefined' && window.location.search.includes('no3dbuilding=true'))
+    ) {
+      setIsKillSwitched(true);
+    }
+
+    // Check WebGL availability
+    try {
+      const c = document.createElement('canvas');
+      const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+      if (!gl) setHasWebGL(false);
+    } catch {
+      setHasWebGL(false);
+    }
+
+    // Check prefers-reduced-motion
+    if (typeof window !== 'undefined') {
+      const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+      setPrefersReducedMotion(media.matches);
+      const listener = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+      media.addEventListener('change', listener);
+      return () => media.removeEventListener('change', listener);
+    }
+  }, []);
+
+  // 2. Viewport & Mobile Detection
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -28,476 +85,276 @@ export function BuildingTransformationHero() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Preload Assets
+  // 3. Pause off-screen rendering via IntersectionObserver
   useEffect(() => {
-    let loadedCount = 0;
-    const totalToLoad = 2;
-
-    const onAssetLoad = () => {
-      loadedCount++;
-      if (loadedCount >= totalToLoad) {
-        setImagesLoaded(true);
-      }
-    };
-
-    const towerImg = new window.Image();
-    towerImg.src = '/assets/ganpati-tower.jpg';
-    towerImg.onload = onAssetLoad;
-    towerImageRef.current = towerImg;
-
-    const logoImg = new window.Image();
-    logoImg.src = '/assets/sankalp-logo.png';
-    logoImg.onload = onAssetLoad;
-    logoImageRef.current = logoImg;
+    const el = pinWrapperRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.02 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
-  // Canvas Drawing Routine
-  const drawScene = useCallback(
-    (progress: number) => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const width = canvas.width;
-      const height = canvas.height;
-
-      // 1. SKY GRADIENT: Interpolates from Dusk (#0c1524 / #9a3412) to Clear Blue Day (#0284c7 / #bae6fd)
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
-
-      // Colors interpolation
-      // Top color: Dusk #0c1524 (12, 21, 36) -> Day #0284c7 (2, 132, 199)
-      const topR = Math.round(12 + (2 - 12) * progress);
-      const topG = Math.round(21 + (132 - 21) * progress);
-      const topB = Math.round(36 + (199 - 36) * progress);
-
-      // Horizon color: Dusk amber #9a3412 (154, 52, 18) -> Day soft azure #e0f2fe (224, 242, 254)
-      const btmR = Math.round(154 + (224 - 154) * progress);
-      const btmG = Math.round(52 + (242 - 52) * progress);
-      const btmB = Math.round(18 + (254 - 18) * progress);
-
-      skyGrad.addColorStop(0, `rgb(${topR}, ${topG}, ${topB})`);
-      skyGrad.addColorStop(0.75, `rgb(${btmR}, ${btmG}, ${btmB})`);
-      skyGrad.addColorStop(1, progress > 0.6 ? '#f0f9ff' : '#1e293b');
-
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, width, height);
-
-      // Distant city silhouette at dusk (fades as day arrives)
-      if (progress < 0.6) {
-        ctx.save();
-        ctx.globalAlpha = (1 - progress / 0.6) * 0.4;
-        ctx.fillStyle = '#090e17';
-        for (let i = 0; i < 24; i++) {
-          const bx = (i / 24) * width;
-          const bw = width / 24;
-          const bh = (height * 0.15) + Math.sin(i * 3.7) * (height * 0.08);
-          ctx.fillRect(bx, height - bh, bw, bh);
-        }
-        ctx.restore();
-      }
-
-      // Ground pavement
-      const groundH = height * 0.12;
-      ctx.fillStyle = progress > 0.5 ? '#1e293b' : '#0a0f1a';
-      ctx.fillRect(0, height - groundH, width, groundH);
-
-      // 2. DRAW OLD SOCIETY BUILDING (Prominent when progress < 0.6)
-      const oldAlpha = Math.max(0, 1 - progress * 1.8);
-      if (oldAlpha > 0.01) {
-        ctx.save();
-        ctx.globalAlpha = oldAlpha;
-
-        const bWidth = Math.min(width * 0.42, 380);
-        const bHeight = Math.min(height * 0.52, 440);
-        const bX = (width - bWidth) / 2;
-        const bY = height - groundH - bHeight;
-
-        // Old stucco body with concrete stain
-        ctx.fillStyle = '#78716c';
-        ctx.fillRect(bX, bY, bWidth, bHeight);
-
-        // Water damage & weathered grunge overlay
-        ctx.fillStyle = 'rgba(41, 37, 36, 0.4)';
-        for (let i = 0; i < 8; i++) {
-          ctx.fillRect(bX + i * (bWidth / 8), bY, bWidth / 16, bHeight * 0.7);
-        }
-
-        // 4 Old Floors with weathered balconies
-        const floors = 4;
-        const fHeight = bHeight / floors;
-        for (let f = 0; f < floors; f++) {
-          const fy = bY + f * fHeight;
-          // Floor divider
-          ctx.fillStyle = '#57534e';
-          ctx.fillRect(bX - 6, fy + fHeight - 8, bWidth + 12, 8);
-
-          // Windows & Balconies
-          ctx.fillStyle = '#1c1917';
-          ctx.fillRect(bX + bWidth * 0.1, fy + 14, bWidth * 0.35, fHeight - 28);
-          ctx.fillRect(bX + bWidth * 0.55, fy + 14, bWidth * 0.35, fHeight - 28);
-
-          // Rust-tinted balcony railings
-          ctx.strokeStyle = '#44403c';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(bX + bWidth * 0.08, fy + fHeight - 24, bWidth * 0.39, 18);
-          ctx.strokeRect(bX + bWidth * 0.53, fy + fHeight - 24, bWidth * 0.39, 18);
-        }
-
-        // Rooftop Water Tanks (Classic Indian housing society style)
-        ctx.fillStyle = '#1e293b';
-        ctx.fillRect(bX + 24, bY - 32, 44, 32);
-        ctx.fillRect(bX + 80, bY - 32, 44, 32);
-        ctx.fillStyle = '#57534e';
-        ctx.fillRect(bX + bWidth - 70, bY - 26, 50, 26);
-
-        ctx.restore();
-      }
-
-      // 3. BLUEPRINT & CONSTRUCTION LASER OVERLAY (Active during transition 0.2 -> 0.75)
-      if (progress > 0.15 && progress < 0.8) {
-        ctx.save();
-        const wireAlpha = Math.sin(((progress - 0.15) / 0.65) * Math.PI);
-        ctx.globalAlpha = wireAlpha * 0.85;
-
-        const targetW = Math.min(width * 0.52, 460);
-        const targetH = Math.min(height * 0.78, 680);
-        const tX = (width - targetW) / 2;
-        const tY = height - groundH - targetH;
-
-        // Glowing Blue/Gold architectural frame lines
-        ctx.strokeStyle = progress > 0.45 ? '#D4A462' : '#38bdf8';
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([8, 6]);
-        ctx.strokeRect(tX, tY, targetW, targetH);
-
-        // Grid levels
-        for (let i = 1; i <= 12; i++) {
-          const ly = tY + (i / 13) * targetH;
-          ctx.beginPath();
-          ctx.moveTo(tX, ly);
-          ctx.lineTo(tX + targetW, ly);
-          ctx.stroke();
-        }
-
-        // Horizontal scanning laser beam
-        const scanY = tY + targetH * (1 - ((progress * 3) % 1));
-        ctx.strokeStyle = '#D4A462';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([]);
-        ctx.shadowColor = '#D4A462';
-        ctx.shadowBlur = 15;
-        ctx.beginPath();
-        ctx.moveTo(tX - 30, scanY);
-        ctx.lineTo(tX + targetW + 30, scanY);
-        ctx.stroke();
-
-        ctx.restore();
-      }
-
-      // 4. DRAW FINAL GANPATI TOWER ARCHITECTURE RENDER
-      // Crossfade smoothly between 0.35 and 1.0
-      const towerAlpha = Math.min(1, Math.max(0, (progress - 0.25) / 0.65));
-      if (towerImageRef.current && towerAlpha > 0.01) {
-        ctx.save();
-        ctx.globalAlpha = towerAlpha;
-
-        const img = towerImageRef.current;
-        const imgAspect = img.naturalWidth / img.naturalHeight;
-
-        // Calculate aspect-fit height matching the canvas height
-        const renderH = Math.min(height * 0.88, 780);
-        const renderW = renderH * imgAspect;
-        const renderX = (width - renderW) / 2;
-        const renderY = height - groundH - renderH + 20;
-
-        // Subtle scale transition for dramatic rise
-        const scale = 0.95 + progress * 0.05;
-        ctx.translate(width / 2, height / 2);
-        ctx.scale(scale, scale);
-        ctx.translate(-width / 2, -height / 2);
-
-        // Draw the architectural render
-        ctx.drawImage(img, renderX, renderY, renderW, renderH);
-
-        // Glow effect on rooftop GANPATI CHS crown as progress reaches completion
-        if (progress > 0.85) {
-          const glowAlpha = (progress - 0.85) / 0.15;
-          ctx.save();
-          ctx.globalAlpha = glowAlpha * 0.6;
-          ctx.fillStyle = '#D4A462';
-          ctx.shadowColor = '#D4A462';
-          ctx.shadowBlur = 25;
-          // Sign location at crown top
-          ctx.fillRect(renderX + renderW * 0.35, renderY + renderH * 0.08, renderW * 0.3, 14);
-          ctx.restore();
-        }
-
-        ctx.restore();
-      }
-    },
-    []
-  );
-
-  // Resize listener
+  // 4. Preload 2D fallback assets (only used if 3D is disabled or unsupported)
   useEffect(() => {
-    const handleResize = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      drawScene(scrollProgress);
+    const towerImg = new window.Image();
+    towerImg.src = '/ref/ganpati-final.jpg';
+    towerImg.onload = () => setImagesLoaded(true);
+    towerImg.onerror = () => {
+      // Fallback to existing asset if ref is not accessible
+      towerImg.src = '/assets/ganpati-tower.jpg';
     };
+    towerImageRef.current = towerImg;
+  }, []);
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [drawScene, scrollProgress]);
+  // 2D Canvas Fallback Drawing Routine
+  const drawFallback2D = useCallback((p: number) => {
+    const canvas = canvas2DRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const width = canvas.width;
+    const height = canvas.height;
 
-  // GSAP ScrollTrigger Scrubbing
-  useEffect(() => {
+    // Gradient background: Pale sky haze top #EAF0F4 fading to ivory #F4F3EE
+    const sky = ctx.createLinearGradient(0, 0, 0, height);
+    sky.addColorStop(0, '#EAF0F4');
+    sky.addColorStop(0.65, '#F4F3EE');
+    sky.addColorStop(1, p > 0.6 ? '#E6EFF6' : '#E6E0D0');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, width, height);
+
+    if (towerImageRef.current && p > 0.1) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, p * 1.5);
+      const img = towerImageRef.current;
+      const aspect = img.naturalWidth / img.naturalHeight;
+      const rh = Math.min(height * 0.82, 700);
+      const rw = rh * aspect;
+      ctx.drawImage(img, (width - rw) / 2, height - rh - 20, rw, rh);
+      ctx.restore();
+    }
+  }, []);
+
+  // 5. Unified GSAP ScrollTrigger Scrubbing with gsap.context & stable wrapper
+  useIsomorphicLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    const pinEl = pinWrapperRef.current;
+    if (!pinEl) return;
 
-    const container = containerRef.current;
-    if (!container) return;
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: pinEl,
+        start: 'top top',
+        end: '+=500%',
+        pin: true,
+        pinSpacing: true,
+        scrub: 0.6,
+        onUpdate: (self) => {
+          const p = self.progress;
+          progressRef.current = p;
 
-    const trigger = ScrollTrigger.create({
-      trigger: container,
-      start: 'top top',
-      end: '+=250%',
-      pin: true,
-      scrub: 0.8,
-      onUpdate: (self) => {
-        setScrollProgress(self.progress);
-        drawScene(self.progress);
-      },
-    });
+          // Drive fallback 2D if active
+          if (isKillSwitched || !hasWebGL) {
+            drawFallback2D(p);
+          }
+
+          // Sky Sunset Amber Overlay (0.5 -> 1.0)
+          if (skySunsetRef.current) {
+            const sunsetOpacity = p < 0.4 ? 0 : Math.min(1, (p - 0.4) / 0.55);
+            skySunsetRef.current.style.opacity = `${sunsetOpacity}`;
+          }
+
+          // Initial Scroll Prompt Fade (fades out as user scrolls past 0.22)
+          if (initialPromptRef.current) {
+            if (p > 0.22) {
+              initialPromptRef.current.style.opacity = '0';
+              initialPromptRef.current.style.pointerEvents = 'none';
+              initialPromptRef.current.style.transform = 'none';
+            } else {
+              const promptAlpha = Math.max(0, 1 - (p / 0.22));
+              initialPromptRef.current.style.opacity = `${promptAlpha}`;
+              initialPromptRef.current.style.pointerEvents = promptAlpha > 0.5 ? 'auto' : 'none';
+              initialPromptRef.current.style.transform = 'none';
+            }
+          }
+
+          // Scroll Cue Fade (fades out in sync with initial prompt)
+          if (scrollCueRef.current) {
+            if (p > 0.22) {
+              scrollCueRef.current.style.opacity = '0';
+            } else {
+              const cueAlpha = Math.max(0, 1 - (p / 0.22));
+              scrollCueRef.current.style.opacity = `${cueAlpha}`;
+            }
+          }
+
+          // Climax Card Fade (fades in as transformation completes at 0.78)
+          if (climaxCardRef.current) {
+            if (p >= 0.76) {
+              const cardAlpha = Math.min(1, (p - 0.76) / 0.18);
+              climaxCardRef.current.style.opacity = `${cardAlpha}`;
+              climaxCardRef.current.style.pointerEvents = cardAlpha > 0.6 ? 'auto' : 'none';
+              climaxCardRef.current.style.transform = `scale(${0.96 + cardAlpha * 0.04})`;
+            } else {
+              climaxCardRef.current.style.opacity = '0';
+              climaxCardRef.current.style.pointerEvents = 'none';
+              climaxCardRef.current.style.transform = 'scale(0.95)';
+            }
+          }
+        },
+      });
+
+      // Refresh ScrollTrigger calculations after mounting
+      ScrollTrigger.refresh();
+    }, pinWrapperRef);
 
     return () => {
-      trigger.kill();
+      ctx.revert();
     };
-  }, [drawScene]);
+  }, [isKillSwitched, hasWebGL, drawFallback2D]);
 
-  // Redraw when images finish loading
-  useEffect(() => {
-    if (imagesLoaded) {
-      drawScene(scrollProgress);
-    }
-  }, [imagesLoaded, drawScene, scrollProgress]);
-
-  // Phase Title according to progress
-  const phaseInfo =
-    scrollProgress < 0.3
-      ? {
-          step: 'EXISTING PREMISES',
-          title: 'Aging Housing Society',
-          desc: 'Co-operative society ready for legally-protected redevelopment.',
-        }
-      : scrollProgress < 0.7
-      ? {
-          step: 'SECTION 79A PROCESS & EXECUTION',
-          title: 'Structural Transformation',
-          desc: 'Stacked white frames, walnut-wood bands, and louvered parking podium.',
-        }
-      : {
-          step: 'ARCHITECTURAL LANDMARK',
-          title: 'Ganpati CHS, Nerul',
-          desc: 'Modern 17-storey residential tower delivered with total legal assurance.',
-        };
+  const use3D = !isKillSwitched && hasWebGL;
 
   return (
-    <section
-      ref={containerRef}
-      id="hero-transformation"
-      className="relative w-full h-screen overflow-hidden bg-[#0c1421] text-white flex flex-col justify-between"
+    <div
+      ref={pinWrapperRef}
+      id="hero-transformation-pin-wrapper"
+      className="relative w-full overflow-visible"
     >
-      {/* ─── LOADING STATE WITH GOLD PINWHEEL ─── */}
-      {!imagesLoaded && (
-        <div className="absolute inset-0 z-50 bg-[#0c1421] flex flex-col items-center justify-center gap-4">
-          <PinwheelLoader size="xl" label="Loading Architectural Transformation..." />
-        </div>
-      )}
+      <section
+        ref={containerRef}
+        id="hero-transformation"
+        data-pinned="true"
+        data-section="0"
+        className="relative w-full h-[100svh] min-h-[100svh] overflow-hidden bg-[#F4F3EE] text-[#1B1B1F] select-none border-b border-[#E9E2D0]"
+      >
+        {/* ─── BASE SKY GRADIENT: SKY HAZE TOP #EAF0F4 FADING TO IVORY #F4F3EE (z-0) ─── */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#EAF0F4] via-[#F4F3EE] to-[#F4F3EE] z-0 pointer-events-none" />
 
-      {/* ─── DESKTOP/TABLET CANVAS IMAGE SEQUENCE ─── */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-      />
-
-      {/* ─── MOBILE TOUCH FALLBACK VIEW ─── */}
-      {isMobile && imagesLoaded && (
-        <div className="absolute inset-0 z-10 flex flex-col p-4 pt-20 pointer-events-auto">
-          {/* Mobile Comparison Split View */}
-          <div className="relative flex-1 w-full rounded-2xl overflow-hidden border border-[#D4A462]/30 shadow-2xl bg-[#0c1421]">
-            <Image
-              src="/assets/ganpati-tower.jpg"
-              alt="Ganpati Society at Nerul"
-              fill
-              priority
-              className="object-contain"
-            />
-
-            {/* Split overlay showing old society */}
-            <div
-              className="absolute inset-0 bg-[#0c1524] overflow-hidden"
-              style={{ clipPath: `inset(0 ${100 - mobileComparePos}% 0 0)` }}
-            >
-              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-[#0c1524] to-[#1e293b]">
-                <div className="w-48 h-56 bg-stone-700/80 rounded-lg border-2 border-stone-500 p-3 flex flex-col justify-between mb-4 shadow-xl">
-                  <div className="flex justify-between">
-                    <div className="w-8 h-6 bg-stone-900 rounded" />
-                    <div className="w-8 h-6 bg-stone-900 rounded" />
-                  </div>
-                  <div className="text-[10px] text-stone-300 font-mono">
-                    EXISTING 4-STOREY CHS
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="w-14 h-4 bg-stone-800 rounded" />
-                    <div className="w-14 h-4 bg-stone-800 rounded" />
-                  </div>
-                </div>
-                <span className="text-xs font-semibold text-stone-300 uppercase tracking-widest">
-                  Original Structure
-                </span>
-                <p className="text-[11px] text-stone-400 mt-1 max-w-xs">
-                  Weathered concrete, aging services, awaiting Section 79A renewal.
-                </p>
-              </div>
-            </div>
-
-            {/* Interactive Slider Divider Handle */}
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={mobileComparePos}
-              onChange={(e) => setMobileComparePos(Number(e.target.value))}
-              aria-label="Drag to compare before and after redevelopment"
-              className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
-            />
-            <div
-              className="absolute top-0 bottom-0 w-1 bg-[#D4A462] pointer-events-none z-10 shadow-[0_0_10px_#D4A462]"
-              style={{ left: `${mobileComparePos}%` }}
-            >
-              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[#154C96] border-2 border-[#D4A462] flex items-center justify-center text-[10px] text-[#D4A462] shadow-lg">
-                ⇄
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-3 flex items-center justify-between text-[11px] text-[#D4A462] font-semibold px-2">
-            <span>◄ Slide for Original Society</span>
-            <span>Ganpati CHS Render ►</span>
-          </div>
-        </div>
-      )}
-
-      {/* ─── FLOATING UI OVERLAY: TOP BAR & MILESTONE INDICATOR ─── */}
-      <div className="relative z-20 max-w-7xl mx-auto w-full px-6 pt-24 md:pt-28 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pointer-events-none">
-        {/* Milestone Badge */}
-        <div className="flex items-center gap-3 bg-[#0c1421]/80 backdrop-blur-md px-4 py-2 rounded-full border border-[#D4A462]/30 shadow-xl">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#D4A462] animate-pulse" />
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#D4A462]">
-            {phaseInfo.step}
-          </span>
-          <span className="text-white/40 text-xs">|</span>
-          <span className="text-xs text-white/90 font-medium">
-            {phaseInfo.title}
-          </span>
-        </div>
-
-        {/* Scroll Scrubber Progress Indicator */}
-        <div className="hidden sm:flex items-center gap-3 bg-[#0c1421]/80 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 text-xs font-mono">
-          <span className="text-white/60">TRANSFORMATION</span>
-          <div className="w-24 h-1.5 rounded-full bg-white/20 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-[#154C96] to-[#D4A462] transition-all duration-75"
-              style={{ width: `${Math.round(scrollProgress * 100)}%` }}
-            />
-          </div>
-          <span className="text-[#D4A462] font-bold">
-            {Math.round(scrollProgress * 100)}%
-          </span>
-        </div>
-      </div>
-
-      {/* ─── OVERLAY: INITIAL PROMPT & CLIMAX CARD WITH SANKALP LOGO ─── */}
-      <div className="relative z-20 max-w-4xl mx-auto px-6 pb-12 md:pb-16 text-center pointer-events-none">
-        {/* Initial Scroll Prompt (visible at start, fades out on scroll) */}
+        {/* ─── STAGE C SKY BLUING OVERLAY: (#E6EFF6) (z-0) ─── */}
         <div
-          className={`transition-all duration-500 flex flex-col items-center gap-3 ${
-            scrollProgress < 0.3
-              ? 'opacity-100 translate-y-0 pointer-events-auto'
-              : 'opacity-0 -translate-y-4 pointer-events-none absolute inset-x-0 bottom-12'
-          }`}
-        >
-          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white drop-shadow-md">
-            Watch Trust Rise Floor By Floor
-          </h1>
-          <p className="text-xs sm:text-sm text-white/80 max-w-md">
-            Scroll down to watch an aging housing society transform into Ganpati CHS, Nerul.
-          </p>
+          ref={skySunsetRef}
+          style={{ opacity: 0 }}
+          className="absolute inset-0 bg-gradient-to-t from-[#E6EFF6]/60 via-[#EAF0F4]/20 to-transparent z-0 transition-opacity duration-150 pointer-events-none"
+        />
 
-          {/* Animated Mouse/Finger Indicator */}
-          <div className="mt-4 flex flex-col items-center gap-1.5 text-[11px] font-mono text-[#D4A462] uppercase tracking-wider">
-            <span>Scroll to Transform</span>
-            <div className="w-5 h-8 rounded-full border border-[#D4A462]/60 flex items-start justify-center p-1">
-              <div className="w-1 h-2 rounded-full bg-[#D4A462] animate-bounce" />
-            </div>
+        {/* ─── 3D PROCEDURAL INTERACTIVE CANVAS (z-10) ─── */}
+        {use3D && isInView && (
+          <div className="absolute inset-0 z-10 w-full h-full pointer-events-none">
+            <GanpatiBuilding3D
+              progressRef={progressRef}
+              isMobile={isMobile}
+              prefersReducedMotion={prefersReducedMotion}
+            />
+          </div>
+        )}
+
+        {/* ─── 2D FALLBACK CANVAS: If WebGL disabled or unsupported (z-10) ─── */}
+        {(!use3D || !isInView) && (
+          <canvas
+            ref={canvas2DRef}
+            className="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none"
+          />
+        )}
+
+        {/* ─── SUBTLE WHITE FADE OVERLAY BEHIND NAVBAR (z-20) ─── */}
+        <div
+          className="absolute top-0 inset-x-0 pointer-events-none z-20"
+          style={{
+            height: 'calc(var(--nav-h, 76px) + 60px)',
+            background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.4) 65%, transparent 100%)',
+          }}
+        />
+
+        {/* ─── ONE FLEX COLUMN HERO TEXT CONTAINER (z-30, Normal Flow, No Overlaps) ─── */}
+        <div
+          className="absolute inset-0 flex flex-col items-center text-center pointer-events-none z-30 px-4"
+          style={{
+            paddingTop: 'calc(var(--nav-h, 76px) + 24px)',
+            gap: '16px',
+          }}
+        >
+          {/* Initial Prompt Group: Headline (fades out as user scrolls) */}
+          <div
+            ref={initialPromptRef}
+            className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto w-full max-w-5xl px-3"
+          >
+            {/* Eyebrow badge matching other sections */}
+            <span className="section-eyebrow text-[10px] sm:text-xs mb-2 sm:mb-3">
+              3D Architectural Transformation
+            </span>
+
+            {/* Headline with one gold accent word */}
+            <h1 className="font-heading font-bold text-[#1B1B1F] tracking-tight text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight sm:leading-none max-w-full">
+              Watch Trust <span className="italic text-[#B8913A]">Rise</span> Floor By Floor
+            </h1>
+
+            {/* Decorative Gold Accent Underline */}
+            <span className="heading-gold-line mx-auto" />
           </div>
         </div>
 
-        {/* Climax Card: Sankalp Logo, Tagline & CTAs (fades in when transformation completes) */}
+        {/* ─── SCROLL TO TRANSFORM CUE (Direct child of pinned hero, bottom centre) (z-30) ─── */}
         <div
-          className={`transition-all duration-700 bg-[#0c1421]/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-[#D4A462]/40 shadow-2xl shadow-[#154C96]/30 flex flex-col items-center ${
-            scrollProgress >= 0.78
-              ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
-              : 'opacity-0 translate-y-6 pointer-events-none scale-95'
-          }`}
+          ref={scrollCueRef}
+          className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-30 transition-opacity duration-200"
+          style={{
+            bottom: 'max(24px, env(safe-area-inset-bottom, 24px))',
+            gap: '8px',
+          }}
         >
-          {/* Sankalp Logo with Pinwheel */}
-          <div className="relative w-52 sm:w-64 h-16 sm:h-20 mb-3">
+          <span className="text-[11px] font-mono text-[#8F6B1E] uppercase tracking-wider font-semibold">
+            Scroll to Transform
+          </span>
+          <div className="w-5 h-8 rounded-full border border-[#B8913A]/70 flex items-start justify-center p-1 bg-white/80 backdrop-blur-md shadow-[0_4px_16px_rgba(143,107,30,0.12)]">
+            <div className="w-1.5 h-2.5 rounded-full bg-[#B8913A] animate-bounce" />
+          </div>
+        </div>
+
+        {/* ─── STAGE C CLIMAX CARD: DELIVERED LANDMARK & CTAs (z-30) ─── */}
+        <div
+          ref={climaxCardRef}
+          style={{ opacity: 0, transform: 'scale(0.95)' }}
+          className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md z-30 transition-all duration-300 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#E9E2D0] shadow-[0_12px_40px_rgba(143,107,30,0.12)] flex flex-col items-center pointer-events-none"
+        >
+          {/* Sankalp Logo */}
+          <div className="relative w-48 sm:w-60 h-14 sm:h-18 mb-2 sm:mb-3">
             <Image
               src="/assets/sankalp-logo.png"
               alt="Sankalp — Redevelopment with Responsibility"
               fill
+              sizes="(max-width: 640px) 192px, 240px"
               priority
-              className="object-contain drop-shadow-[0_4px_16px_rgba(212,164,98,0.3)]"
+              className="object-contain"
             />
           </div>
 
           {/* Official Tagline */}
-          <div className="flex items-center gap-2 mb-6">
-            <span className="h-[1px] w-8 bg-[#D4A462]" />
-            <p className="text-xs sm:text-sm font-semibold tracking-widest text-[#D4A462] uppercase">
+          <div className="flex items-center gap-2 mb-5 sm:mb-6">
+            <span className="h-[1px] w-8 bg-[#B8913A]" />
+            <p className="text-[11px] sm:text-xs font-semibold tracking-widest text-[#8F6B1E] uppercase">
               Redevelopment with Responsibility
             </p>
-            <span className="h-[1px] w-8 bg-[#D4A462]" />
+            <span className="h-[1px] w-8 bg-[#B8913A]" />
           </div>
 
-          <p className="text-xs sm:text-sm text-text-muted max-w-lg mb-6 leading-relaxed">
-            From our project portfolio: <strong className="text-white">Ganpati Society at Nerul</strong> — transformed with stacked white architectural frames, walnut-wood soffits, glass balconies, and louvered parking.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto">
+          <div className="w-full max-w-[300px] pointer-events-auto">
             <Link
               href="/contact-us"
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#D4A462] hover:bg-[#e6be85] text-[#0c1421] font-bold text-sm shadow-lg shadow-[#D4A462]/20 transition-all flex items-center justify-center gap-2"
+              className="btn-primary w-full !py-2.5 sm:!py-3 !px-6 text-xs sm:text-sm flex items-center justify-center gap-2 text-center"
             >
               Schedule Committee Meeting
               <span>→</span>
             </Link>
-            <a
-              href="#process-step-1"
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#154C96] hover:bg-[#1d5bb8] text-white font-semibold text-sm border border-white/20 transition-all text-center"
-            >
-              Explore 10-Step Process
-            </a>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
+

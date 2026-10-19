@@ -66,18 +66,18 @@ export function ConsultationSection() {
     <section
       data-section="17"
       id="consultation"
-      className="relative min-h-screen flex items-center justify-center px-6 py-24 z-10"
+      className="relative flex items-center justify-center px-6 py-24 z-10 bg-[#FAF7F0] border-t border-[#E9E2D0]"
     >
       <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         {/* Left Column: Direct Contact & Assurances */}
         <div className="lg:col-span-5 flex flex-col justify-center">
-          <span className="text-xs uppercase tracking-widest text-gold font-semibold mb-3 inline-block">
+          <span className="section-eyebrow mb-3">
             Take The First Step
           </span>
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-text-light mb-6">
-            Consult With Our Advocate-Led Team
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-[#1B1B1F] mb-6">
+            Consult With Our <span className="italic text-[#B8913A]">Advocate-Led</span> Team
           </h2>
-          <p className="text-base text-text-muted leading-relaxed mb-8">
+          <p className="text-base text-[#5B5B63] leading-relaxed mb-8">
             Whether your society is considering redevelopment for the first time or seeking clarity on 79A guidelines, we offer transparent, ethical guidance.
           </p>
 
@@ -85,59 +85,59 @@ export function ConsultationSection() {
           <div className="flex flex-col gap-4 mb-8">
             <a
               href={`tel:${siteConfig.phones[0].replace(/\s/g, '')}`}
-              className="p-4 rounded-xl bg-navy-light/60 border border-white/10 hover:border-gold/40 flex items-center gap-4 transition-all"
+              className="p-4 rounded-xl bg-white border border-[#E9E2D0] shadow-sm hover:border-[#B8913A]/50 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-4 transition-all"
             >
-              <div className="w-10 h-10 rounded-lg bg-gold/15 flex items-center justify-center text-gold">
+              <div className="w-10 h-10 rounded-lg bg-[#FAF7F0] border border-[#E9E2D0] flex items-center justify-center text-[#8F6B1E]">
                 📞
               </div>
               <div>
-                <p className="text-xs text-text-muted">Direct Advisory Line</p>
-                <p className="text-sm font-bold text-text-light">{siteConfig.phones[0]}</p>
+                <p className="text-xs text-[#5B5B63]">Direct Advisory Line</p>
+                <p className="text-sm font-bold text-[#1B1B1F]">{siteConfig.phones[0]}</p>
               </div>
             </a>
             <a
               href={`mailto:${siteConfig.email}`}
-              className="p-4 rounded-xl bg-navy-light/60 border border-white/10 hover:border-gold/40 flex items-center gap-4 transition-all"
+              className="p-4 rounded-xl bg-white border border-[#E9E2D0] shadow-sm hover:border-[#B8913A]/50 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-4 transition-all"
             >
-              <div className="w-10 h-10 rounded-lg bg-gold/15 flex items-center justify-center text-gold">
+              <div className="w-10 h-10 rounded-lg bg-[#FAF7F0] border border-[#E9E2D0] flex items-center justify-center text-[#8F6B1E]">
                 ✉️
               </div>
               <div>
-                <p className="text-xs text-text-muted">Email Inquiry</p>
-                <p className="text-sm font-bold text-text-light">{siteConfig.email}</p>
+                <p className="text-xs text-[#5B5B63]">Email Inquiry</p>
+                <p className="text-sm font-bold text-[#1B1B1F]">{siteConfig.email}</p>
               </div>
             </a>
           </div>
 
-          <div className="p-4 rounded-xl bg-gold/5 border border-gold/15">
-            <p className="text-xs text-gold-soft leading-relaxed">
-              🔒 <strong className="text-gold">100% Confidential:</strong> We never share society records or contact details. All initial feasibility evaluations are protected under professional privilege.
+          <div className="p-4 rounded-xl bg-white border border-[#D4AF5A]/30 shadow-sm">
+            <p className="text-xs text-[#5B5B63] leading-relaxed">
+              🔒 <strong className="text-[#8F6B1E]">100% Confidential:</strong> We never share society records or contact details. All initial feasibility evaluations are protected under professional privilege.
             </p>
           </div>
         </div>
 
         {/* Right Column: Lead Form */}
         <div className="lg:col-span-7">
-          <GlassCard variant="gold" className="p-8 md:p-10 border-gold/30">
-            <h3 className="font-heading text-xl sm:text-2xl font-bold text-text-light mb-2">
+          <GlassCard variant="default" className="p-8 md:p-10 bg-white">
+            <h3 className="font-heading text-xl sm:text-2xl font-bold text-[#1B1B1F] mb-2">
               Request Society Committee Consultation
             </h3>
-            <p className="text-xs text-text-muted mb-6">
+            <p className="text-xs text-[#5B5B63] mb-6">
               Fill in your details below and our team will get in touch to schedule an in-person or presentation meeting.
             </p>
 
             {status === 'success' ? (
-              <div className="p-8 text-center bg-navy/80 rounded-xl border border-gold/40">
-                <span className="text-4xl mb-3 block">✓</span>
-                <h4 className="font-heading text-lg font-bold text-gold mb-2">
+              <div className="p-8 text-center bg-[#FAF7F0] rounded-xl border border-[#D4AF5A]/40">
+                <span className="text-4xl mb-3 block text-[#8F6B1E]">✓</span>
+                <h4 className="font-heading text-lg font-bold text-[#1B1B1F] mb-2">
                   Consultation Request Received
                 </h4>
-                <p className="text-xs text-text-muted leading-relaxed">
+                <p className="text-xs text-[#5B5B63] leading-relaxed">
                   Thank you for reaching out. A senior redevelopment consultant from Sankalp PMC will contact you within 24 business hours.
                 </p>
                 <button
                   onClick={() => setStatus('idle')}
-                  className="mt-6 text-xs text-gold underline underline-offset-4"
+                  className="mt-6 text-xs text-[#8F6B1E] underline underline-offset-4 font-semibold"
                 >
                   Submit another inquiry
                 </button>
@@ -146,7 +146,7 @@ export function ConsultationSection() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-text-light mb-1.5">
+                    <label className="block text-xs font-semibold text-[#1B1B1F] mb-1.5">
                       Society Name *
                     </label>
                     <input
@@ -157,11 +157,11 @@ export function ConsultationSection() {
                       onChange={(e) =>
                         setFormState({ ...formState, societyName: e.target.value })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-navy/80 border border-white/10 text-text-light placeholder:text-text-muted/50 text-sm focus:outline-none focus:border-gold transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E9E2D0] text-[#1B1B1F] placeholder:text-[#5B5B63]/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF5A] transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-text-light mb-1.5">
+                    <label className="block text-xs font-semibold text-[#1B1B1F] mb-1.5">
                       Location / Node *
                     </label>
                     <input
@@ -172,14 +172,14 @@ export function ConsultationSection() {
                       onChange={(e) =>
                         setFormState({ ...formState, location: e.target.value })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-navy/80 border border-white/10 text-text-light placeholder:text-text-muted/50 text-sm focus:outline-none focus:border-gold transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E9E2D0] text-[#1B1B1F] placeholder:text-[#5B5B63]/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF5A] transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-text-light mb-1.5">
+                    <label className="block text-xs font-semibold text-[#1B1B1F] mb-1.5">
                       Your Name *
                     </label>
                     <input
@@ -190,11 +190,11 @@ export function ConsultationSection() {
                       onChange={(e) =>
                         setFormState({ ...formState, contactName: e.target.value })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-navy/80 border border-white/10 text-text-light placeholder:text-text-muted/50 text-sm focus:outline-none focus:border-gold transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E9E2D0] text-[#1B1B1F] placeholder:text-[#5B5B63]/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF5A] transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-text-light mb-1.5">
+                    <label className="block text-xs font-semibold text-[#1B1B1F] mb-1.5">
                       Your Role in Society
                     </label>
                     <select
@@ -202,7 +202,7 @@ export function ConsultationSection() {
                       onChange={(e) =>
                         setFormState({ ...formState, role: e.target.value })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-navy/80 border border-white/10 text-text-light text-sm focus:outline-none focus:border-gold transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E9E2D0] text-[#1B1B1F] text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF5A] transition-all"
                     >
                       <option value="Chairman">Chairman</option>
                       <option value="Secretary">Secretary</option>
@@ -215,7 +215,7 @@ export function ConsultationSection() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-text-light mb-1.5">
+                    <label className="block text-xs font-semibold text-[#1B1B1F] mb-1.5">
                       Phone Number *
                     </label>
                     <input
@@ -226,11 +226,11 @@ export function ConsultationSection() {
                       onChange={(e) =>
                         setFormState({ ...formState, phone: e.target.value })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-navy/80 border border-white/10 text-text-light placeholder:text-text-muted/50 text-sm focus:outline-none focus:border-gold transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E9E2D0] text-[#1B1B1F] placeholder:text-[#5B5B63]/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF5A] transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-text-light mb-1.5">
+                    <label className="block text-xs font-semibold text-[#1B1B1F] mb-1.5">
                       Number of Flats / Members
                     </label>
                     <input
@@ -240,13 +240,13 @@ export function ConsultationSection() {
                       onChange={(e) =>
                         setFormState({ ...formState, members: e.target.value })
                       }
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-navy/80 border border-white/10 text-text-light placeholder:text-text-muted/50 text-sm focus:outline-none focus:border-gold transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E9E2D0] text-[#1B1B1F] placeholder:text-[#5B5B63]/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF5A] transition-all"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-text-light mb-1.5">
+                  <label className="block text-xs font-semibold text-[#1B1B1F] mb-1.5">
                     Specific Inquiries or Society Status
                   </label>
                   <textarea
@@ -256,7 +256,7 @@ export function ConsultationSection() {
                     onChange={(e) =>
                       setFormState({ ...formState, message: e.target.value })
                     }
-                    className="w-full px-3.5 py-2.5 rounded-lg bg-navy/80 border border-white/10 text-text-light placeholder:text-text-muted/50 text-sm focus:outline-none focus:border-gold transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E9E2D0] text-[#1B1B1F] placeholder:text-[#5B5B63]/60 text-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF5A] transition-all"
                   />
                 </div>
 
@@ -277,7 +277,7 @@ export function ConsultationSection() {
                 </div>
 
                 {status === 'error' && (
-                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-300 leading-relaxed">
+                  <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-700 leading-relaxed">
                     ⚠️ {errorMessage || `Unable to submit at this moment. Please call us directly at ${siteConfig.phones[0]}.`}
                   </div>
                 )}
@@ -289,7 +289,7 @@ export function ConsultationSection() {
                 >
                   {status === 'submitting' ? (
                     <span className="inline-flex items-center gap-2">
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-navy" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[#1B1B1F]" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
