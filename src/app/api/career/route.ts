@@ -22,6 +22,7 @@ const careerTextSchema = z
     experience: z.string().trim().max(100).optional().default(''),
     message: z.string().trim().max(3000).optional().default(''),
     website_hp: z.string().max(100).optional().default(''),
+    _ts: z.union([z.string(), z.number()]).optional(),
   })
   .strict();
 
@@ -67,6 +68,7 @@ export async function POST(request: Request) {
         experience: (formData.get('experience') as string) || '',
         message: (formData.get('message') as string) || '',
         website_hp: (formData.get('website_hp') as string) || '',
+        _ts: (formData.get('_ts') as string) || '',
       };
 
       const cvFile = formData.get('cv') as File | null;
@@ -117,11 +119,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, phone, role, experience, message, website_hp } = parsed.data;
+    const { name, email, phone, role, experience, message, website_hp, _ts } = parsed.data;
 
-    // 4. Honeypot check
-    if (website_hp) {
-      logger.warn('Career honeypot triggered', { event: 'career_honeypot_hit' });
+    // 4. Spam protection: honeypot (reject only when filled) & optional time-to-submit (only when _ts is sent)
+    const hasHoneypot = Boolean(website_hp?.trim());
+    const submittedTs = _ts ? Number(_ts) : null;
+    const isTooFast = submittedTs !== null && !isNaN(submittedTs) && Date.now() - submittedTs < 1500;
+
+    if (hasHoneypot || isTooFast) {
+      logger.warn('Career spam suppression triggered', {
+        event: 'career_spam_blocked',
+        hasHoneypot,
+        isTooFast,
+      });
       return NextResponse.json({ success: true, message: 'Application submitted successfully.' });
     }
 

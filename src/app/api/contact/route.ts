@@ -22,14 +22,17 @@ const contactInputSchema = z
       .regex(/^[0-9+\-\s()]+$/, 'Invalid phone number format'),
     email: z
       .string()
-      .trim()
       .max(150)
-      .email('Invalid email address')
+      .transform((val) => val.trim())
+      .refine((val) => val === '' || z.string().email().safeParse(val).success, {
+        message: 'Invalid email address',
+      })
       .optional()
-      .or(z.literal('')),
+      .default(''),
     message: z.string().trim().max(3000).optional().default(''),
     website_hp: z.string().max(100).optional().default(''),
     company_url_hp: z.string().max(100).optional().default(''),
+    _ts: z.union([z.string(), z.number()]).optional(),
   })
   .strict();
 
@@ -99,11 +102,20 @@ export async function POST(request: Request) {
       message,
       website_hp,
       company_url_hp,
+      _ts,
     } = parsed.data;
 
-    // 6. Honeypot check (silently accept bot submissions)
-    if (website_hp || company_url_hp) {
-      logger.warn('Honeypot triggered for consultation request', { event: 'honeypot_hit' });
+    // 6. Spam protection: honeypot (reject only when filled) & optional time-to-submit (only when _ts is sent)
+    const hasHoneypot = Boolean(website_hp?.trim()) || Boolean(company_url_hp?.trim());
+    const submittedTs = _ts ? Number(_ts) : null;
+    const isTooFast = submittedTs !== null && !isNaN(submittedTs) && Date.now() - submittedTs < 1500;
+
+    if (hasHoneypot || isTooFast) {
+      logger.warn('Spam suppression triggered for consultation request', {
+        event: 'spam_blocked',
+        hasHoneypot,
+        isTooFast,
+      });
       return NextResponse.json({ success: true, message: 'Consultation request received successfully.' });
     }
 
