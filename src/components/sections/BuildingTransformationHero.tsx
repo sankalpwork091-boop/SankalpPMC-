@@ -7,7 +7,8 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import { PinwheelLoader } from '@/components/ui/PinwheelLoader';
-import { ENABLE_3D_BUILDING_HERO } from '@/config/hero3d';
+import { ENABLE_3D_BUILDING_HERO, ENABLE_VIDEO_HERO } from '@/config/hero3d';
+import { VideoHeroLayer } from '@/components/hero/VideoHeroLayer';
 
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
@@ -41,6 +42,7 @@ export function BuildingTransformationHero() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [hasWebGL, setHasWebGL] = useState(true);
   const [isKillSwitched, setIsKillSwitched] = useState(false);
+  const [useVideo, setUseVideo] = useState(ENABLE_VIDEO_HERO);
   const [isInView, setIsInView] = useState(true);
   const [imagesLoaded, setImagesLoaded] = useState(false);
 
@@ -55,6 +57,9 @@ export function BuildingTransformationHero() {
     ) {
       setIsKillSwitched(true);
     }
+
+    // ?novideo=true restores the live 3D scene
+    if (window.location.search.includes('novideo=true')) setUseVideo(false);
 
     // Check WebGL availability
     try {
@@ -243,8 +248,11 @@ export function BuildingTransformationHero() {
           className="absolute inset-0 bg-gradient-to-t from-[#E6EFF6]/60 via-[#EAF0F4]/20 to-transparent z-0 transition-opacity duration-150 pointer-events-none"
         />
 
+        {/* ─── SCROLL-SCRUBBED CONSTRUCTION VIDEO (z-10) ─── */}
+        {useVideo && <VideoHeroLayer progressRef={progressRef} isInView={isInView} />}
+
         {/* ─── 3D PROCEDURAL INTERACTIVE CANVAS (z-10) ─── */}
-        {use3D && isInView && (
+        {!useVideo && use3D && isInView && (
           <div className="absolute inset-0 z-10 w-full h-full pointer-events-none">
             <GanpatiBuilding3D
               progressRef={progressRef}
@@ -255,7 +263,7 @@ export function BuildingTransformationHero() {
         )}
 
         {/* ─── 2D FALLBACK CANVAS: If WebGL disabled or unsupported (z-10) ─── */}
-        {(!use3D || !isInView) && (
+        {!useVideo && (!use3D || !isInView) && (
           <canvas
             ref={canvas2DRef}
             className="absolute inset-0 w-full h-full object-cover z-10 pointer-events-none"

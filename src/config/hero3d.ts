@@ -8,6 +8,12 @@
 
 export const ENABLE_3D_BUILDING_HERO = true;
 
+/**
+ * Scroll-scrubbed construction video in place of the live 3D scene.
+ * Set to false, or append ?novideo=true, to restore the live 3D hero.
+ */
+export const ENABLE_VIDEO_HERO = true;
+
 export const HERO_3D_SETTINGS = {
   floorCount: 8,
   floorHeight: 1.8,
