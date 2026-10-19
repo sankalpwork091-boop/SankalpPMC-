@@ -57,8 +57,17 @@ export async function POST(request: Request) {
     let cvAttachment: { filename: string; content: Buffer; contentType?: string } | undefined;
 
     const contentType = request.headers.get('content-type') || '';
+    const isMultipart = contentType.toLowerCase().includes('multipart/form-data');
+    const isJson = contentType.toLowerCase().includes('application/json');
 
-    if (contentType.includes('multipart/form-data')) {
+    if (!isMultipart && !isJson) {
+      return NextResponse.json(
+        { error: 'Invalid content type. Expected multipart/form-data or application/json.' },
+        { status: 400 }
+      );
+    }
+
+    if (isMultipart) {
       const formData = await request.formData();
       parsedFields = {
         name: (formData.get('name') as string) || '',

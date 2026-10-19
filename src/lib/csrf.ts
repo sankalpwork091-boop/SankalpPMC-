@@ -2,6 +2,11 @@ import { siteConfig } from '@/data/siteConfig';
 
 /**
  * Validates request Origin and Referer against allowed application origins to prevent CSRF.
+ * Supports:
+ * - Same-host matching (origin host matches the request's own Host / X-Forwarded-Host)
+ * - Configured origins (siteConfig.url, NEXT_PUBLIC_SITE_URL, SITE_ORIGIN) with both www and non-www variants
+ * - Localhost and 127.0.0.1 on any port in development
+ * - Fails closed if neither Origin nor Referer is present (standard browsers always send one on state-changing requests)
  */
 export function validateRequestOrigin(request: Request): boolean {
   const originHeader = request.headers.get('origin');
@@ -18,50 +23,69 @@ export function validateRequestOrigin(request: Request): boolean {
     }
   }
 
-  // If no Origin or Referer header was sent by the browser, fail closed for state-changing requests
+  // If no Origin or Referer header was sent, fail closed for state-changing requests
   if (!candidateOrigin) {
     return false;
   }
 
-  // Build whitelist of allowed origins
-  const allowedOrigins = new Set<string>();
-
+  let candidateUrl: URL;
   try {
-    allowedOrigins.add(new URL(siteConfig.url).origin);
+    candidateUrl = new URL(candidateOrigin);
   } catch {
-    allowedOrigins.add('https://sankalppmc.com');
+    return false;
   }
 
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    try {
-      allowedOrigins.add(new URL(process.env.NEXT_PUBLIC_SITE_URL).origin);
-    } catch {
-      // ignore malformed env var
-    }
-  }
+  // 1. Same-Host Check: Compare origin host against request's own Host / X-Forwarded-Host
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const hostHeader = request.headers.get('host');
+  const rawRequestHost = (forwardedHost ? forwardedHost.split(',')[0].trim() : hostHeader)?.trim();
 
-  if (process.env.SITE_ORIGIN) {
-    try {
-      allowedOrigins.add(new URL(process.env.SITE_ORIGIN).origin);
-    } catch {
-      // ignore
-    }
-  }
+  if (rawRequestHost) {
+    // Strip port if present for comparison
+    const requestHostOnly = rawRequestHost.toLowerCase().split(':')[0];
+    const candidateHostOnly = candidateUrl.hostname.toLowerCase();
 
-  // In non-production environments, allow local development ports
-  if (process.env.NODE_ENV !== 'production') {
-    allowedOrigins.add('http://localhost:3000');
-    allowedOrigins.add('http://127.0.0.1:3000');
-    allowedOrigins.add('http://localhost:3001');
-    allowedOrigins.add('http://127.0.0.1:3001');
-
-    // Also match any local port if needed
-    if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(candidateOrigin)) {
+    if (candidateHostOnly === requestHostOnly) {
+      // In production, ensure origin is secure https
+      if (process.env.NODE_ENV === 'production' && candidateUrl.protocol !== 'https:') {
+        return false;
+      }
       return true;
     }
   }
 
-  return allowedOrigins.has(candidateOrigin);
+  // 2. Explicit Allow-list: configured origins and their www / non-www counterparts
+  const allowedOrigins = new Set<string>();
+
+  const addConfiguredOrigin = (urlStr?: string) => {
+    if (!urlStr) return;
+    try {
+      const u = new URL(urlStr);
+      const proto = u.protocol;
+      const host = u.host.toLowerCase();
+      allowedOrigins.add(`${proto}//${host}`);
+      if (host.startsWith('www.')) {
+        allowedOrigins.add(`${proto}//${host.slice(4)}`);
+      } else {
+        allowedOrigins.add(`${proto}//www.${host}`);
+      }
+    } catch {
+      // ignore invalid URLs
+    }
+  };
+
+  addConfiguredOrigin(siteConfig.url);
+  addConfiguredOrigin(process.env.NEXT_PUBLIC_SITE_URL);
+  addConfiguredOrigin(process.env.SITE_ORIGIN);
+
+  // 3. In non-production environments, allow local development ports
+  if (process.env.NODE_ENV !== 'production') {
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(candidateOrigin)) {
+      return true;
+    }
+  }
+
+  return allowedOrigins.has(candidateUrl.origin.toLowerCase());
 }
 
 /**
