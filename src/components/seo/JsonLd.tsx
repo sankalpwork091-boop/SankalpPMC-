@@ -67,10 +67,12 @@ export function JsonLd() {
     ],
   };
 
+  const jsonLdString = JSON.stringify(schema).replace(/</g, '\\u003c');
+
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdString }}
     />
   );
 }

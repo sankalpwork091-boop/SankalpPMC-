@@ -1,5 +1,6 @@
 /**
- * Simple in-memory sliding window rate limiter for API routes.
+ * Sliding window rate limiter for public API endpoints.
+ * Tracks requests per key (e.g. route:ip) within a sliding time window.
  */
 
 interface RateLimitRecord {
@@ -8,29 +9,37 @@ interface RateLimitRecord {
 
 const ipMap = new Map<string, RateLimitRecord>();
 
-// Clean up stale IP records every 10 minutes
-setInterval(() => {
-  const now = Date.now();
-  const windowMs = 15 * 60 * 1000;
-  for (const [ip, record] of ipMap.entries()) {
-    record.timestamps = record.timestamps.filter((t) => now - t < windowMs);
-    if (record.timestamps.length === 0) {
-      ipMap.delete(ip);
+// Clean up stale records periodically (every 10 minutes)
+if (typeof setInterval !== 'undefined') {
+  const cleanupTimer = setInterval(() => {
+    const now = Date.now();
+    const maxWindowMs = 30 * 60 * 1000;
+    for (const [key, record] of ipMap.entries()) {
+      record.timestamps = record.timestamps.filter((t) => now - t < maxWindowMs);
+      if (record.timestamps.length === 0) {
+        ipMap.delete(key);
+      }
     }
+  }, 10 * 60 * 1000);
+
+  if (cleanupTimer.unref) {
+    cleanupTimer.unref();
   }
-}, 10 * 60 * 1000);
+}
 
 export function checkRateLimit(
   ip: string,
   limit: number = 5,
-  windowMs: number = 15 * 60 * 1000
+  windowMs: number = 10 * 60 * 1000,
+  keyPrefix: string = 'form'
 ): { allowed: boolean; remaining: number; retryAfterSec: number } {
   const now = Date.now();
-  let record = ipMap.get(ip);
+  const mapKey = `${keyPrefix}:${ip}`;
+  let record = ipMap.get(mapKey);
 
   if (!record) {
     record = { timestamps: [] };
-    ipMap.set(ip, record);
+    ipMap.set(mapKey, record);
   }
 
   // Filter timestamps within window

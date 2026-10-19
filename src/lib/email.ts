@@ -1,5 +1,8 @@
+import 'server-only';
 import nodemailer from 'nodemailer';
 import { siteConfig } from '@/data/siteConfig';
+import { sanitizeHeader } from '@/lib/sanitize';
+import { logger } from '@/lib/logger';
 
 interface EmailAttachment {
   filename: string;
@@ -18,8 +21,12 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail(options: SendEmailOptions): Promise<{ success: boolean; id?: string }> {
-  const recipient = options.to || process.env.EMAIL_TO || siteConfig.email;
-  const from = process.env.EMAIL_FROM || `"${siteConfig.shortName} Inquiries" <noreply@sankalppmc.com>`;
+  const recipient = sanitizeHeader(options.to || process.env.EMAIL_TO || siteConfig.email);
+  const from = sanitizeHeader(
+    process.env.EMAIL_FROM || `"${siteConfig.shortName} Inquiries" <noreply@sankalppmc.com>`
+  );
+  const subject = sanitizeHeader(options.subject);
+  const replyTo = options.replyTo ? sanitizeHeader(options.replyTo) : undefined;
 
   const host = process.env.SMTP_HOST;
   const port = parseInt(process.env.SMTP_PORT || '587', 10);
@@ -29,10 +36,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<{ success: b
 
   // Check if SMTP is configured
   if (!host || !user || !pass) {
-    console.warn(
-      `[EMAIL NOT CONFIGURED] SMTP credentials missing in environment. Email not delivered to ${recipient}.`
-    );
-    console.log(`[EMAIL PREVIEW] Subject: ${options.subject}\nTo: ${recipient}\n\n${options.text}`);
+    logger.warn('SMTP credentials not configured. Email delivery skipped in development mode.', {
+      event: 'email_dev_mock',
+      recipientDomain: recipient.split('@')[1] || 'local',
+    });
     return { success: true, id: 'mock-dev-id' };
   }
 
@@ -49,11 +56,15 @@ export async function sendEmail(options: SendEmailOptions): Promise<{ success: b
   const info = await transporter.sendMail({
     from,
     to: recipient,
-    replyTo: options.replyTo,
-    subject: options.subject,
+    replyTo,
+    subject,
     text: options.text,
     html: options.html,
     attachments: options.attachments,
+  });
+
+  logger.info('Email dispatched successfully', {
+    messageId: info.messageId,
   });
 
   return { success: true, id: info.messageId };

@@ -1,12 +1,60 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 import { sendEmail } from '@/lib/email';
 import { siteConfig } from '@/data/siteConfig';
+import { validateRequestOrigin, validateJsonContentType } from '@/lib/csrf';
+import { escapeHtml } from '@/lib/sanitize';
+import { logger } from '@/lib/logger';
+
+const contactInputSchema = z
+  .object({
+    societyName: z.string().trim().min(1, 'Society name is required').max(200),
+    location: z.string().trim().min(1, 'Location is required').max(200),
+    members: z.string().trim().max(100).optional().default(''),
+    contactName: z.string().trim().min(1, 'Contact name is required').max(100),
+    role: z.string().trim().max(100).optional().default('Managing Committee Member'),
+    phone: z
+      .string()
+      .trim()
+      .min(8, 'Phone number must be at least 8 digits')
+      .max(25)
+      .regex(/^[0-9+\-\s()]+$/, 'Invalid phone number format'),
+    email: z
+      .string()
+      .trim()
+      .max(150)
+      .email('Invalid email address')
+      .optional()
+      .or(z.literal('')),
+    message: z.string().trim().max(3000).optional().default(''),
+    website_hp: z.string().max(100).optional().default(''),
+    company_url_hp: z.string().max(100).optional().default(''),
+  })
+  .strict();
 
 export async function POST(request: Request) {
   try {
+    // 1. CSRF / Origin verification
+    if (!validateRequestOrigin(request)) {
+      logger.warn('CSRF validation failed for contact form');
+      return NextResponse.json(
+        { error: 'Forbidden: Invalid request origin.' },
+        { status: 403 }
+      );
+    }
+
+    // 2. Content-Type check
+    if (!validateJsonContentType(request)) {
+      return NextResponse.json(
+        { error: 'Invalid content type. Expected application/json.' },
+        { status: 400 }
+      );
+    }
+
+    // 3. Rate limiting (5 requests per 10 minutes)
     const ip = getClientIp(request);
-    const rateCheck = checkRateLimit(ip, 5, 15 * 60 * 1000);
+    const rateCheck = checkRateLimit(ip, 5, 10 * 60 * 1000, 'contact');
 
     if (!rateCheck.allowed) {
       return NextResponse.json(
@@ -20,26 +68,46 @@ export async function POST(request: Request) {
       );
     }
 
-    const data = await request.json();
-
-    // Honeypot field protection — hidden input in form
-    if (data.website_hp || data.company_url_hp) {
-      console.warn(`[SPAM BLOCKED] Honeypot triggered from IP ${ip}`);
-      // Return 200 so bot thinks it succeeded
-      return NextResponse.json({ success: true });
-    }
-
-    const { societyName, location, members, contactName, role, phone, email, message } = data;
-
-    // Strict validation
-    if (!societyName?.trim() || !location?.trim() || !contactName?.trim() || !phone?.trim()) {
+    // 4. Parse JSON payload safely
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
       return NextResponse.json(
-        { error: 'Please provide society name, location, contact name, and phone number.' },
+        { error: 'Invalid JSON request payload.' },
         { status: 400 }
       );
     }
 
-    // Prepare email content
+    // 5. Schema validation
+    const parsed = contactInputSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid submission data. Please verify all required fields.' },
+        { status: 400 }
+      );
+    }
+
+    const {
+      societyName,
+      location,
+      members,
+      contactName,
+      role,
+      phone,
+      email,
+      message,
+      website_hp,
+      company_url_hp,
+    } = parsed.data;
+
+    // 6. Honeypot check (silently accept bot submissions)
+    if (website_hp || company_url_hp) {
+      logger.warn('Honeypot triggered for consultation request', { event: 'honeypot_hit' });
+      return NextResponse.json({ success: true, message: 'Consultation request received successfully.' });
+    }
+
+    // 7. Plain text email content
     const textContent = `
 New Redevelopment Consultation Request
 
@@ -59,9 +127,10 @@ ${message || 'No additional message provided.'}
 
 Submission Metadata:
 - Date: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
-- IP Address: ${ip}
+- Client IP: ${ip}
     `.trim();
 
+    // 8. Sanitized HTML email content (defends against HTML/XSS injection in email clients)
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0c1421; color: #f5f2eb; padding: 24px; border-radius: 12px; border: 1px solid #d4a237;">
         <h2 style="color: #d4a237; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-top: 0;">
@@ -71,33 +140,33 @@ Submission Metadata:
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
           <tr>
             <td style="padding: 8px 0; color: #94a3b8; width: 40%;">Society Name:</td>
-            <td style="padding: 8px 0; color: #ffffff; font-weight: bold;">${societyName}</td>
+            <td style="padding: 8px 0; color: #ffffff; font-weight: bold;">${escapeHtml(societyName)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #94a3b8;">Location / Node:</td>
-            <td style="padding: 8px 0; color: #ffffff;">${location}</td>
+            <td style="padding: 8px 0; color: #ffffff;">${escapeHtml(location)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #94a3b8;">Flats / Members:</td>
-            <td style="padding: 8px 0; color: #ffffff;">${members || 'Not specified'}</td>
+            <td style="padding: 8px 0; color: #ffffff;">${escapeHtml(members || 'Not specified')}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #94a3b8;">Contact Person:</td>
-            <td style="padding: 8px 0; color: #ffffff; font-weight: bold;">${contactName} (${role || 'Committee'})</td>
+            <td style="padding: 8px 0; color: #ffffff; font-weight: bold;">${escapeHtml(contactName)} (${escapeHtml(role || 'Committee')})</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #94a3b8;">Phone:</td>
-            <td style="padding: 8px 0; color: #d4a237; font-weight: bold;"><a href="tel:${phone}" style="color: #d4a237; text-decoration: none;">${phone}</a></td>
+            <td style="padding: 8px 0; color: #d4a237; font-weight: bold;">${escapeHtml(phone)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 0; color: #94a3b8;">Email:</td>
-            <td style="padding: 8px 0; color: #ffffff;">${email || 'Not provided'}</td>
+            <td style="padding: 8px 0; color: #ffffff;">${escapeHtml(email || 'Not provided')}</td>
           </tr>
         </table>
 
         <div style="background-color: rgba(255,255,255,0.05); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
           <strong style="color: #d4a237; display: block; margin-bottom: 8px;">Society Inquiry / Notes:</strong>
-          <p style="margin: 0; line-height: 1.6; color: #e2e8f0; white-space: pre-wrap;">${message || 'None provided.'}</p>
+          <p style="margin: 0; line-height: 1.6; color: #e2e8f0; white-space: pre-wrap;">${escapeHtml(message || 'None provided.')}</p>
         </div>
 
         <p style="font-size: 11px; color: #64748b; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 12px;">
@@ -106,8 +175,9 @@ Submission Metadata:
       </div>
     `;
 
+    // 9. Dispatch notification email
     await sendEmail({
-      replyTo: email?.trim() ? email.trim() : undefined,
+      replyTo: email ? email : undefined,
       subject: `[Website Inquiry] Consultation Request: ${societyName} (${location})`,
       text: textContent,
       html: htmlContent,
@@ -118,7 +188,7 @@ Submission Metadata:
       { status: 200 }
     );
   } catch (error) {
-    console.error('Contact API error:', error);
+    logger.error('Error handling contact submission', error);
     return NextResponse.json(
       { error: 'An unexpected error occurred. Please contact us directly at ' + siteConfig.phones[0] },
       { status: 500 }
