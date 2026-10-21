@@ -50,4 +50,6 @@ next-env.d.ts
 
 # hero video source (committed: the scrub/mobile encodes)
 /public/hero/hero-build-original.mp4
+/public/hero/hero-build-original-v1.mp4
+/public/hero/hero-build-upscaled.mp4
 
