@@ -15,7 +15,16 @@ import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
  * - lite:  Save-Data or a 2g/3g connection; poster plus the end-still dissolve, no video.
  * - still: prefers-reduced-motion, or every file failed; shows the final still.
  *
- * Tunables:
+ * Phones (PHONE_MEDIA_QUERY) use tap-to-play instead: no pin or scrub, the first frame
+ * waits for a tap, the clip plays once, then the end still and the card fade in.
+ *
+ * Phone tunables:
+ * - SHOW_TAP_HINT           the gold "Tap to play" ring over the first frame
+ * - IDLE_REVEAL_MS          no tap for this long: show the end still and the card (0 = off)
+ * - CARD_FADE_MS            card fade-in after the clip ends
+ * - END_DISSOLVE_MS         clip end to end-still cross-dissolve
+ *
+ * Desktop/tablet tunables:
  * - LANDSCAPE_LADDER / PORTRAIT_LADDER  files from largest to smallest; errors or slow
  *                           seeks step down. Portrait = taller than wide.
  * - LARGE_MIN_DEVICE_WIDTH  viewport width x devicePixelRatio needed for the 2K file
@@ -36,7 +45,17 @@ import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
  * - LANDSCAPE_PHONE_SHIFT   landscape phones: shift the layer down so the crown clears the navbar
  */
 
+/** Phones: under 768 wide, or a landscape phone under 500 high (matches the hero CSS). */
+export const PHONE_MEDIA_QUERY = '(max-width: 767px), (max-height: 499px) and (orientation: landscape)';
+
+// Phone tap-to-play tunables.
+export const SHOW_TAP_HINT = true;
+export const IDLE_REVEAL_MS = 15000;
+export const CARD_FADE_MS = 700;
+export const END_DISSOLVE_MS = 600;
+
 export const VIDEO_HERO_SOURCES = {
+  phonePlay: '/hero/hero-build-phone-play.mp4',
   large: '/hero/hero-build-2k.mp4',
   desktop: '/hero/hero-build-scrub.mp4',
   mobile: '/hero/hero-build-mobile.mp4',
@@ -126,7 +145,8 @@ function ArtStill({
   );
 }
 
-export function VideoHeroLayer({
+/** Desktop, laptop and tablet: video time follows the pinned scroll. */
+function ScrubPlayer({
   progressRef,
   isInView,
 }: {
@@ -339,5 +359,246 @@ export function VideoHeroLayer({
         </>
       )}
     </div>
+  );
+}
+
+const TAP_MOVE_TOLERANCE_PX = 10;
+
+/**
+ * Phones: the first frame waits for a tap; the tap plays the clip once (play() runs inside
+ * the gesture handler, as iOS requires), then the end still dissolves in and onEnd reveals
+ * the card. A scroll swipe never starts it.
+ */
+function PhoneTapPlayer({ isInView, onEnd }: { isInView: boolean; onEnd?: () => void }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const endStillRef = useRef<HTMLDivElement>(null);
+  const onEndRef = useRef(onEnd);
+  const startedRef = useRef(false);
+  const doneRef = useRef(false);
+  const [noVideo, setNoVideo] = useState(false);
+  const [portrait, setPortrait] = useState(true);
+  const [hintVisible, setHintVisible] = useState(false);
+
+  useEffect(() => {
+    onEndRef.current = onEnd;
+  }, [onEnd]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    const hero = root?.closest('section');
+    if (!root || !hero) return;
+    const timers: number[] = [];
+    const conn = (navigator as Navigator & { connection?: Connection }).connection;
+    const lite =
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      Boolean(conn?.saveData) ||
+      /(^|-)(2g|3g)$/.test(conn?.effectiveType ?? '');
+    const isPortraitNow = window.innerHeight > window.innerWidth;
+    setPortrait(isPortraitNow);
+    let detach = () => {};
+
+    // End still, then the card; immediate (no dissolve) when there was no video.
+    const finish = (instant: boolean) => {
+      if (doneRef.current) return;
+      doneRef.current = true;
+      detach();
+      setHintVisible(false);
+      videoRef.current?.pause();
+      const still = endStillRef.current;
+      if (still) {
+        still.style.transition = instant ? 'none' : `opacity ${END_DISSOLVE_MS}ms ease`;
+        still.style.opacity = '1';
+      }
+      timers.push(window.setTimeout(() => onEndRef.current?.(), instant ? 0 : END_DISSOLVE_MS));
+    };
+
+    if (lite) {
+      setNoVideo(true);
+      finish(true);
+      return () => timers.forEach((t) => window.clearTimeout(t));
+    }
+
+    const video = videoRef.current;
+    if (!video) return;
+    video.preload = 'metadata';
+    video.src = isPortraitNow ? VIDEO_HERO_SOURCES.phonePlay : VIDEO_HERO_SOURCES.mobile;
+    if (SHOW_TAP_HINT) setHintVisible(true);
+
+    const start = () => {
+      if (startedRef.current || doneRef.current) return;
+      setHintVisible(false);
+      video.play().then(
+        () => {
+          startedRef.current = true;
+          detach();
+        },
+        () => {
+          // Keep the first frame; the next tap tries again.
+          if (SHOW_TAP_HINT && !doneRef.current) setHintVisible(true);
+        }
+      );
+    };
+
+    let touchX = 0;
+    let touchY = 0;
+    let moved = false;
+    let lastTouchTap = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      touchX = t.clientX;
+      touchY = t.clientY;
+      moved = false;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (Math.hypot(t.clientX - touchX, t.clientY - touchY) > TAP_MOVE_TOLERANCE_PX) moved = true;
+    };
+    const isOwnControl = (target: EventTarget | null) =>
+      target instanceof Element && Boolean(target.closest('a, button:not([data-tap-hint])'));
+    const onTouchEnd = (e: TouchEvent) => {
+      if (moved || isOwnControl(e.target)) return;
+      lastTouchTap = performance.now();
+      start();
+    };
+    // Mouse clicks and keyboard (Enter/Space on the hint button) arrive as click.
+    const onClick = (e: MouseEvent) => {
+      if (performance.now() - lastTouchTap < 700 || isOwnControl(e.target)) return;
+      start();
+    };
+    const opts = { passive: true } as const;
+    hero.addEventListener('touchstart', onTouchStart, opts);
+    hero.addEventListener('touchmove', onTouchMove, opts);
+    hero.addEventListener('touchend', onTouchEnd, opts);
+    hero.addEventListener('click', onClick, opts);
+    detach = () => {
+      hero.removeEventListener('touchstart', onTouchStart);
+      hero.removeEventListener('touchmove', onTouchMove);
+      hero.removeEventListener('touchend', onTouchEnd);
+      hero.removeEventListener('click', onClick);
+    };
+
+    // Play once to the frozen frame; never loop or seek.
+    const onTime = () => {
+      if (video.currentTime >= FREEZE_SECONDS) finish(false);
+    };
+    const onEnded = () => finish(false);
+    const onError = () => finish(true);
+    video.addEventListener('timeupdate', onTime);
+    video.addEventListener('ended', onEnded);
+    video.addEventListener('error', onError);
+
+    if (IDLE_REVEAL_MS > 0) {
+      timers.push(
+        window.setTimeout(() => {
+          if (!startedRef.current) finish(false);
+        }, IDLE_REVEAL_MS)
+      );
+    }
+
+    return () => {
+      detach();
+      timers.forEach((t) => window.clearTimeout(t));
+      video.removeEventListener('timeupdate', onTime);
+      video.removeEventListener('ended', onEnded);
+      video.removeEventListener('error', onError);
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    };
+  }, []);
+
+  // Pause while off-screen or hidden; resume from the same point when back.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const update = () => {
+      if (!startedRef.current || doneRef.current) return;
+      if (document.hidden || !isInView) video.pause();
+      else video.play().catch(() => {});
+    };
+    update();
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, [isInView]);
+
+  return (
+    <div ref={rootRef} className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
+      <ArtStill landscape={VIDEO_HERO_SOURCES.poster} portrait={VIDEO_HERO_SOURCES.posterPortrait} eager />
+      {!noVideo && (
+        <video
+          ref={videoRef}
+          className={`absolute inset-0 w-full h-full object-cover ${OBJECT_POSITION}`}
+          poster={portrait ? VIDEO_HERO_SOURCES.posterPortrait.src : VIDEO_HERO_SOURCES.poster.src}
+          muted
+          playsInline
+          preload="none"
+          disablePictureInPicture
+          disableRemotePlayback
+          aria-hidden="true"
+        />
+      )}
+      <div ref={endStillRef} className="absolute inset-0" style={{ opacity: 0 }}>
+        <ArtStill landscape={VIDEO_HERO_SOURCES.end} portrait={VIDEO_HERO_SOURCES.endPortrait} />
+      </div>
+      {SHOW_TAP_HINT && !noVideo && (
+        <div
+          className={`absolute left-1/2 top-[67%] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-[250ms] ${
+            hintVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <button
+            type="button"
+            data-tap-hint=""
+            aria-label="Tap to play"
+            tabIndex={hintVisible ? 0 : -1}
+            className={`w-14 h-14 rounded-full border border-[#B8913A] bg-white/20 flex items-center justify-center animate-[hero-tap-pulse_2.4s_ease-in-out_infinite] ${
+              hintVisible ? 'pointer-events-auto' : 'pointer-events-none'
+            }`}
+          >
+            <svg viewBox="0 0 24 24" className="w-5 h-5 ml-0.5" aria-hidden="true">
+              <path d="M8 5.5v13l10.5-6.5z" fill="#B8913A" />
+            </svg>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Picks the phone tap-to-play player or the scroll-scrubbed player. onPhoneEnd is
+ * called once the phone clip (or its fallback) has finished, to reveal the card.
+ */
+export function VideoHeroLayer({
+  progressRef,
+  isInView,
+  onPhoneEnd,
+}: {
+  progressRef: React.RefObject<number>;
+  isInView: boolean;
+  onPhoneEnd?: () => void;
+}) {
+  const [phone, setPhone] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia(PHONE_MEDIA_QUERY);
+    const apply = () => setPhone(mq.matches);
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+
+  if (phone === null) {
+    return (
+      <div className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
+        <ArtStill landscape={VIDEO_HERO_SOURCES.poster} portrait={VIDEO_HERO_SOURCES.posterPortrait} eager />
+      </div>
+    );
+  }
+  return phone ? (
+    <PhoneTapPlayer isInView={isInView} onEnd={onPhoneEnd} />
+  ) : (
+    <ScrubPlayer progressRef={progressRef} isInView={isInView} />
   );
 }

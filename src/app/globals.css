@@ -80,6 +80,17 @@ body {
   overflow-x: hidden;
 }
 
+/* Home hero on phones: slow fade pulse for the "Tap to play" hint (opacity only). */
+@keyframes hero-tap-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* Home hero on phones: anything showing past the hero's edge (Safari toolbar
    collapse, overscroll) matches the video's bottom tone instead of white. */
 @media (max-width: 767px), (max-height: 499px) and (orientation: landscape) {

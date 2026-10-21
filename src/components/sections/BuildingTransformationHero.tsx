@@ -9,7 +9,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 import { PinwheelLoader } from '@/components/ui/PinwheelLoader';
 import { ENABLE_3D_BUILDING_HERO, ENABLE_VIDEO_HERO } from '@/config/hero3d';
-import { VideoHeroLayer } from '@/components/hero/VideoHeroLayer';
+import { VideoHeroLayer, PHONE_MEDIA_QUERY, CARD_FADE_MS } from '@/components/hero/VideoHeroLayer';
 
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? useLayoutEffect : useEffect;
@@ -36,6 +36,9 @@ export function BuildingTransformationHero() {
   // Fast direct DOM refs to avoid 60fps React re-renders
   const skySunsetRef = useRef<HTMLDivElement>(null);
   const climaxCardRef = useRef<HTMLDivElement>(null);
+  // Phones (tap-to-play): reveals the card once the clip has ended.
+  const phoneRevealRef = useRef<(() => void) | null>(null);
+  const revealPhoneCard = useCallback(() => phoneRevealRef.current?.(), []);
 
   const [isMobile, setIsMobile] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -153,6 +156,34 @@ export function BuildingTransformationHero() {
     if (!pinEl) return;
 
     const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+      mm.add({ isPhone: PHONE_MEDIA_QUERY, any: 'all' }, (context) => {
+      // Phones with the video hero: tap-to-play, no pin or scrub. The card stays hidden
+      // (and unfocusable) until the player reports the clip has ended.
+      if (context.conditions?.isPhone && useVideo) {
+        const card = climaxCardRef.current;
+        if (!card) return;
+        // Opacity-only fade; GSAP must not touch transform (it would drop the centring translate).
+        const restingTransform = card.style.transform;
+        card.style.transform = 'none';
+        gsap.set(card, { autoAlpha: 0, pointerEvents: 'none', transition: 'none' });
+        phoneRevealRef.current = () =>
+          context.add(() => {
+            gsap.to(card, {
+              autoAlpha: 1,
+              duration: CARD_FADE_MS / 1000,
+              ease: 'power2.out',
+              onComplete: () => {
+                gsap.set(card, { pointerEvents: 'auto' });
+              },
+            });
+          });
+        return () => {
+          phoneRevealRef.current = null;
+          card.style.transform = restingTransform;
+        };
+      }
+
       ScrollTrigger.create({
         trigger: pinEl,
         start: 'top top',
@@ -193,12 +224,13 @@ export function BuildingTransformationHero() {
 
       // Refresh ScrollTrigger calculations after mounting
       ScrollTrigger.refresh();
+      });
     }, pinWrapperRef);
 
     return () => {
       ctx.revert();
     };
-  }, [isKillSwitched, hasWebGL, drawFallback2D]);
+  }, [isKillSwitched, hasWebGL, drawFallback2D, useVideo]);
 
   // Re-measure the pin only after load, fonts and orientation changes (never per resize tick).
   useEffect(() => {
@@ -248,7 +280,9 @@ export function BuildingTransformationHero() {
         />
 
         {/* ─── SCROLL-SCRUBBED CONSTRUCTION VIDEO (z-10) ─── */}
-        {useVideo && <VideoHeroLayer progressRef={progressRef} isInView={isInView} />}
+        {useVideo && (
+          <VideoHeroLayer progressRef={progressRef} isInView={isInView} onPhoneEnd={revealPhoneCard} />
+        )}
 
         {/* ─── 3D PROCEDURAL INTERACTIVE CANVAS (z-10) ─── */}
         {!useVideo && use3D && isInView && (
