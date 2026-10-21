@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   poweredByHeader: false,
   devIndicators: false,
+  // Dev only: let phones on the local network load dev assets via this PC's LAN address.
+  allowedDevOrigins: ['192.168.0.246'],
   cacheComponents: true,
   partialPrefetching: true,
   images: {
