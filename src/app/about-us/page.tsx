@@ -179,7 +179,7 @@ export default function AboutUsPage() {
             </p>
           </ScrollReveal>
 
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-[258px] sm:max-w-[540px] mx-auto justify-center">
             {technicalTeam.map((member) => (
               <StaggerItem key={member.id}>
                 <GlassCard variant="default" className="text-center p-6 flex flex-col items-center h-full">
