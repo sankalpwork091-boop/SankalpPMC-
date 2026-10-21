@@ -35,7 +35,6 @@ export function BuildingTransformationHero() {
   // Fast direct DOM refs to avoid 60fps React re-renders
   const skySunsetRef = useRef<HTMLDivElement>(null);
   const initialPromptRef = useRef<HTMLDivElement>(null);
-  const scrollCueRef = useRef<HTMLDivElement>(null);
   const climaxCardRef = useRef<HTMLDivElement>(null);
 
   const [isMobile, setIsMobile] = useState(false);
@@ -188,16 +187,6 @@ export function BuildingTransformationHero() {
             }
           }
 
-          // Scroll Cue Fade (fades out in sync with initial prompt)
-          if (scrollCueRef.current) {
-            if (p > 0.22) {
-              scrollCueRef.current.style.opacity = '0';
-            } else {
-              const cueAlpha = Math.max(0, 1 - (p / 0.22));
-              scrollCueRef.current.style.opacity = `${cueAlpha}`;
-            }
-          }
-
           // Climax Card Fade (fades in as transformation completes at 0.78)
           if (climaxCardRef.current) {
             if (p >= 0.76) {
@@ -304,23 +293,6 @@ export function BuildingTransformationHero() {
 
             {/* Decorative Gold Accent Underline */}
             <span className="heading-gold-line mx-auto" />
-          </div>
-        </div>
-
-        {/* ─── SCROLL TO TRANSFORM CUE (Direct child of pinned hero, bottom centre) (z-30) ─── */}
-        <div
-          ref={scrollCueRef}
-          className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-30 transition-opacity duration-200"
-          style={{
-            bottom: 'max(24px, env(safe-area-inset-bottom, 24px))',
-            gap: '8px',
-          }}
-        >
-          <span className="text-[11px] font-mono text-[#8F6B1E] uppercase tracking-wider font-semibold">
-            Scroll to Transform
-          </span>
-          <div className="w-5 h-8 rounded-full border border-[#B8913A]/70 flex items-start justify-center p-1 bg-white/80 backdrop-blur-md shadow-[0_4px_16px_rgba(143,107,30,0.12)]">
-            <div className="w-1.5 h-2.5 rounded-full bg-[#B8913A] animate-bounce" />
           </div>
         </div>
 
