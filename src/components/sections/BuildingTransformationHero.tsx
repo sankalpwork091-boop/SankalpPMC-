@@ -147,6 +147,8 @@ export function BuildingTransformationHero() {
   // 5. Unified GSAP ScrollTrigger Scrubbing with gsap.context & stable wrapper
   useIsomorphicLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    // Mobile browser bars showing/hiding must not re-measure the pin.
+    ScrollTrigger.config({ ignoreMobileResize: true });
     const pinEl = pinWrapperRef.current;
     if (!pinEl) return;
 
@@ -212,6 +214,19 @@ export function BuildingTransformationHero() {
     };
   }, [isKillSwitched, hasWebGL, drawFallback2D]);
 
+  // Re-measure the pin only after load, fonts and orientation changes (never per resize tick).
+  useEffect(() => {
+    const refresh = () => ScrollTrigger.refresh();
+    if (document.readyState !== 'complete') window.addEventListener('load', refresh, { once: true });
+    document.fonts?.ready.then(refresh);
+    const orientation = window.matchMedia('(orientation: portrait)');
+    orientation.addEventListener('change', refresh);
+    return () => {
+      window.removeEventListener('load', refresh);
+      orientation.removeEventListener('change', refresh);
+    };
+  }, []);
+
   const use3D = !isKillSwitched && hasWebGL;
 
   return (
@@ -225,7 +240,7 @@ export function BuildingTransformationHero() {
         id="hero-transformation"
         data-pinned="true"
         data-section="0"
-        className="relative w-full h-[100svh] min-h-[100svh] overflow-hidden bg-[#F4F3EE] text-[#1B1B1F] select-none border-b border-[#E9E2D0]"
+        className="relative w-full h-screen supports-[height:100svh]:h-[100svh] min-h-screen supports-[min-height:100svh]:min-h-[100svh] overflow-hidden [touch-action:pan-y_pinch-zoom] bg-[#F4F3EE] text-[#1B1B1F] select-none border-b border-[#E9E2D0]"
       >
         {/* ─── BASE SKY GRADIENT: SKY HAZE TOP #EAF0F4 FADING TO IVORY #F4F3EE (z-0) ─── */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#EAF0F4] via-[#F4F3EE] to-[#F4F3EE] z-0 pointer-events-none" />
@@ -279,7 +294,7 @@ export function BuildingTransformationHero() {
           {/* Initial Prompt Group: Headline (fades out as user scrolls) */}
           <div
             ref={initialPromptRef}
-            className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto w-full max-w-5xl px-3"
+            className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto w-full max-w-5xl px-1 sm:px-3"
           >
             {/* Eyebrow badge matching other sections */}
             <span className="section-eyebrow text-[10px] sm:text-xs mb-2 sm:mb-3">
@@ -287,7 +302,7 @@ export function BuildingTransformationHero() {
             </span>
 
             {/* Headline with one gold accent word */}
-            <h1 className="font-heading font-bold text-[#1B1B1F] tracking-tight text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight sm:leading-none max-w-full">
+            <h1 className="font-heading font-bold text-[#1B1B1F] tracking-tight text-[clamp(1.6rem,7.4vw,2.25rem)] sm:text-4xl md:text-5xl lg:text-6xl leading-tight sm:leading-none max-w-full max-md:text-balance">
               Watch Trust <span className="italic text-[#B8913A]">Rise</span> Floor By Floor
             </h1>
 
@@ -300,10 +315,10 @@ export function BuildingTransformationHero() {
         <div
           ref={climaxCardRef}
           style={{ opacity: 0, transform: 'scale(0.95)' }}
-          className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-md z-30 transition-all duration-300 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#E9E2D0] shadow-[0_12px_40px_rgba(143,107,30,0.12)] flex flex-col items-center pointer-events-none"
+          className="absolute bottom-[max(20px,env(safe-area-inset-bottom))] md:bottom-10 left-1/2 -translate-x-1/2 w-[min(92vw,420px)] md:w-[calc(100%-2rem)] max-w-md z-30 transition-all duration-300 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#E9E2D0] shadow-[0_12px_40px_rgba(143,107,30,0.12)] flex flex-col items-center pointer-events-none max-md:gap-4 max-md:max-h-[56svh] [@media(max-height:499px)_and_(orientation:landscape)]:max-h-[70svh] [@media(max-height:499px)_and_(orientation:landscape)]:!p-4 [@media(max-height:499px)_and_(orientation:landscape)]:gap-3 [@media(max-height:499px)_and_(orientation:landscape)]:bottom-3"
         >
           {/* Sankalp Logo */}
-          <div className="relative w-48 sm:w-60 h-14 sm:h-18 mb-2 sm:mb-3">
+          <div className="relative w-48 sm:w-60 h-14 sm:h-18 mb-2 sm:mb-3 max-md:mb-0 [@media(max-height:499px)_and_(orientation:landscape)]:hidden">
             <Image
               src="/assets/sankalp-logo.png"
               alt="Sankalp — Redevelopment with Responsibility"
@@ -315,18 +330,18 @@ export function BuildingTransformationHero() {
           </div>
 
           {/* Official Tagline */}
-          <div className="flex items-center gap-2 mb-5 sm:mb-6">
-            <span className="h-[1px] w-8 bg-[#B8913A]" />
-            <p className="text-[11px] sm:text-xs font-semibold tracking-widest text-[#8F6B1E] uppercase">
+          <div className="flex items-center gap-2 mb-5 sm:mb-6 max-md:mb-0 [@media(max-height:499px)_and_(orientation:landscape)]:mb-0">
+            <span className="h-[1px] w-8 max-md:w-4 bg-[#B8913A]" />
+            <p className="text-[11px] sm:text-xs font-semibold tracking-widest text-[#8F6B1E] uppercase whitespace-nowrap max-md:text-[10px] max-md:tracking-[0.08em]">
               Redevelopment with Responsibility
             </p>
-            <span className="h-[1px] w-8 bg-[#B8913A]" />
+            <span className="h-[1px] w-8 max-md:w-4 bg-[#B8913A]" />
           </div>
 
-          <div className="w-full max-w-[300px] pointer-events-auto">
+          <div className="w-full max-w-[300px] max-md:max-w-none pointer-events-auto">
             <Link
               href="/contact-us"
-              className="btn-primary w-full !py-2.5 sm:!py-3 !px-6 text-xs sm:text-sm flex items-center justify-center gap-2 text-center"
+              className="btn-primary w-full !py-2.5 sm:!py-3 !px-6 text-xs sm:text-sm flex items-center justify-center gap-2 text-center max-md:!min-h-12 max-md:!whitespace-nowrap max-md:!tracking-normal max-md:!px-4 [@media(max-height:499px)_and_(orientation:landscape)]:!min-h-12"
             >
               Schedule Committee Meeting
               <span>→</span>

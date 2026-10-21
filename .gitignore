@@ -53,3 +53,6 @@ next-env.d.ts
 /public/hero/hero-build-original-v1.mp4
 /public/hero/hero-build-upscaled.mp4
 
+# local review output
+/scripts/phone-align-sheet.jpg
+

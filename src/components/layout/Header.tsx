@@ -12,8 +12,8 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300">
-      <div className="mx-3 mt-3 md:mx-6 md:mt-4 px-4 py-3 md:px-6 md:py-3 flex items-center justify-between rounded-2xl transition-all duration-300 bg-white/90 backdrop-blur-xl border border-[#E9E2D0] shadow-[0_4px_24px_rgba(143,107,30,0.07)]">
+    <header className="fixed top-0 left-0 right-0 z-[100] transition-all duration-300 pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+      <div className="mx-3 mt-3 md:mx-6 md:mt-4 px-4 py-3 max-md:py-2 md:px-6 md:py-3 [@media(max-height:499px)_and_(orientation:landscape)]:!py-2 flex items-center justify-between rounded-2xl transition-all duration-300 bg-white/90 backdrop-blur-xl border border-[#E9E2D0] shadow-[0_4px_24px_rgba(143,107,30,0.07)]">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3 shrink-0" aria-label="Sankalp PMC Home">
           <Image
@@ -66,7 +66,7 @@ export function Header() {
         <div className="flex items-center gap-3">
           <Link
             href="/contact-us"
-            className="btn-primary text-sm !py-2 !px-4 hidden md:inline-flex"
+            className="btn-primary text-sm !py-2 !px-4 hidden md:inline-flex max-md:!hidden"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -76,7 +76,7 @@ export function Header() {
 
           {/* Mobile menu button */}
           <button
-            className="lg:hidden w-10 h-10 flex items-center justify-center rounded-md transition-colors hover:bg-black/5"
+            className="lg:hidden w-10 h-10 max-md:w-11 max-md:h-11 [@media(max-height:499px)_and_(orientation:landscape)]:w-11 [@media(max-height:499px)_and_(orientation:landscape)]:h-11 flex items-center justify-center rounded-md transition-colors hover:bg-black/5"
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isOpen}
