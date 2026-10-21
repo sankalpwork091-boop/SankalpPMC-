@@ -80,6 +80,15 @@ body {
   overflow-x: hidden;
 }
 
+/* Home hero on phones: anything showing past the hero's edge (Safari toolbar
+   collapse, overscroll) matches the video's bottom tone instead of white. */
+@media (max-width: 767px), (max-height: 499px) and (orientation: landscape) {
+  html:has(#hero-transformation),
+  html:has(#hero-transformation) body {
+    background-color: #886249;
+  }
+}
+
 /* ─── Typography ─── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);

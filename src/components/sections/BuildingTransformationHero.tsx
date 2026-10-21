@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -212,20 +213,29 @@ export function BuildingTransformationHero() {
     };
   }, []);
 
+  // Temporary viewport-height readout, only with ?debugvh=1.
+  const [showVhDebug, setShowVhDebug] = useState(false);
+  useEffect(() => {
+    setShowVhDebug(new URLSearchParams(window.location.search).get('debugvh') === '1');
+  }, []);
+
   const use3D = !isKillSwitched && hasWebGL;
 
   return (
+    <>
+    {/* Portal into <body>: never inserted next to the pinned wrapper, which GSAP re-parents. */}
+    {showVhDebug && createPortal(<VhDebugBadge heroRef={containerRef} pinRef={pinWrapperRef} />, document.body)}
     <div
       ref={pinWrapperRef}
       id="hero-transformation-pin-wrapper"
-      className="relative w-full overflow-visible"
+      className="relative w-full overflow-visible bg-[#886249]"
     >
       <section
         ref={containerRef}
         id="hero-transformation"
         data-pinned="true"
         data-section="0"
-        className="relative w-full h-screen supports-[height:100svh]:h-[100svh] min-h-screen supports-[min-height:100svh]:min-h-[100svh] overflow-hidden [touch-action:pan-y_pinch-zoom] bg-[#F4F3EE] text-[#1B1B1F] select-none border-b border-[#E9E2D0]"
+        className="relative w-full h-screen supports-[height:100lvh]:h-[100lvh] min-h-screen supports-[min-height:100lvh]:min-h-[100lvh] overflow-hidden [touch-action:pan-y_pinch-zoom] bg-[#F4F3EE] text-[#1B1B1F] select-none border-b border-[#E9E2D0]"
       >
         {/* ─── BASE SKY GRADIENT: SKY HAZE TOP #EAF0F4 FADING TO IVORY #F4F3EE (z-0) ─── */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#EAF0F4] via-[#F4F3EE] to-[#F4F3EE] z-0 pointer-events-none" />
@@ -275,7 +285,7 @@ export function BuildingTransformationHero() {
         <div
           ref={climaxCardRef}
           style={{ opacity: 0, transform: 'scale(0.95)' }}
-          className="absolute bottom-[max(20px,env(safe-area-inset-bottom))] md:bottom-10 left-1/2 -translate-x-1/2 w-[min(92vw,420px)] md:w-[calc(100%-2rem)] max-w-md z-30 transition-all duration-300 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#E9E2D0] shadow-[0_12px_40px_rgba(143,107,30,0.12)] flex flex-col items-center pointer-events-none max-md:gap-4 max-md:max-h-[56svh] [@media(max-height:499px)_and_(orientation:landscape)]:max-h-[70svh] [@media(max-height:499px)_and_(orientation:landscape)]:!p-4 [@media(max-height:499px)_and_(orientation:landscape)]:gap-3 [@media(max-height:499px)_and_(orientation:landscape)]:bottom-3"
+          className="absolute bottom-[max(20px,env(safe-area-inset-bottom))] md:bottom-10 left-1/2 -translate-x-1/2 w-[min(92vw,420px)] md:w-[calc(100%-2rem)] max-w-md z-30 transition-all duration-300 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-[#E9E2D0] shadow-[0_12px_40px_rgba(143,107,30,0.12)] flex flex-col items-center pointer-events-none max-md:gap-4 max-md:max-h-[56svh] [@media(max-height:499px)_and_(orientation:landscape)]:max-h-[70svh] [@media(max-height:499px)_and_(orientation:landscape)]:!p-4 [@media(max-height:499px)_and_(orientation:landscape)]:gap-3 [@media(max-height:499px)_and_(orientation:landscape)]:bottom-3 max-md:supports-[height:100lvh]:bottom-[calc(max(20px,env(safe-area-inset-bottom))+100lvh-100svh)] [@media(max-height:499px)_and_(orientation:landscape)]:supports-[height:100lvh]:bottom-[calc(12px+100lvh-100svh)]"
         >
           {/* Sankalp Logo */}
           <div className="relative w-48 sm:w-60 h-14 sm:h-18 mb-2 sm:mb-3 max-md:mb-0 [@media(max-height:499px)_and_(orientation:landscape)]:hidden">
@@ -310,6 +320,51 @@ export function BuildingTransformationHero() {
         </div>
       </section>
     </div>
+    </>
+  );
+}
+
+/** Temporary readout of viewport heights (remove after checking on iPhone). */
+function VhDebugBadge({
+  heroRef,
+  pinRef,
+}: {
+  heroRef: React.RefObject<HTMLElement | null>;
+  pinRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const probesRef = useRef<HTMLDivElement>(null);
+  const [text, setText] = useState('');
+
+  useEffect(() => {
+    const read = () => {
+      const probes = probesRef.current?.children;
+      const probe = (i: number) => Math.round((probes?.[i] as HTMLElement | undefined)?.getBoundingClientRect().height ?? 0);
+      const spacer = pinRef.current?.parentElement;
+      const spacerH = spacer?.classList.contains('pin-spacer') ? spacer.offsetHeight : '-';
+      setText(
+        `innerH ${window.innerHeight} · vv ${Math.round(window.visualViewport?.height ?? 0)} · hero ${heroRef.current?.offsetHeight ?? '-'} · spacer ${spacerH} · svh ${probe(0)} · lvh ${probe(1)} · dvh ${probe(2)}`
+      );
+    };
+    read();
+    const id = window.setInterval(read, 500);
+    window.visualViewport?.addEventListener('resize', read);
+    return () => {
+      window.clearInterval(id);
+      window.visualViewport?.removeEventListener('resize', read);
+    };
+  }, [heroRef, pinRef]);
+
+  return (
+    <>
+      <div ref={probesRef} aria-hidden="true" className="fixed top-0 left-0 w-0 invisible pointer-events-none">
+        <div className="absolute top-0 w-0 h-[100svh]" />
+        <div className="absolute top-0 w-0 h-[100lvh]" />
+        <div className="absolute top-0 w-0 h-[100dvh]" />
+      </div>
+      <div className="fixed top-2 left-2 z-[200] max-w-[calc(100vw-1rem)] px-2 py-1 rounded bg-black/75 text-white text-[10px] leading-tight font-mono pointer-events-none">
+        {text}
+      </div>
+    </>
   );
 }
 

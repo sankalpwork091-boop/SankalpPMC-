@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { siteConfig } from '@/data/siteConfig';
 import { Header } from '@/components/layout/Header';
@@ -47,6 +47,14 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true },
   },
+};
+
+// Same as the Next.js default (device width, scale 1) plus viewport-fit=cover so
+// layouts can reach the iPhone safe areas.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
