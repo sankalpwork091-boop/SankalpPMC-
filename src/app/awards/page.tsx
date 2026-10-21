@@ -96,7 +96,8 @@ export default function AwardsPage() {
                         src={award.image}
                         alt={`Sankalp PMC Award ${award.number}`}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        className={`${award.objectFit === 'contain' ? 'object-contain' : 'object-cover'} group-hover:scale-105 transition-transform duration-500`}
+                        style={award.imagePosition ? { objectPosition: award.imagePosition } : undefined}
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </ImageReveal>

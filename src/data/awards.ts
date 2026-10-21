@@ -5,6 +5,8 @@ export interface AwardItem {
   year?: number;
   image: string;
   caption?: string;
+  imagePosition?: string;
+  objectFit?: 'cover' | 'contain';
 }
 
 /**
@@ -12,7 +14,7 @@ export interface AwardItem {
  * TODO: Add titles, years, and captions to each entry.
  */
 export const awards: AwardItem[] = [
-  { id: 'aw-111', number: 11, title: 'TODO: Award Title', image: '/images/aw/aw-111.jpeg', caption: '' },
+  { id: 'aw-111', number: 11, title: 'TODO: Award Title', image: '/images/aw/aw-111.jpeg', caption: '', objectFit: 'contain', imagePosition: 'center' },
   { id: 'aw-1', number: 1, title: 'TODO: Award Title', image: '/images/aw/aw-1.jpg', caption: '' },
   { id: 'aw-2', number: 2, title: 'TODO: Award Title', image: '/images/aw/aw-2.jpg', caption: '' },
   { id: 'aw-3', number: 3, title: 'TODO: Award Title', image: '/images/aw/aw-3.jpg', caption: '' },
