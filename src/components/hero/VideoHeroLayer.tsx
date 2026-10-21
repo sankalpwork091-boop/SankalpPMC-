@@ -29,6 +29,8 @@ import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
  * - SEEK_LAG_MS / SEEK_LAG_SAMPLES  median seek time that drops to the next smaller file
  * - SEEK_TEST_MS / LOAD_TIMEOUT_MS  first-seek and first-data limits before play-once mode
  * - OFFSCREEN_RELEASE_MS    how long the hero must be off-screen before the video is released
+ * - ONCE_START_PROGRESS     play-once mode: scroll progress that starts playback from time 0
+ *                           (at or below it the first frame shows)
  * - OBJECT_POSITION         framing: portrait crop centred, landscape phones keep the tower
  *                           centred, desktop is top-anchored
  * - LANDSCAPE_PHONE_SHIFT   landscape phones: shift the layer down so the crown clears the navbar
@@ -61,6 +63,7 @@ const SEEK_LAG_SAMPLES = 12;
 const SEEK_TEST_MS = 250;
 const LOAD_TIMEOUT_MS = 3000;
 const OFFSCREEN_RELEASE_MS = 1200;
+const ONCE_START_PROGRESS = 0.01;
 const OBJECT_POSITION =
   'object-[62%_50%] md:object-[50%_0%] portrait:object-[50%_50%] md:portrait:object-[50%_50%]';
 const LANDSCAPE_PHONE_SHIFT =
@@ -278,7 +281,8 @@ export function VideoHeroLayer({
     return () => cancelAnimationFrame(raf);
   }, [mode, progressRef]);
 
-  // Once: play a single time when the hero is in view; pause while hidden, resume on return.
+  // Once: rest on the first frame at the top; play from time 0 once the visitor starts
+  // scrolling the hero, and rewind to the first frame if they return to the top.
   useEffect(() => {
     const video = videoRef.current;
     if (!video || mode !== 'once') return;
@@ -286,10 +290,25 @@ export function VideoHeroLayer({
       video.pause();
       return;
     }
-    if (playedRef.current && video.ended) return;
-    playedRef.current = true;
-    video.play().catch(() => setMode('still'));
-  }, [mode, isInView, active]);
+    let raf = 0;
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      const p = progressRef.current ?? 0;
+      if (p <= ONCE_START_PROGRESS) {
+        if (playedRef.current) {
+          playedRef.current = false;
+          video.pause();
+          video.currentTime = 0;
+        }
+      } else if (!playedRef.current) {
+        playedRef.current = true;
+        video.currentTime = 0;
+        video.play().catch(() => setMode('still'));
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [mode, isInView, active, progressRef]);
 
   return (
     <div className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
@@ -303,6 +322,7 @@ export function VideoHeroLayer({
             <video
               ref={videoRef}
               className={`absolute inset-0 w-full h-full object-cover ${OBJECT_POSITION}`}
+              poster={portrait ? VIDEO_HERO_SOURCES.posterPortrait.src : VIDEO_HERO_SOURCES.poster.src}
               muted
               playsInline
               preload="auto"

@@ -34,7 +34,6 @@ export function BuildingTransformationHero() {
 
   // Fast direct DOM refs to avoid 60fps React re-renders
   const skySunsetRef = useRef<HTMLDivElement>(null);
-  const initialPromptRef = useRef<HTMLDivElement>(null);
   const climaxCardRef = useRef<HTMLDivElement>(null);
 
   const [isMobile, setIsMobile] = useState(false);
@@ -175,20 +174,6 @@ export function BuildingTransformationHero() {
             skySunsetRef.current.style.opacity = `${sunsetOpacity}`;
           }
 
-          // Initial Scroll Prompt Fade (fades out as user scrolls past 0.22)
-          if (initialPromptRef.current) {
-            if (p > 0.22) {
-              initialPromptRef.current.style.opacity = '0';
-              initialPromptRef.current.style.pointerEvents = 'none';
-              initialPromptRef.current.style.transform = 'none';
-            } else {
-              const promptAlpha = Math.max(0, 1 - (p / 0.22));
-              initialPromptRef.current.style.opacity = `${promptAlpha}`;
-              initialPromptRef.current.style.pointerEvents = promptAlpha > 0.5 ? 'auto' : 'none';
-              initialPromptRef.current.style.transform = 'none';
-            }
-          }
-
           // Climax Card Fade (fades in as transformation completes at 0.78)
           if (climaxCardRef.current) {
             if (p >= 0.76) {
@@ -283,33 +268,8 @@ export function BuildingTransformationHero() {
           }}
         />
 
-        {/* ─── ONE FLEX COLUMN HERO TEXT CONTAINER (z-30, Normal Flow, No Overlaps) ─── */}
-        <div
-          className="absolute inset-0 flex flex-col items-center text-center pointer-events-none z-30 px-4"
-          style={{
-            paddingTop: 'calc(var(--nav-h, 76px) + 24px)',
-            gap: '16px',
-          }}
-        >
-          {/* Initial Prompt Group: Headline (fades out as user scrolls) */}
-          <div
-            ref={initialPromptRef}
-            className="flex flex-col items-center text-center transition-opacity duration-200 pointer-events-auto w-full max-w-5xl px-1 sm:px-3"
-          >
-            {/* Eyebrow badge matching other sections */}
-            <span className="section-eyebrow text-[10px] sm:text-xs mb-2 sm:mb-3">
-              3D Architectural Transformation
-            </span>
-
-            {/* Headline with one gold accent word */}
-            <h1 className="font-heading font-bold text-[#1B1B1F] tracking-tight text-[clamp(1.6rem,7.4vw,2.25rem)] sm:text-4xl md:text-5xl lg:text-6xl leading-tight sm:leading-none max-w-full max-md:text-balance">
-              Watch Trust <span className="italic text-[#B8913A]">Rise</span> Floor By Floor
-            </h1>
-
-            {/* Decorative Gold Accent Underline */}
-            <span className="heading-gold-line mx-auto" />
-          </div>
-        </div>
+        {/* Page heading for screen readers and search engines only (no visible headline). */}
+        <h1 className="sr-only">Watch Trust Rise Floor By Floor</h1>
 
         {/* ─── STAGE C CLIMAX CARD: DELIVERED LANDMARK & CTAs (z-30) ─── */}
         <div
