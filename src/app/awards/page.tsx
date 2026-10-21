@@ -84,7 +84,7 @@ export default function AwardsPage() {
           </ScrollReveal>
 
           <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {awards.map((award, index) => (
+            {awards.map((award) => (
               <StaggerItem key={award.id}>
                 <GlassCard
                   variant="default"
@@ -94,7 +94,7 @@ export default function AwardsPage() {
                     <ImageReveal>
                       <Image
                         src={award.image}
-                        alt={`Sankalp PMC Award ${index + 1}`}
+                        alt={`Sankalp PMC Award ${award.number}`}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -104,7 +104,7 @@ export default function AwardsPage() {
                   <div className="p-5 flex items-center justify-between bg-white border-t border-[#E9E2D0]">
                     <div>
                       <span className="text-[11px] font-bold text-[#8F6B1E]">
-                        Award Citation #{index + 1}
+                        Award Citation #{award.number}
                       </span>
                       <p className="text-xs text-[#5B5B63]">Industry Recognition</p>
                     </div>
