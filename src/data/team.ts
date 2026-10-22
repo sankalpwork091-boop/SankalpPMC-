@@ -16,7 +16,7 @@ export const team: TeamMember[] = [
     title: 'Advocate',
     qualifications: 'B.L.S., LLB',
     image: '/images/santosh-ananda-yadav.jpg',
-    bio: 'At the helm of Sankalp PMC\'s legal strategy, with over 7 years of experience in redevelopment and allied legal services. Strong foundation in intellectual property and real estate law; has advised 50+ corporations and individuals with structured, compliant, risk-mitigated solutions. Legal Advisor for multiple residential and commercial redevelopment projects across Navi Mumbai and Panvel. Track record: 29 registered development agreements, Section 79A processes for 30 housing societies, and the amalgamation of 8 society clusters.',
+    bio: 'At the helm of Sankalp PMC\'s legal strategy, with over 6 years of experience in redevelopment and allied legal services. Strong foundation in intellectual property and real estate law; has advised 50+ corporations and individuals with structured, compliant, risk-mitigated solutions. Legal Advisor for multiple residential and commercial redevelopment projects across Navi Mumbai and Panvel. Track record: 29 registered development agreements, Section 79A processes for 30 housing societies, and the amalgamation of 8 society\'s.',
     awards: ['The Great Legal Minds by Lokmat'],
     category: 'leadership',
   },
