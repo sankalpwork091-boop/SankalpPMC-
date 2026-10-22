@@ -55,4 +55,25 @@ next-env.d.ts
 
 # local review output
 /scripts/phone-align-sheet.jpg
+/scripts/favicon-preview.png
+/scripts/*-sheet.jpg
+/scripts/*.png
+/public/screenshots/
+
+# build output
+/dist/
+
+# logs and OS files
+*.log
+Thumbs.db
+
+# local working folders (blender, frame sequences, scratch)
+/tools/
+/blender/
+/public/hero-frames*/
+/scratch/
+/tmp/
+*.tmp
+/PROJECT-OVERVIEW*.pdf
+/CLAUDE.md
 
