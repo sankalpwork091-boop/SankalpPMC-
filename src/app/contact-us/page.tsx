@@ -13,7 +13,9 @@ export const metadata: Metadata = {
   title: 'Contact Us — Head Office',
   description:
     'Connect with Sankalp Project Management Consultants in Sanpada, Navi Mumbai. Book a committee consultation or reach out directly.',
+  alternates: { canonical: '/contact-us' },
   openGraph: {
+    url: '/contact-us',
     title: 'Contact Sankalp PMC — Sanpada Office',
     description:
       'Connect with our senior advocates and redevelopment architects. Schedule a managing committee consultation.',

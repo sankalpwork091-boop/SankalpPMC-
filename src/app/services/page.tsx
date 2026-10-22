@@ -14,7 +14,9 @@ export const metadata: Metadata = {
   title: 'Services — Comprehensive Redevelopment PMC',
   description:
     'End-to-end legal, architectural, engineering, construction management, liaisoning, and chartered accountancy services for housing society redevelopment in Navi Mumbai.',
+  alternates: { canonical: '/services' },
   openGraph: {
+    url: '/services',
     title: 'Advisory & PMC Services — Sankalp PMC',
     description:
       'Legal, architectural, engineering, construction management, liaisoning, and financial services under one roof.',

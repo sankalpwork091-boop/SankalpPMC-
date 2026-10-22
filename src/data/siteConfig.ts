@@ -4,7 +4,8 @@ export const siteConfig = {
   tagline: 'We are here to change the idea of redevelopment.',
   description:
     'A specialised redevelopment consultancy focused on co-operative housing societies, providing end-to-end support through every stage of redevelopment, ensuring it is transparent, secure, and professionally managed.',
-  url: 'https://sankalppmc.com',
+  /** Canonical site address: NEXT_PUBLIC_SITE_URL when set, without a trailing slash */
+  url: (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.sankalppmc.com').replace(/\/+$/, ''),
 
   phones: ['+91 9372188181', '+91 9321188181'],
   email: 'careers@sankalppmc.com',

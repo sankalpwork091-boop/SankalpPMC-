@@ -5,7 +5,9 @@ export const metadata: Metadata = {
   title: 'Projects Portfolio — Ongoing & Completed Redevelopments',
   description:
     'Explore 20+ prominent residential and commercial redevelopment projects by Sankalp PMC across Navi Mumbai, Kalyan, Thane, and Mumbai with full technical configurations.',
+  alternates: { canonical: '/projects' },
   openGraph: {
+    url: '/projects',
     title: 'Projects Portfolio — Sankalp PMC',
     description:
       'Explore 20+ prominent residential and commercial redevelopment projects by Sankalp PMC across Navi Mumbai and MMR.',

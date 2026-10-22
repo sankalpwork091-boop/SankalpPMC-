@@ -17,7 +17,9 @@ export const metadata: Metadata = {
   title: 'About Us — Leadership & Advocate-Led Philosophy',
   description:
     'Learn about Sankalp PMC: our advocate-led leadership, legal safeguarding, and veteran architectural and engineering team guiding housing society redevelopments across Navi Mumbai.',
+  alternates: { canonical: '/about-us' },
   openGraph: {
+    url: '/about-us',
     title: 'About Sankalp PMC — Advocate-Led Redevelopment Consultancy',
     description:
       'Learn about Sankalp PMC: our advocate-led leadership, legal safeguarding, and veteran architectural and engineering team in Navi Mumbai.',
