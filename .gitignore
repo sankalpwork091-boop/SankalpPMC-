@@ -77,3 +77,7 @@ Thumbs.db
 /PROJECT-OVERVIEW*.pdf
 /CLAUDE.md
 
+# AI tool notes
+/.agents/
+/skills-lock.json
+
