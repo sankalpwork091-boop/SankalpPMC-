@@ -40,7 +40,7 @@ const serviceDetails: Record<
       'Title Clearance Certificate',
       'Customized Tender Document & Bid Format',
       'Registered Development Agreement with strict default penalties',
-      'Bank Guarantee & Escrow Structuring',
+      'Bank Guarantee & Project Account Structuring',
     ],
   },
   architectural: {
@@ -104,13 +104,13 @@ const serviceDetails: Record<
       'Feasibility evaluation of developer bids, corpus funds, and rent compensation',
       'Capital Gains Tax and Income Tax advice for society and individual flat owners',
       'GST audit and input tax credit optimization on redevelopment',
-      'Escrow account management and developer bank guarantee scrutiny',
+      'Dedicated project account management and developer bank guarantee scrutiny',
     ],
     deliverables: [
       'Comparative Financial Feasibility Matrix',
       'Tax Impact Advisory Note for Society Members',
       'Corpus Fund Security Mechanism',
-      'Escrow Audit Reports',
+      'Project Account Audit Reports',
     ],
   },
 };

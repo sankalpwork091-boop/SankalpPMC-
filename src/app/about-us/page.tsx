@@ -82,7 +82,7 @@ export default function AboutUsPage() {
                 The Sole PMC Built From The Inside Out By Legal Specialists
               </h3>
               <p className="text-sm text-[#5B5B63] leading-relaxed mb-6">
-                Most consultants only review drawings; we scrutinize title chains, drafting clauses, financial escrow terms, and Section 79A government compliance to guarantee your society is immune to developer abandonment.
+                Most consultants only review drawings; we scrutinize title chains, drafting clauses, financial security terms, and Section 79A government compliance to guarantee your society is immune to developer abandonment.
               </p>
               <div className="grid grid-cols-2 gap-4 pt-5 border-t border-[#E9E2D0] text-xs">
                 <div className="p-3 bg-white rounded-xl border border-[#E9E2D0]">
