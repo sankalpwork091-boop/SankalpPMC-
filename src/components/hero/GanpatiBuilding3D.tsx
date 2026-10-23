@@ -752,7 +752,8 @@ function SceneContent({
         shadow-camera-bottom={-10}
         shadow-bias={-0.0004}
       />
-      <Environment preset="city" />
+      {/* Local copy of drei's "city" preset, so the scene never depends on an outside host. */}
+      <Environment files="/hdr/potsdamer_platz_1k.hdr" />
 
       {/* ─── SUBTLE FLOATING GOLD MOTES (Small, gold-light, low opacity) ─── */}
       <points ref={particlesRef}>
