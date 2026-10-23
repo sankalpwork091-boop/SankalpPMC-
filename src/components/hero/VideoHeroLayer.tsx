@@ -92,12 +92,71 @@ const LANDSCAPE_PHONE_SHIFT =
 /** Scroll progress at which the video reaches its frozen final frame. */
 const VIDEO_END_PROGRESS = 1 - HOLD_TAIL - (END_DISSOLVE ? DISSOLVE_SPAN : 0);
 
+type Still = { src: string; width: number; height: number };
+type HeroFiles = {
+  landscapeLadder: string[];
+  portraitLadder: string[];
+  phonePortrait: string;
+  phoneLandscape: string;
+  poster: Still;
+  posterPortrait: Still;
+  end: Still;
+  endPortrait: Still;
+  freezeSeconds: number;
+};
+
+const LIVE_FILES: HeroFiles = {
+  landscapeLadder: LANDSCAPE_LADDER,
+  portraitLadder: PORTRAIT_LADDER,
+  phonePortrait: VIDEO_HERO_SOURCES.phonePlay,
+  phoneLandscape: VIDEO_HERO_SOURCES.mobile,
+  poster: VIDEO_HERO_SOURCES.poster,
+  posterPortrait: VIDEO_HERO_SOURCES.posterPortrait,
+  end: VIDEO_HERO_SOURCES.end,
+  endPortrait: VIDEO_HERO_SOURCES.endPortrait,
+  freezeSeconds: FREEZE_SECONDS,
+};
+
+/**
+ * PREVIEW ONLY: used when the address has ?hero=orbit15; without it the live files above
+ * are used. One 480p file for every screen; its last frame is the end still.
+ */
+const ORBIT15_PREVIEW_FILES: HeroFiles = {
+  landscapeLadder: ['/hero/hero-orbit15-scrub.mp4', '/hero/hero-orbit15-scrub.mp4', '/hero/hero-orbit15-scrub.mp4'],
+  portraitLadder: ['/hero/hero-orbit15-scrub.mp4', '/hero/hero-orbit15-scrub.mp4'],
+  phonePortrait: '/hero/hero-orbit15-scrub.mp4',
+  phoneLandscape: '/hero/hero-orbit15-scrub.mp4',
+  poster: { src: '/hero/hero-orbit15-poster.jpg', width: 854, height: 480 },
+  posterPortrait: { src: '/hero/hero-orbit15-poster.jpg', width: 854, height: 480 },
+  end: { src: '/hero/hero-orbit15-last.jpg', width: 854, height: 480 },
+  endPortrait: { src: '/hero/hero-orbit15-last.jpg', width: 854, height: 480 },
+  freezeSeconds: 353.5 / 24, // frame 353: the camera holds still for the last 8 frames
+};
+
+/** PREVIEW ONLY (?hero=orbit15hd): the same prompt rendered at 1080p; 960 file on phones. */
+const ORBIT15HD_PREVIEW_FILES: HeroFiles = {
+  landscapeLadder: ['/hero/hero-orbit15hd-scrub.mp4', '/hero/hero-orbit15hd-scrub.mp4', '/hero/hero-orbit15hd-mobile.mp4'],
+  portraitLadder: ['/hero/hero-orbit15hd-scrub.mp4', '/hero/hero-orbit15hd-mobile.mp4'],
+  phonePortrait: '/hero/hero-orbit15hd-mobile.mp4',
+  phoneLandscape: '/hero/hero-orbit15hd-mobile.mp4',
+  poster: { src: '/hero/hero-orbit15hd-poster.jpg', width: 1920, height: 1080 },
+  posterPortrait: { src: '/hero/hero-orbit15hd-poster.jpg', width: 1920, height: 1080 },
+  end: { src: '/hero/hero-orbit15hd-last.jpg', width: 1920, height: 1080 },
+  endPortrait: { src: '/hero/hero-orbit15hd-last.jpg', width: 1920, height: 1080 },
+  freezeSeconds: 354.5 / 24, // frame 354: the camera has settled for the last 6 frames
+};
+
+/** PREVIEW ONLY: the orbit clip the address asks for (?hero=orbit15 or ?hero=orbit15hd), if any. */
+const orbitPreviewFiles = (): HeroFiles | null => {
+  const value = new URLSearchParams(window.location.search).get('hero');
+  return value === 'orbit15' ? ORBIT15_PREVIEW_FILES : value === 'orbit15hd' ? ORBIT15HD_PREVIEW_FILES : null;
+};
+
 type Mode = 'scrub' | 'once' | 'lite' | 'still';
 type Connection = { saveData?: boolean; effectiveType?: string };
 
 // Portrait = taller than wide (a 667x375 phone is landscape even though it is under 768 wide).
 const isPortrait = () => window.innerHeight > window.innerWidth;
-const ladderFor = (portrait: boolean) => (portrait ? PORTRAIT_LADDER : LANDSCAPE_LADDER);
 
 function pickMode(): Mode {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 'still';
@@ -149,9 +208,11 @@ function ArtStill({
 function ScrubPlayer({
   progressRef,
   isInView,
+  files,
 }: {
   progressRef: React.RefObject<number>;
   isInView: boolean;
+  files: HeroFiles;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const endStillRef = useRef<HTMLDivElement>(null);
@@ -200,7 +261,7 @@ function ScrubPlayer({
     };
   }, [isInView]);
 
-  const ladder = portrait === null ? LANDSCAPE_LADDER : ladderFor(portrait);
+  const ladder = portrait ? files.portraitLadder : files.landscapeLadder;
   const videoMode = mode === 'scrub' || mode === 'once';
   // Scrub mode re-seeks from scroll on return, so it can release; play-once keeps its position.
   const loaded = active || mode === 'once';
@@ -262,7 +323,7 @@ function ScrubPlayer({
     const tick = () => {
       raf = requestAnimationFrame(tick);
       if (!inViewRef.current || video.readyState < 2 || !video.duration) return;
-      const end = Math.max(0, Math.min(FREEZE_SECONDS, video.duration - 0.01));
+      const end = Math.max(0, Math.min(files.freezeSeconds, video.duration - 0.01));
       const p = Math.min(1, (progressRef.current ?? 0) / VIDEO_END_PROGRESS);
       const target = p * end;
       eased = eased < 0 ? target : eased + (target - eased) * TIME_LERP;
@@ -280,7 +341,7 @@ function ScrubPlayer({
       window.clearTimeout(loadTimer);
       video.removeEventListener('seeked', onSeeked);
     };
-  }, [mode, fileIndex, active, ladder, progressRef]);
+  }, [mode, fileIndex, active, ladder, progressRef, files]);
 
   // End dissolve: opacity only, eased, starting once the video holds its frozen frame.
   useEffect(() => {
@@ -333,16 +394,16 @@ function ScrubPlayer({
   return (
     <div className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
       {mode === 'still' ? (
-        <ArtStill landscape={VIDEO_HERO_SOURCES.end} portrait={VIDEO_HERO_SOURCES.endPortrait} eager />
+        <ArtStill landscape={files.end} portrait={files.endPortrait} eager />
       ) : (
         <>
           {/* First paint: orientation-aware poster until the video has data. */}
-          <ArtStill landscape={VIDEO_HERO_SOURCES.poster} portrait={VIDEO_HERO_SOURCES.posterPortrait} eager />
+          <ArtStill landscape={files.poster} portrait={files.posterPortrait} eager />
           {mode !== 'lite' && (
             <video
               ref={videoRef}
               className={`absolute inset-0 w-full h-full object-cover ${OBJECT_POSITION}`}
-              poster={portrait ? VIDEO_HERO_SOURCES.posterPortrait.src : VIDEO_HERO_SOURCES.poster.src}
+              poster={portrait ? files.posterPortrait.src : files.poster.src}
               muted
               playsInline
               preload="auto"
@@ -353,7 +414,7 @@ function ScrubPlayer({
           )}
           {END_DISSOLVE && (
             <div ref={endStillRef} className="absolute inset-0" style={{ opacity: 0 }}>
-              <ArtStill landscape={VIDEO_HERO_SOURCES.end} portrait={VIDEO_HERO_SOURCES.endPortrait} />
+              <ArtStill landscape={files.end} portrait={files.endPortrait} />
             </div>
           )}
         </>
@@ -369,7 +430,15 @@ const TAP_MOVE_TOLERANCE_PX = 10;
  * the gesture handler, as iOS requires), then the end still dissolves in and onEnd reveals
  * the card. A scroll swipe never starts it.
  */
-function PhoneTapPlayer({ isInView, onEnd }: { isInView: boolean; onEnd?: () => void }) {
+function PhoneTapPlayer({
+  isInView,
+  onEnd,
+  files,
+}: {
+  isInView: boolean;
+  onEnd?: () => void;
+  files: HeroFiles;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const endStillRef = useRef<HTMLDivElement>(null);
@@ -422,7 +491,7 @@ function PhoneTapPlayer({ isInView, onEnd }: { isInView: boolean; onEnd?: () => 
     const video = videoRef.current;
     if (!video) return;
     video.preload = 'metadata';
-    video.src = isPortraitNow ? VIDEO_HERO_SOURCES.phonePlay : VIDEO_HERO_SOURCES.mobile;
+    video.src = isPortraitNow ? files.phonePortrait : files.phoneLandscape;
     if (SHOW_TAP_HINT) setHintVisible(true);
 
     const start = () => {
@@ -480,7 +549,7 @@ function PhoneTapPlayer({ isInView, onEnd }: { isInView: boolean; onEnd?: () => 
 
     // Play once to the frozen frame; never loop or seek.
     const onTime = () => {
-      if (video.currentTime >= FREEZE_SECONDS) finish(false);
+      if (video.currentTime >= files.freezeSeconds) finish(false);
     };
     const onEnded = () => finish(false);
     const onError = () => finish(true);
@@ -506,7 +575,7 @@ function PhoneTapPlayer({ isInView, onEnd }: { isInView: boolean; onEnd?: () => 
       video.removeAttribute('src');
       video.load();
     };
-  }, []);
+  }, [files]);
 
   // Pause while off-screen or hidden; resume from the same point when back.
   useEffect(() => {
@@ -524,12 +593,12 @@ function PhoneTapPlayer({ isInView, onEnd }: { isInView: boolean; onEnd?: () => 
 
   return (
     <div ref={rootRef} className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
-      <ArtStill landscape={VIDEO_HERO_SOURCES.poster} portrait={VIDEO_HERO_SOURCES.posterPortrait} eager />
+      <ArtStill landscape={files.poster} portrait={files.posterPortrait} eager />
       {!noVideo && (
         <video
           ref={videoRef}
           className={`absolute inset-0 w-full h-full object-cover ${OBJECT_POSITION}`}
-          poster={portrait ? VIDEO_HERO_SOURCES.posterPortrait.src : VIDEO_HERO_SOURCES.poster.src}
+          poster={portrait ? files.posterPortrait.src : files.poster.src}
           muted
           playsInline
           preload="none"
@@ -539,7 +608,7 @@ function PhoneTapPlayer({ isInView, onEnd }: { isInView: boolean; onEnd?: () => 
         />
       )}
       <div ref={endStillRef} className="absolute inset-0" style={{ opacity: 0 }}>
-        <ArtStill landscape={VIDEO_HERO_SOURCES.end} portrait={VIDEO_HERO_SOURCES.endPortrait} />
+        <ArtStill landscape={files.end} portrait={files.endPortrait} />
       </div>
       {SHOW_TAP_HINT && !noVideo && (
         <div
@@ -580,8 +649,13 @@ export function VideoHeroLayer({
   onPhoneEnd?: () => void;
 }) {
   const [phone, setPhone] = useState<boolean | null>(null);
+  const [files, setFiles] = useState<HeroFiles>(LIVE_FILES);
 
   useEffect(() => {
+    // Preview only: ?hero=orbit15 / ?hero=orbit15hd swap in an orbit clip. Read here (not at module
+    // load) so the server HTML stays identical; set before `phone`, so players mount with it.
+    const preview = orbitPreviewFiles();
+    if (preview) setFiles(preview);
     const mq = window.matchMedia(PHONE_MEDIA_QUERY);
     const apply = () => setPhone(mq.matches);
     apply();
@@ -592,13 +666,13 @@ export function VideoHeroLayer({
   if (phone === null) {
     return (
       <div className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
-        <ArtStill landscape={VIDEO_HERO_SOURCES.poster} portrait={VIDEO_HERO_SOURCES.posterPortrait} eager />
+        <ArtStill landscape={files.poster} portrait={files.posterPortrait} eager />
       </div>
     );
   }
   return phone ? (
-    <PhoneTapPlayer isInView={isInView} onEnd={onPhoneEnd} />
+    <PhoneTapPlayer isInView={isInView} onEnd={onPhoneEnd} files={files} />
   ) : (
-    <ScrubPlayer progressRef={progressRef} isInView={isInView} />
+    <ScrubPlayer progressRef={progressRef} isInView={isInView} files={files} />
   );
 }
