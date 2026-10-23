@@ -352,6 +352,14 @@ export function BuildingTransformationHero() {
             </Link>
           </div>
         </div>
+
+        {/* ─── DISCLAIMER LINE (z-20): sits in the gap below the climax card, never animated ─── */}
+        <p
+          style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.55), 0 0 8px rgba(0, 0, 0, 0.35)' }}
+          className="absolute inset-x-0 mx-auto w-[90%] z-20 text-center text-white/85 font-normal tracking-[0.02em] pointer-events-none text-[11px] leading-[13px] bottom-[max(4px,calc(env(safe-area-inset-bottom)_-_16px))] max-md:supports-[height:100lvh]:bottom-[calc(max(4px,calc(env(safe-area-inset-bottom)_-_16px))_+_100lvh_-_100svh)] md:text-[12px] md:leading-4 md:bottom-3 [@media(max-height:499px)_and_(orientation:landscape)]:text-[10px] [@media(max-height:499px)_and_(orientation:landscape)]:leading-[10px] [@media(max-height:499px)_and_(orientation:landscape)]:bottom-px [@media(max-height:499px)_and_(orientation:landscape)]:bg-[linear-gradient(90deg,transparent,rgba(0,0,0,0.5)_25%,rgba(0,0,0,0.5)_75%,transparent)] [@media(max-height:499px)_and_(orientation:landscape)]:supports-[height:100lvh]:bottom-[calc(1px_+_100lvh_-_100svh)]"
+        >
+          Project undertaken in the name of A3 Architects
+        </p>
       </section>
     </div>
     </>
