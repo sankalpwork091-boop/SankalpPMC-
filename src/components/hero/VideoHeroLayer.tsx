@@ -25,11 +25,12 @@ import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
  * - END_DISSOLVE_MS         clip end to end-still cross-dissolve
  *
  * Desktop/tablet tunables:
- * - LANDSCAPE_LADDER / PORTRAIT_LADDER  files from largest to smallest; errors or slow
- *                           seeks step down. Portrait = taller than wide.
- * - LARGE_MIN_DEVICE_WIDTH  viewport width x devicePixelRatio needed for the 2K file
- * - MOBILE_MAX_WIDTH / PHONE_LANDSCAPE_MAX_HEIGHT  phones only ever get the mobile files
- * - FREEZE_SECONDS          time of the frozen final frame (frame 184; the files hold it for 12 frames)
+ * - DEFAULT_HERO            'orbit' or 'classic'; ?hero=classic always shows the classic clip
+ * - ORBIT_FILES / CLASSIC_FILES  each hero's files (ladders largest to smallest; errors or
+ *                           slow seeks step down; portrait = taller than wide), stills and
+ *                           the time of its frozen final frame
+ * - LARGE_MIN_DEVICE_WIDTH  viewport width x devicePixelRatio needed for the classic 2K file
+ * - MOBILE_MAX_WIDTH / PHONE_LANDSCAPE_MAX_HEIGHT  phones only ever get the smallest file
  * - HOLD_TAIL               final share of the scroll that holds steady after the dissolve
  * - END_DISSOLVE / DISSOLVE_SPAN    cross-dissolve to the sharp end still; it starts only
  *                           once the video has reached the frozen frame
@@ -42,7 +43,8 @@ import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
  *                           (at or below it the first frame shows)
  * - OBJECT_POSITION         framing: portrait crop centred, landscape phones keep the tower
  *                           centred, desktop is top-anchored
- * - LANDSCAPE_PHONE_SHIFT   landscape phones: shift the layer down so the crown clears the navbar
+ * - LANDSCAPE_PHONE_SHIFT   classic, landscape phones: shift the layer down so the crown clears the navbar
+ * - ORBIT_SHIFT             orbit, every screen: shift the layer down so the crown clears the navbar
  */
 
 /** Phones: under 768 wide, or a landscape phone under 500 high (matches the hero CSS). */
@@ -54,6 +56,13 @@ export const IDLE_REVEAL_MS = 15000;
 export const CARD_FADE_MS = 700;
 export const END_DISSOLVE_MS = 600;
 
+/**
+ * Which hero plays by default: 'orbit' (the 15 s orbit time-lapse) or 'classic' (the
+ * earlier 8 s clip). The address ?hero=classic always shows the classic one.
+ */
+const DEFAULT_HERO = 'orbit' as 'orbit' | 'classic';
+
+/** Classic hero files (the earlier 8 s clip). */
 export const VIDEO_HERO_SOURCES = {
   phonePlay: '/hero/hero-build-phone-play.mp4',
   large: '/hero/hero-build-2k.mp4',
@@ -66,12 +75,9 @@ export const VIDEO_HERO_SOURCES = {
   endPortrait: { src: '/hero/hero-end-portrait.jpg', width: 1080, height: 1920 },
 };
 
-const LANDSCAPE_LADDER = [VIDEO_HERO_SOURCES.large, VIDEO_HERO_SOURCES.desktop, VIDEO_HERO_SOURCES.mobile];
-const PORTRAIT_LADDER = [VIDEO_HERO_SOURCES.portrait, VIDEO_HERO_SOURCES.mobile];
 const LARGE_MIN_DEVICE_WIDTH = 1920;
 const MOBILE_MAX_WIDTH = 767;
 const PHONE_LANDSCAPE_MAX_HEIGHT = 499;
-const FREEZE_SECONDS = 184.5 / 24;
 const HOLD_TAIL = 0.04;
 const END_DISSOLVE = true;
 const DISSOLVE_SPAN = 0.08;
@@ -89,68 +95,79 @@ const LANDSCAPE_PHONE_SHIFT =
   '[@media(max-height:499px)_and_(orientation:landscape)]:[translate:0_max(0px,calc(92px-0.145*max(100svh,56.25vw)))] ' +
   '[@media(max-height:499px)_and_(orientation:landscape)]:[mask-image:linear-gradient(to_bottom,transparent,#000_48px)]';
 
+/*
+ * Orbit hero: move the layer down just enough that the crown (6.94% from the top of the
+ * frame) sits 12px below the navbar (86px desktop, 74px phones, 78px short landscape,
+ * plus the iPhone safe area). Never moves up; the top edge fades out.
+ * Rendered video height: 16:9 files max(100lvh, 56.25vw); the 9:16 phone file max(100lvh, 177.78vw), centred.
+ */
+const ORBIT_SHIFT =
+  '[translate:0_max(0px,calc(98px_+_env(safe-area-inset-top,0px)_-_0.0694*max(100lvh,56.25vw)))] ' +
+  'max-md:[translate:0_max(0px,calc(86px_+_env(safe-area-inset-top,0px)_-_0.0694*max(100lvh,56.25vw)))] ' +
+  'max-md:portrait:[translate:0_max(0px,calc(86px_+_env(safe-area-inset-top,0px)_-_(100lvh_-_max(100lvh,177.78vw))/2_-_0.0694*max(100lvh,177.78vw)))] ' +
+  '[@media(max-height:499px)_and_(orientation:landscape)]:[translate:0_max(0px,calc(90px_+_env(safe-area-inset-top,0px)_-_0.0694*max(100lvh,56.25vw)))] ' +
+  '[mask-image:linear-gradient(to_bottom,transparent,#000_48px)]';
+
 /** Scroll progress at which the video reaches its frozen final frame. */
 const VIDEO_END_PROGRESS = 1 - HOLD_TAIL - (END_DISSOLVE ? DISSOLVE_SPAN : 0);
 
 type Still = { src: string; width: number; height: number };
 type HeroFiles = {
+  /** Scrub files, largest first; errors or slow seeks step down. */
   landscapeLadder: string[];
   portraitLadder: string[];
+  /** Tap-to-play files for portrait and landscape phones. */
   phonePortrait: string;
   phoneLandscape: string;
   poster: Still;
   posterPortrait: Still;
   end: Still;
   endPortrait: Still;
+  /** Portrait stills shown with phonePortrait (same framing as that file). */
+  phonePosterPortrait: Still;
+  phoneEndPortrait: Still;
+  /** Time of the frozen final frame in the scrub and landscape phone files. */
   freezeSeconds: number;
+  /** Same, in the portrait phone file. */
+  phoneFreezeSeconds: number;
+  /** Position classes for the video layer. */
+  layerClass: string;
 };
 
-const LIVE_FILES: HeroFiles = {
-  landscapeLadder: LANDSCAPE_LADDER,
-  portraitLadder: PORTRAIT_LADDER,
+const CLASSIC_FILES: HeroFiles = {
+  landscapeLadder: [VIDEO_HERO_SOURCES.large, VIDEO_HERO_SOURCES.desktop, VIDEO_HERO_SOURCES.mobile],
+  portraitLadder: [VIDEO_HERO_SOURCES.portrait, VIDEO_HERO_SOURCES.mobile],
   phonePortrait: VIDEO_HERO_SOURCES.phonePlay,
   phoneLandscape: VIDEO_HERO_SOURCES.mobile,
   poster: VIDEO_HERO_SOURCES.poster,
   posterPortrait: VIDEO_HERO_SOURCES.posterPortrait,
   end: VIDEO_HERO_SOURCES.end,
   endPortrait: VIDEO_HERO_SOURCES.endPortrait,
-  freezeSeconds: FREEZE_SECONDS,
+  phonePosterPortrait: VIDEO_HERO_SOURCES.posterPortrait,
+  phoneEndPortrait: VIDEO_HERO_SOURCES.endPortrait,
+  freezeSeconds: 184.5 / 24, // frame 184; the files hold it for 12 frames
+  phoneFreezeSeconds: 184.5 / 24,
+  layerClass: LANDSCAPE_PHONE_SHIFT,
 };
 
-/**
- * PREVIEW ONLY: used when the address has ?hero=orbit15; without it the live files above
- * are used. One 480p file for every screen; its last frame is the end still.
- */
-const ORBIT15_PREVIEW_FILES: HeroFiles = {
-  landscapeLadder: ['/hero/hero-orbit15-scrub.mp4', '/hero/hero-orbit15-scrub.mp4', '/hero/hero-orbit15-scrub.mp4'],
-  portraitLadder: ['/hero/hero-orbit15-scrub.mp4', '/hero/hero-orbit15-scrub.mp4'],
-  phonePortrait: '/hero/hero-orbit15-scrub.mp4',
-  phoneLandscape: '/hero/hero-orbit15-scrub.mp4',
-  poster: { src: '/hero/hero-orbit15-poster.jpg', width: 854, height: 480 },
-  posterPortrait: { src: '/hero/hero-orbit15-poster.jpg', width: 854, height: 480 },
-  end: { src: '/hero/hero-orbit15-last.jpg', width: 854, height: 480 },
-  endPortrait: { src: '/hero/hero-orbit15-last.jpg', width: 854, height: 480 },
-  freezeSeconds: 353.5 / 24, // frame 353: the camera holds still for the last 8 frames
-};
-
-/** PREVIEW ONLY (?hero=orbit15hd): the same prompt rendered at 1080p; 960 file on phones. */
-const ORBIT15HD_PREVIEW_FILES: HeroFiles = {
-  landscapeLadder: ['/hero/hero-orbit15hd-scrub.mp4', '/hero/hero-orbit15hd-scrub.mp4', '/hero/hero-orbit15hd-mobile.mp4'],
-  portraitLadder: ['/hero/hero-orbit15hd-scrub.mp4', '/hero/hero-orbit15hd-mobile.mp4'],
-  phonePortrait: '/hero/hero-orbit15hd-mobile.mp4',
-  phoneLandscape: '/hero/hero-orbit15hd-mobile.mp4',
-  poster: { src: '/hero/hero-orbit15hd-poster.jpg', width: 1920, height: 1080 },
-  posterPortrait: { src: '/hero/hero-orbit15hd-poster.jpg', width: 1920, height: 1080 },
-  end: { src: '/hero/hero-orbit15hd-last.jpg', width: 1920, height: 1080 },
-  endPortrait: { src: '/hero/hero-orbit15hd-last.jpg', width: 1920, height: 1080 },
+/** Orbit hero: 15 s at 24 fps; the phone file is a 720x1280 crop played at 2x (about 7.5 s). */
+const ORBIT_FILES: HeroFiles = {
+  landscapeLadder: ['/hero/hero-home-1080.mp4', '/hero/hero-home-960.mp4'],
+  portraitLadder: ['/hero/hero-home-1080.mp4', '/hero/hero-home-960.mp4'],
+  phonePortrait: '/hero/hero-home-phone.mp4',
+  phoneLandscape: '/hero/hero-home-960.mp4',
+  poster: { src: '/hero/hero-home-poster.jpg', width: 1920, height: 1080 },
+  posterPortrait: { src: '/hero/hero-home-poster.jpg', width: 1920, height: 1080 },
+  end: { src: '/hero/hero-home-last.jpg', width: 1920, height: 1080 },
+  endPortrait: { src: '/hero/hero-home-last.jpg', width: 1920, height: 1080 },
+  phonePosterPortrait: { src: '/hero/hero-home-poster-portrait.jpg', width: 720, height: 1280 },
+  phoneEndPortrait: { src: '/hero/hero-home-last-portrait.jpg', width: 720, height: 1280 },
   freezeSeconds: 354.5 / 24, // frame 354: the camera has settled for the last 6 frames
+  phoneFreezeSeconds: 177.5 / 24, // the same frame at 2x
+  layerClass: ORBIT_SHIFT,
 };
 
-/** PREVIEW ONLY: the orbit clip the address asks for (?hero=orbit15 or ?hero=orbit15hd), if any. */
-const orbitPreviewFiles = (): HeroFiles | null => {
-  const value = new URLSearchParams(window.location.search).get('hero');
-  return value === 'orbit15' ? ORBIT15_PREVIEW_FILES : value === 'orbit15hd' ? ORBIT15HD_PREVIEW_FILES : null;
-};
+const DEFAULT_FILES = DEFAULT_HERO === 'classic' ? CLASSIC_FILES : ORBIT_FILES;
 
 type Mode = 'scrub' | 'once' | 'lite' | 'still';
 type Connection = { saveData?: boolean; effectiveType?: string };
@@ -165,11 +182,12 @@ function pickMode(): Mode {
   return 'scrub';
 }
 
-/** Index into the ladder for the current orientation. */
-function pickFileIndex(portrait: boolean): number {
+/** Index into the ladder for the current orientation (smallest file on phones). */
+function pickFileIndex(portrait: boolean, ladderLength: number): number {
   if (portrait) return 0;
   const w = window.innerWidth;
-  if (w <= MOBILE_MAX_WIDTH || window.innerHeight <= PHONE_LANDSCAPE_MAX_HEIGHT) return 2;
+  if (w <= MOBILE_MAX_WIDTH || window.innerHeight <= PHONE_LANDSCAPE_MAX_HEIGHT) return ladderLength - 1;
+  if (ladderLength < 3) return 0;
   return w * (window.devicePixelRatio || 1) >= LARGE_MIN_DEVICE_WIDTH ? 0 : 1;
 }
 
@@ -236,13 +254,13 @@ function ScrubPlayer({
       if (p === current) return;
       current = p;
       setPortrait(p);
-      setFileIndex(pickFileIndex(p));
+      setFileIndex(pickFileIndex(p, (p ? files.portraitLadder : files.landscapeLadder).length));
     };
     apply();
     const mq = window.matchMedia('(orientation: portrait)');
     mq.addEventListener('change', apply);
     return () => mq.removeEventListener('change', apply);
-  }, []);
+  }, [files]);
 
   // Release the video when the hero has been off-screen for a while or the tab is hidden.
   useEffect(() => {
@@ -392,7 +410,7 @@ function ScrubPlayer({
   }, [mode, isInView, active, progressRef]);
 
   return (
-    <div className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
+    <div className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${files.layerClass}`}>
       {mode === 'still' ? (
         <ArtStill landscape={files.end} portrait={files.endPortrait} eager />
       ) : (
@@ -548,8 +566,9 @@ function PhoneTapPlayer({
     };
 
     // Play once to the frozen frame; never loop or seek.
+    const freezeSeconds = isPortraitNow ? files.phoneFreezeSeconds : files.freezeSeconds;
     const onTime = () => {
-      if (video.currentTime >= files.freezeSeconds) finish(false);
+      if (video.currentTime >= freezeSeconds) finish(false);
     };
     const onEnded = () => finish(false);
     const onError = () => finish(true);
@@ -592,13 +611,13 @@ function PhoneTapPlayer({
   }, [isInView]);
 
   return (
-    <div ref={rootRef} className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
-      <ArtStill landscape={files.poster} portrait={files.posterPortrait} eager />
+    <div ref={rootRef} className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${files.layerClass}`}>
+      <ArtStill landscape={files.poster} portrait={files.phonePosterPortrait} eager />
       {!noVideo && (
         <video
           ref={videoRef}
           className={`absolute inset-0 w-full h-full object-cover ${OBJECT_POSITION}`}
-          poster={portrait ? files.posterPortrait.src : files.poster.src}
+          poster={portrait ? files.phonePosterPortrait.src : files.poster.src}
           muted
           playsInline
           preload="none"
@@ -608,7 +627,7 @@ function PhoneTapPlayer({
         />
       )}
       <div ref={endStillRef} className="absolute inset-0" style={{ opacity: 0 }}>
-        <ArtStill landscape={files.end} portrait={files.endPortrait} />
+        <ArtStill landscape={files.end} portrait={files.phoneEndPortrait} />
       </div>
       {SHOW_TAP_HINT && !noVideo && (
         <div
@@ -649,13 +668,12 @@ export function VideoHeroLayer({
   onPhoneEnd?: () => void;
 }) {
   const [phone, setPhone] = useState<boolean | null>(null);
-  const [files, setFiles] = useState<HeroFiles>(LIVE_FILES);
+  const [files, setFiles] = useState<HeroFiles>(DEFAULT_FILES);
 
   useEffect(() => {
-    // Preview only: ?hero=orbit15 / ?hero=orbit15hd swap in an orbit clip. Read here (not at module
-    // load) so the server HTML stays identical; set before `phone`, so players mount with it.
-    const preview = orbitPreviewFiles();
-    if (preview) setFiles(preview);
+    // ?hero=classic shows the earlier clip. Read here (not at module load) so the server HTML
+    // stays identical; set before `phone`, so players mount with it.
+    if (new URLSearchParams(window.location.search).get('hero') === 'classic') setFiles(CLASSIC_FILES);
     const mq = window.matchMedia(PHONE_MEDIA_QUERY);
     const apply = () => setPhone(mq.matches);
     apply();
@@ -665,7 +683,7 @@ export function VideoHeroLayer({
 
   if (phone === null) {
     return (
-      <div className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${LANDSCAPE_PHONE_SHIFT}`}>
+      <div className={`absolute inset-0 z-10 w-full h-full pointer-events-none ${files.layerClass}`}>
         <ArtStill landscape={files.poster} portrait={files.posterPortrait} eager />
       </div>
     );
