@@ -51,7 +51,7 @@ export default function AboutUsPage() {
             Our Purpose & Heritage
           </span>
           <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-bold text-[#1B1B1F] mb-6 tracking-tight">
-            Redevelopment Handled As A <span className="italic text-[#B8913A]">Sacred Trust</span>
+            Redevelopment with <span className="italic text-[#B8913A]">Responsibility</span>
           </h1>
           <p className="max-w-3xl mx-auto text-base sm:text-lg text-[#5B5B63] leading-relaxed">
             {siteConfig.foreword}
