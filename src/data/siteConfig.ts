@@ -7,7 +7,7 @@ export const siteConfig = {
   /** Canonical site address: NEXT_PUBLIC_SITE_URL when set, without a trailing slash */
   url: (process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://www.sankalppmc.com').replace(/\/+$/, ''),
 
-  phones: ['+91 9372188181', '+91 9321188181'],
+  phones: ['+91 9373188181'],
   email: 'careers@sankalppmc.com',
 
   addresses: [
