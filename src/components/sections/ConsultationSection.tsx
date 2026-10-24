@@ -67,7 +67,7 @@ export function ConsultationSection() {
     <section
       data-section="17"
       id="consultation"
-      className="relative flex items-center justify-center px-6 py-24 z-10 bg-[#FAF7F0] border-t border-[#E9E2D0]"
+      className="relative flex items-center justify-center px-6 py-24 z-10 bg-[#F6F0E3] border-t border-[#E9E2D0]"
     >
       <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
         {/* Left Column: Direct Contact & Assurances */}
@@ -88,7 +88,7 @@ export function ConsultationSection() {
               href={`tel:${siteConfig.phones[0].replace(/\s/g, '')}`}
               className="p-4 rounded-xl bg-white border border-[#E9E2D0] shadow-sm hover:border-[#B8913A]/50 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-4 transition-all"
             >
-              <div className="w-10 h-10 rounded-lg bg-[#FAF7F0] border border-[#E9E2D0] flex items-center justify-center text-[#8F6B1E]">
+              <div className="w-10 h-10 rounded-lg bg-[#F6F0E3] border border-[#E9E2D0] flex items-center justify-center text-[#8F6B1E]">
                 📞
               </div>
               <div>
@@ -100,7 +100,7 @@ export function ConsultationSection() {
               href={`mailto:${siteConfig.email}`}
               className="p-4 rounded-xl bg-white border border-[#E9E2D0] shadow-sm hover:border-[#B8913A]/50 hover:shadow-md hover:-translate-y-0.5 flex items-center gap-4 transition-all"
             >
-              <div className="w-10 h-10 rounded-lg bg-[#FAF7F0] border border-[#E9E2D0] flex items-center justify-center text-[#8F6B1E]">
+              <div className="w-10 h-10 rounded-lg bg-[#F6F0E3] border border-[#E9E2D0] flex items-center justify-center text-[#8F6B1E]">
                 ✉️
               </div>
               <div>
@@ -128,7 +128,7 @@ export function ConsultationSection() {
             </p>
 
             {status === 'success' ? (
-              <div className="p-8 text-center bg-[#FAF7F0] rounded-xl border border-[#D4AF5A]/40">
+              <div className="p-8 text-center bg-[#F6F0E3] rounded-xl border border-[#D4AF5A]/40">
                 <span className="text-4xl mb-3 block text-[#8F6B1E]">✓</span>
                 <h4 className="font-heading text-lg font-bold text-[#1B1B1F] mb-2">
                   Consultation Request Received

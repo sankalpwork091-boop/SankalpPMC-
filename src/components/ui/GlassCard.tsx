@@ -16,11 +16,11 @@ export function GlassCard({
     default:
       'bg-white border-[#E9E2D0] hover:border-[#B8913A]/50 shadow-[0_8px_30px_rgba(143,107,30,0.08)] hover:shadow-[0_14px_36px_rgba(143,107,30,0.14)]',
     gold:
-      'bg-[#FAF7F0] border-[#D4AF5A]/40 hover:border-[#B8913A] shadow-[0_8px_30px_rgba(143,107,30,0.08)] hover:shadow-[0_14px_36px_rgba(143,107,30,0.16)]',
+      'bg-[#F6F0E3] border-[#D4AF5A]/40 hover:border-[#B8913A] shadow-[0_8px_30px_rgba(143,107,30,0.08)] hover:shadow-[0_14px_36px_rgba(143,107,30,0.16)]',
     dark:
       'bg-white border-[#E9E2D0] hover:border-[#B8913A]/50 shadow-[0_8px_30px_rgba(143,107,30,0.08)] hover:shadow-[0_14px_36px_rgba(143,107,30,0.14)]',
     soft:
-      'bg-[#FAF7F0] border-[#E9E2D0] hover:border-[#B8913A]/40 shadow-[0_8px_30px_rgba(143,107,30,0.06)] hover:shadow-[0_14px_36px_rgba(143,107,30,0.12)]',
+      'bg-[#F6F0E3] border-[#E9E2D0] hover:border-[#B8913A]/40 shadow-[0_8px_30px_rgba(143,107,30,0.06)] hover:shadow-[0_14px_36px_rgba(143,107,30,0.12)]',
   };
 
   return (

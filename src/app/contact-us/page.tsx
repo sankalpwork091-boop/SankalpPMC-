@@ -27,7 +27,7 @@ export default function ContactUsPage() {
   return (
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Page Header (Warm Ivory) ─── */}
-      <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
+      <section className="px-6 py-20 md:py-28 text-center bg-[#F6F0E3] border-b border-[#E9E2D0]">
         <ScrollReveal variant="fade" className="max-w-4xl mx-auto">
           <span className="section-eyebrow mb-3">
             Get In Touch

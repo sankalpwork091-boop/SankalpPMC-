@@ -19,10 +19,10 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body style={{ margin: 0, fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#FAF7F0', color: '#1B1B1F' }}>
+      <body style={{ margin: 0, fontFamily: 'system-ui, -apple-system, sans-serif', backgroundColor: '#F6F0E3', color: '#1B1B1F' }}>
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
           <div style={{ maxWidth: '440px', width: '100%', textAlign: 'center', backgroundColor: '#ffffff', border: '1px solid #E9E2D0', borderRadius: '16px', padding: '40px 32px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-            <div style={{ width: '64px', height: '64px', margin: '0 auto 24px', borderRadius: '50%', backgroundColor: '#FAF7F0', border: '1px solid #E9E2D0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8F6B1E', fontSize: '24px', fontWeight: 'bold' }}>
+            <div style={{ width: '64px', height: '64px', margin: '0 auto 24px', borderRadius: '50%', backgroundColor: '#F6F0E3', border: '1px solid #E9E2D0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8F6B1E', fontSize: '24px', fontWeight: 'bold' }}>
               !
             </div>
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 12px', color: '#1B1B1F' }}>

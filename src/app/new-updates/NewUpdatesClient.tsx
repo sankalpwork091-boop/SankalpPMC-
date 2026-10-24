@@ -22,7 +22,7 @@ export function NewUpdatesClient() {
   return (
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Banner & Header (Warm Ivory) ─── */}
-      <section className="relative px-6 py-20 md:py-28 overflow-hidden bg-[#FAF7F0] border-b border-[#E9E2D0]">
+      <section className="relative px-6 py-20 md:py-28 overflow-hidden bg-[#F6F0E3] border-b border-[#E9E2D0]">
         <div className="absolute inset-0 -z-10">
           <Image
             src="/images/new-updates-ban.jpg"
@@ -31,7 +31,7 @@ export function NewUpdatesClient() {
             priority
             className="object-cover opacity-15"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-[#FAF7F0]/90 to-[#FAF7F0]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-[#F6F0E3]/90 to-[#F6F0E3]" />
         </div>
 
         <ScrollReveal variant="fade" className="max-w-4xl mx-auto text-center">
@@ -58,7 +58,7 @@ export function NewUpdatesClient() {
               className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 selectedYear === 'All'
                   ? 'bg-gradient-to-r from-[#B8913A] to-[#D4AF5A] text-[#1B1B1F] font-bold shadow-md shadow-[#B8913A]/20'
-                  : 'bg-[#FAF7F0] border border-[#E9E2D0] text-[#5B5B63] hover:text-[#8F6B1E]'
+                  : 'bg-[#F6F0E3] border border-[#E9E2D0] text-[#5B5B63] hover:text-[#8F6B1E]'
               }`}
             >
               All Years
@@ -70,7 +70,7 @@ export function NewUpdatesClient() {
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   selectedYear === year
                     ? 'bg-gradient-to-r from-[#B8913A] to-[#D4AF5A] text-[#1B1B1F] font-bold shadow-md shadow-[#B8913A]/20'
-                    : 'bg-[#FAF7F0] border border-[#E9E2D0] text-[#5B5B63] hover:text-[#8F6B1E]'
+                    : 'bg-[#F6F0E3] border border-[#E9E2D0] text-[#5B5B63] hover:text-[#8F6B1E]'
                 }`}
               >
                 {year}
@@ -81,7 +81,7 @@ export function NewUpdatesClient() {
       </section>
 
       {/* ─── Updates Timeline List (Warm Ivory) ─── */}
-      <section className="bg-[#FAF7F0] border-y border-[#E9E2D0] py-20">
+      <section className="bg-[#F6F0E3] border-y border-[#E9E2D0] py-20">
         <div className="max-w-5xl mx-auto px-6">
           <StaggerContainer className="space-y-6">
             {filteredUpdates.map((item, idx) => (
@@ -91,7 +91,7 @@ export function NewUpdatesClient() {
                   className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 hover:border-[#B8913A]/50 transition-all bg-white"
                 >
                   <div className="flex items-start sm:items-center gap-5">
-                    <div className="w-14 h-14 rounded-xl bg-[#FAF7F0] border border-[#D4AF5A]/30 flex flex-col items-center justify-center shrink-0 text-[#8F6B1E] font-bold shadow-sm">
+                    <div className="w-14 h-14 rounded-xl bg-[#F6F0E3] border border-[#D4AF5A]/30 flex flex-col items-center justify-center shrink-0 text-[#8F6B1E] font-bold shadow-sm">
                       <span className="text-sm uppercase font-mono">{item.year}</span>
                     </div>
                     <div>

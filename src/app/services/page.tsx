@@ -121,7 +121,7 @@ export default function ServicesPage() {
   return (
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Hero Header (Warm Ivory) ─── */}
-      <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
+      <section className="px-6 py-20 md:py-28 text-center bg-[#F6F0E3] border-b border-[#E9E2D0]">
         <ScrollReveal variant="fade" className="max-w-4xl mx-auto">
           <span className="section-eyebrow mb-3">
             Integrated PMC Excellence
@@ -211,7 +211,7 @@ export default function ServicesPage() {
       </section>
 
       {/* ─── CTA (Warm Ivory) ─── */}
-      <section className="bg-[#FAF7F0] border-t border-[#E9E2D0] py-16 text-center">
+      <section className="bg-[#F6F0E3] border-t border-[#E9E2D0] py-16 text-center">
         <div className="max-w-4xl mx-auto px-6">
           <ScrollReveal>
             <GlassCard variant="gold" className="p-10 md:p-14">

@@ -122,8 +122,8 @@ export function Header() {
                   onClick={() => setIsOpen(false)}
                   className={`block px-4 py-3 text-base rounded-md font-medium transition-colors ${
                     isActive
-                      ? 'text-[#8F6B1E] bg-[#FAF7F0] font-semibold'
-                      : 'text-[#5B5B63] hover:text-[#8F6B1E] hover:bg-[#FAF7F0]'
+                      ? 'text-[#8F6B1E] bg-[#F6F0E3] font-semibold'
+                      : 'text-[#5B5B63] hover:text-[#8F6B1E] hover:bg-[#F6F0E3]'
                   }`}
                 >
                   {item.label}

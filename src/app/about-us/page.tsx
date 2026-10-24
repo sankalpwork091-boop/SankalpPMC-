@@ -34,7 +34,7 @@ export default function AboutUsPage() {
   return (
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Page Header Banner (Warm Ivory) ─── */}
-      <section className="relative px-6 py-20 md:py-28 overflow-hidden bg-[#FAF7F0] border-b border-[#E9E2D0]">
+      <section className="relative px-6 py-20 md:py-28 overflow-hidden bg-[#F6F0E3] border-b border-[#E9E2D0]">
         <div className="absolute inset-0 -z-10">
           <Image
             src="/images/about-us-ban.jpg"
@@ -43,7 +43,7 @@ export default function AboutUsPage() {
             priority
             className="object-cover opacity-15"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-[#FAF7F0]/90 to-[#FAF7F0]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-[#F6F0E3]/90 to-[#F6F0E3]" />
         </div>
 
         <ScrollReveal variant="fade" className="max-w-4xl mx-auto text-center">
@@ -106,7 +106,7 @@ export default function AboutUsPage() {
       </section>
 
       {/* ─── Leadership Team (Warm Ivory) ─── */}
-      <section className="bg-[#FAF7F0] border-y border-[#E9E2D0] py-20">
+      <section className="bg-[#F6F0E3] border-y border-[#E9E2D0] py-20">
         <div className="max-w-6xl mx-auto px-6">
           <ScrollReveal className="text-center max-w-3xl mx-auto mb-16">
             <span className="section-eyebrow mb-2">
@@ -215,7 +215,7 @@ export default function AboutUsPage() {
       </section>
 
       {/* ─── CTA Banner (Warm Ivory Card) ─── */}
-      <section className="bg-[#FAF7F0] border-t border-[#E9E2D0] py-16 text-center">
+      <section className="bg-[#F6F0E3] border-t border-[#E9E2D0] py-16 text-center">
         <div className="max-w-5xl mx-auto px-6">
           <ScrollReveal>
             <GlassCard variant="gold" className="p-10 md:p-14">

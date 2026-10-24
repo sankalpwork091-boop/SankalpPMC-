@@ -7,7 +7,7 @@
 
   /* Royal White & Gold Palette */
   --bg: #FFFFFF;
-  --bg-soft: #FAF7F0; /* Warm ivory for alternating sections */
+  --bg-soft: #F6F0E3; /* Warm ivory for alternating sections */
   --surface: #FFFFFF;
   --gold: #B8913A; /* Primary gold */
   --gold-light: #D4AF5A;
@@ -40,7 +40,7 @@
 
 @theme inline {
   --color-bg: #FFFFFF;
-  --color-bg-soft: #FAF7F0;
+  --color-bg-soft: #F6F0E3;
   --color-surface: #FFFFFF;
   --color-gold: #B8913A;
   --color-gold-light: #D4AF5A;
@@ -197,7 +197,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF7F0;
+  background: #F6F0E3;
 }
 ::-webkit-scrollbar-thumb {
   background: #E9E2D0;

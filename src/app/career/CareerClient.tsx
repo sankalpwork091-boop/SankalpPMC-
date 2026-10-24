@@ -124,7 +124,7 @@ export function CareerClient() {
   return (
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Hero Header (Warm Ivory) ─── */}
-      <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
+      <section className="px-6 py-20 md:py-28 text-center bg-[#F6F0E3] border-b border-[#E9E2D0]">
         <Reveal variant="fade" className="max-w-4xl mx-auto">
           <span className="section-eyebrow mb-3">
             Join Our Mission
@@ -193,7 +193,7 @@ export function CareerClient() {
             </p>
 
             {status === 'success' ? (
-              <div className="p-8 text-center bg-[#FAF7F0] rounded-xl border border-[#D4AF5A]/40">
+              <div className="p-8 text-center bg-[#F6F0E3] rounded-xl border border-[#D4AF5A]/40">
                 <span className="text-4xl mb-3 block text-[#8F6B1E]">✓</span>
                 <h4 className="font-heading text-lg font-bold text-[#1B1B1F] mb-2">
                   Application Submitted

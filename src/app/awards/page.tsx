@@ -29,7 +29,7 @@ export default function AwardsPage() {
   return (
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Hero Header (Warm Ivory) ─── */}
-      <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
+      <section className="px-6 py-20 md:py-28 text-center bg-[#F6F0E3] border-b border-[#E9E2D0]">
         <ScrollReveal variant="fade" className="max-w-4xl mx-auto">
           <span className="section-eyebrow mb-3">
             Industry Recognition
@@ -50,7 +50,7 @@ export default function AwardsPage() {
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {awardHighlights.map((highlight, idx) => (
             <StaggerItem key={idx}>
-              <GlassCard variant="gold" className="flex items-center gap-5 p-6 md:p-8 h-full bg-[#FAF7F0]">
+              <GlassCard variant="gold" className="flex items-center gap-5 p-6 md:p-8 h-full bg-[#F6F0E3]">
                 <div className="w-14 h-14 rounded-2xl bg-white border border-[#D4AF5A]/30 flex items-center justify-center shrink-0 text-3xl shadow-sm">
                   🏆
                 </div>
@@ -69,7 +69,7 @@ export default function AwardsPage() {
       </section>
 
       {/* ─── Awards Gallery (Warm Ivory) ─── */}
-      <section className="bg-[#FAF7F0] border-y border-[#E9E2D0] py-20">
+      <section className="bg-[#F6F0E3] border-y border-[#E9E2D0] py-20">
         <div className="max-w-6xl mx-auto px-6">
           <ScrollReveal className="text-center max-w-2xl mx-auto mb-14">
             <span className="section-eyebrow mb-2">

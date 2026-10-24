@@ -160,7 +160,7 @@ export function ProjectsClient() {
   return (
     <div className="relative pt-24 pb-20 bg-white text-[#1B1B1F]">
       {/* ─── Hero Header (Warm Ivory) ─── */}
-      <section className="px-6 py-20 md:py-28 text-center bg-[#FAF7F0] border-b border-[#E9E2D0]">
+      <section className="px-6 py-20 md:py-28 text-center bg-[#F6F0E3] border-b border-[#E9E2D0]">
         <ScrollReveal variant="fade" className="max-w-4xl mx-auto">
           <span className="section-eyebrow mb-3">
             Delivered & Ongoing Excellence
@@ -189,7 +189,7 @@ export function ProjectsClient() {
                   className={`px-4 py-2 rounded-full text-xs font-semibold transition-[color,background-color,border-color,box-shadow] duration-200 ${
                     activeFilter === filter
                       ? 'bg-gradient-to-r from-[#B8913A] to-[#D4AF5A] text-[#1B1B1F] font-bold shadow-md shadow-[#B8913A]/20'
-                      : 'bg-[#FAF7F0] border border-[#E9E2D0] text-[#5B5B63] hover:text-[#8F6B1E] hover:border-[#B8913A]/40'
+                      : 'bg-[#F6F0E3] border border-[#E9E2D0] text-[#5B5B63] hover:text-[#8F6B1E] hover:border-[#B8913A]/40'
                   }`}
                 >
                   {filter}
@@ -212,7 +212,7 @@ export function ProjectsClient() {
       </section>
 
       {/* ─── Projects Grid (Warm Ivory Section) ─── */}
-      <section className="bg-[#FAF7F0] border-y border-[#E9E2D0] py-20">
+      <section className="bg-[#F6F0E3] border-y border-[#E9E2D0] py-20">
         <div className="max-w-7xl mx-auto px-6">
           <ProjectsGrid items={filteredProjects} />
 
