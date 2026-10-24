@@ -157,10 +157,7 @@ export function Footer() {
         </RevealGroup>
 
         {/* Bottom Bar */}
-        <Reveal className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#FAF7F0]/60">
-            © 2025 {siteConfig.shortName}.
-          </p>
+        <Reveal className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-end gap-4">
           <p className="text-xs text-[#FAF7F0]/60">
             Redevelopment done right — for the hearts homes are built for.
           </p>
