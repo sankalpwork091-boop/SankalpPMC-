@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { LenisProvider } from '@/components/scroll/LenisProvider';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { CustomCursor } from '@/components/ui/CustomCursor';
 import { MOTION_BOOT_SCRIPT } from '@/components/motion/motionScript';
 
 export const metadata: Metadata = {
@@ -86,6 +87,7 @@ export default function RootLayout({
           <Footer />
         </LenisProvider>
         <JsonLd />
+        <CustomCursor />
       </body>
     </html>
   );
