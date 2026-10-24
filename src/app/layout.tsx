@@ -3,6 +3,7 @@ import './globals.css';
 import { siteConfig } from '@/data/siteConfig';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { ServiceIconBorder } from '@/components/layout/ServiceIconBorder';
 import { LenisProvider } from '@/components/scroll/LenisProvider';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { CustomCursor } from '@/components/ui/CustomCursor';
@@ -87,6 +88,7 @@ export default function RootLayout({
           <Footer />
         </LenisProvider>
         <JsonLd />
+        <ServiceIconBorder />
         <CustomCursor />
       </body>
     </html>
