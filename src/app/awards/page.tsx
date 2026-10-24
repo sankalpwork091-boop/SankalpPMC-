@@ -96,7 +96,7 @@ export default function AwardsPage() {
                     <ImageReveal>
                       <Image
                         src={award.image}
-                        alt={`Sankalp PMC Award ${award.number}`}
+                        alt={award.alt ?? `Sankalp PMC Award ${award.number}`}
                         fill
                         className={`${award.objectFit === 'contain' ? 'object-contain' : 'object-cover'} group-hover:scale-105 transition-transform duration-500`}
                         style={award.imagePosition ? { objectPosition: award.imagePosition } : undefined}
